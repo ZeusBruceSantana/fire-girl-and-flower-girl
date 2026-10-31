@@ -290,18 +290,41 @@ function drawLayer(ctx, name, panX, panY, s) {
   const dx = -panX * f * s, dy = -panY * f * s;
   ctx.drawImage(img, dx, dy, SCENE_SIZE.w * s, SCENE_SIZE.h * s);
 }
+/* ---------- glow without a canvas shadow blur ----------
+   A shadow blur is recomputed for every shape, every frame: with 140 storm drops and a dozen markers
+   it is the single most expensive thing on a tablet. Instead, one soft round "glow" picture per color is
+   drawn once into a tiny offscreen canvas and then simply stamped (drawImage) behind the shape. */
+const glowSprites = {};
+function glowSprite(color) {
+  let c = glowSprites[color];
+  if (c) return c;
+  c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = color; g.fillRect(0, 0, 64, 64);
+  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);   // fade the flat color out to nothing at the edge
+  grad.addColorStop(0, 'rgba(0,0,0,1)'); grad.addColorStop(0.45, 'rgba(0,0,0,.55)'); grad.addColorStop(1, 'rgba(0,0,0,0)');
+  g.globalCompositeOperation = 'destination-in'; g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+  glowSprites[color] = c;
+  return c;
+}
+/* Stamp a glow of this color centred on (x, y) with this radius (in the current transform's units). */
+function drawGlow(ctx, x, y, radius, color, alpha = 0.6) {
+  const was = ctx.globalAlpha;
+  ctx.globalAlpha = was * alpha;
+  ctx.drawImage(glowSprite(color), x - radius, y - radius, radius * 2, radius * 2);
+  ctx.globalAlpha = was;
+}
 function drawParticles(ctx) {
   const look = PARTICLE_LOOKS[weatherLook(Stage.map ? Stage.mapParticles : (Stage.scene && Stage.scene.particles))] || {};
   for (const p of Stage.particles) {
     const t = p.age / p.life, a = t < 0.15 ? t / 0.15 : t > 0.8 ? (1 - t) / 0.2 : 1;
     ctx.globalAlpha = a * 0.9;
     ctx.fillStyle = p.color;
-    if (look.glow || p.burst) { ctx.shadowColor = p.color; ctx.shadowBlur = 18; }
+    if (look.glow || p.burst) drawGlow(ctx, p.x, p.y, p.size * 1.5, p.color, 0.7);   // three times the particle, behind it
     ctx.beginPath();
     if (look.streak && !p.burst) { ctx.strokeStyle = p.color; ctx.lineWidth = p.size * 0.6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + p.vx * 0.04, p.y + p.vy * 0.04); ctx.stroke(); continue; }
     if (look.spin && !p.burst) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.age * 2 + p.phase); ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
     else { ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
-    ctx.shadowBlur = 0;
   }
   ctx.globalAlpha = 1;
 }
@@ -313,19 +336,21 @@ function drawMarkers(ctx) {
     const [x, y, w] = h.rect, cx = x + w / 2, top = y - 30 + Math.sin(t * 3 + x) * 10;
     ctx.save();
     if (h.kind === 'npc') {
-      ctx.fillStyle = '#ffd23f'; ctx.shadowColor = '#ffb347'; ctx.shadowBlur = 24;
+      drawGlow(ctx, cx, top - 40, 70, '#ffb347', 0.7);
+      ctx.fillStyle = '#ffd23f';
       roundRect(ctx, cx - 16, top - 90, 32, 64, 14); ctx.fill();
       ctx.beginPath(); ctx.arc(cx, top - 6, 14, 0, Math.PI * 2); ctx.fill();
     } else if (h.kind === 'exit') {
-      if (h.secret && !S.shared.flags['tunnel-found']) { ctx.globalAlpha = 0.35 + Math.sin(t * 2) * 0.2; ctx.fillStyle = '#fff6a8'; ctx.shadowColor = '#fff6a8'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.arc(cx, y + h.rect[3] / 2, 10, 0, Math.PI * 2); ctx.fill(); }
+      if (h.secret && !S.shared.flags['tunnel-found']) { ctx.globalAlpha = 0.35 + Math.sin(t * 2) * 0.2; drawGlow(ctx, cx, y + h.rect[3] / 2, 40, '#fff6a8', 0.8); ctx.fillStyle = '#fff6a8'; ctx.beginPath(); ctx.arc(cx, y + h.rect[3] / 2, 10, 0, Math.PI * 2); ctx.fill(); }
       else {
-        ctx.globalAlpha = 0.85; ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 16;
+        ctx.globalAlpha = 0.85; ctx.fillStyle = '#fff';
         const dir = cx < SCENE_SIZE.w / 2 ? -1 : 1, ax = cx + Math.sin(t * 3) * 8 * dir, ay = y + h.rect[3] * 0.45;
+        drawGlow(ctx, ax, ay, 56, 'rgba(0,0,0,.4)', 0.6);
         ctx.beginPath(); ctx.moveTo(ax - 26 * dir, ay - 34); ctx.lineTo(ax + 26 * dir, ay); ctx.lineTo(ax - 26 * dir, ay + 34); ctx.lineTo(ax - 8 * dir, ay); ctx.closePath(); ctx.fill();
       }
     } else {
-      ctx.globalAlpha = 0.5 + Math.sin(t * 4 + x) * 0.3; ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 20;
-      for (let i = 0; i < 3; i++) { const px = x + w * (0.2 + 0.3 * i), py = y + 20 + Math.sin(t * 2 + i * 2) * 12; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill(); }
+      ctx.globalAlpha = 0.5 + Math.sin(t * 4 + x) * 0.3; ctx.fillStyle = '#fff';
+      for (let i = 0; i < 3; i++) { const px = x + w * (0.2 + 0.3 * i), py = y + 20 + Math.sin(t * 2 + i * 2) * 12; drawGlow(ctx, px, py, 20, '#fff', 0.7); ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill(); }
     }
     ctx.restore();
   }
@@ -349,10 +374,19 @@ function drawLightShafts(ctx, c, panX, s) {
   ctx.restore();
 }
 /* A gentle darkening at the edges pulls the eye to the middle and makes any painting feel finished. */
+/* The vignette is painted once into an offscreen canvas the size of the screen and re-made only when the
+   screen changes size; every frame after that is one drawImage instead of a fresh radial gradient. */
 function drawVignette(ctx, c) {
-  const g = ctx.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * 0.45, c.width / 2, c.height / 2, Math.max(c.width, c.height) * 0.75);
-  g.addColorStop(0, 'rgba(20,10,0,0)'); g.addColorStop(1, 'rgba(20,10,0,0.28)');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height);
+  let v = Stage.vignetteCache;
+  if (!v || v.w !== c.width || v.h !== c.height) {
+    const off = document.createElement('canvas'); off.width = c.width; off.height = c.height;
+    const g2 = off.getContext('2d');
+    const g = g2.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * 0.45, c.width / 2, c.height / 2, Math.max(c.width, c.height) * 0.75);
+    g.addColorStop(0, 'rgba(20,10,0,0)'); g.addColorStop(1, 'rgba(20,10,0,0.28)');
+    g2.fillStyle = g; g2.fillRect(0, 0, c.width, c.height);
+    v = Stage.vignetteCache = { w: c.width, h: c.height, canvas: off };
+  }
+  ctx.drawImage(v.canvas, 0, 0);
 }
 function drawFade(ctx, c) {
   if (Stage.fade < 0.01) return;
