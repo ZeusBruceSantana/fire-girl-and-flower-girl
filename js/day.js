@@ -26,7 +26,7 @@ const Day = {
     if (p === 'wake') return WORLD.ui.objWake;
     if (p === 'period1' || p === 'period2') return WORLD.ui.objClass.replace('{subject}', SCHOOL.subjects[this.subjectFor(p)].word);
     if (p === 'lunch') return WORLD.ui.objLunch;
-    if (p === 'free') return S.shared.flags['gap-found'] ? WORLD.ui.objFree : WORLD.ui.objFreeMap;
+    if (p === 'free') { const c = typeof Cases !== 'undefined' && Cases.objective ? Cases.objective(seat) : null; if (c) return c; return S.shared.flags['gap-found'] ? WORLD.ui.objFree : WORLD.ui.objFreeMap; }
     if (p === 'bedtime') return WORLD.ui.objBed;
     return '';
   },
@@ -55,10 +55,16 @@ const Day = {
   },
 
   /* ---------- wake up ---------- */
+  weather() { return SCHOOL.weather[(this.day - 1) % SCHOOL.weather.length]; },
   async wake() {
     if (this.running) return; this.running = true;
     const subs = this.subjects().map(s => SCHOOL.subjects[s].word);
     await Dialogue.say({ who: WORLD.school.short, text: WORLD.ui.goodMorning.replace('{day}', this.day).replace('{a}', subs[0]).replace('{b}', subs[1]) });
+    const w = this.weather(), boost = SCHOOL.weatherBoost[w];
+    if (boost) {
+      await Dialogue.say({ who: WORLD.school.short, text: { rain: WORLD.ui.weatherRain, sun: WORLD.ui.weatherSun, storm: WORLD.ui.weatherStorm }[w] });
+      for (const seat of WORLD.seats) if (S.heroes[seat].kind === boost) dispatch('hero.ember', seat, { amount: 2 });
+    }
     this.advance();
     this.running = false;
   },

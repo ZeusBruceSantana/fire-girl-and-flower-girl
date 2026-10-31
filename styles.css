@@ -304,3 +304,8 @@ body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="in
 .target.lit { opacity: 1; filter: none; transform: scale(1.15); }
 .target.lit.bright { filter: drop-shadow(0 0 1.6vmin #ffd23f); }
 body[data-layer="challenge"] #hud { opacity: .35; }
+/* ---------- collection book ---------- */
+.coll-top { font-weight: 900; font-size: 2.8vmin; margin-bottom: 1vmin; }
+.sets { display: flex; gap: 1.4vmin; flex-wrap: wrap; margin-bottom: 1.6vmin; }
+.set { display: inline-flex; align-items: center; gap: .6vmin; padding: .6vmin 1.4vmin; border-radius: 2vmin; background: #fff8ea; border: .3vmin solid var(--gold); font-size: 2.2vmin; opacity: .7; }
+.set.done { opacity: 1; box-shadow: 0 0 1.5vmin #ffd23f; } .set .icon { width: 3.4vmin; height: 3.4vmin; } .set .icon svg { width: 100%; height: 100%; }

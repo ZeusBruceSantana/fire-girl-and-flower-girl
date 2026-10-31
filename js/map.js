@@ -57,6 +57,8 @@ const MapStage = {
     setScene('world');
     document.body.dataset.place = 'map:' + mapId;
     uiSceneName(def.word);
+    if (typeof Heart !== 'undefined' && Heart.maybeTest) await Heart.maybeTest(mapId, from);
+    if (typeof Story !== 'undefined' && Story.check) Story.check('map:' + mapId);
   },
   leave() {
     for (const seat of WORLD.seats) { const h = Stage.heroes[seat]; if (h) { h.height = HERO_HEIGHT; h.mapTarget = null; } }

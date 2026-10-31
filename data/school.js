@@ -65,6 +65,10 @@ const SCHOOL = {
     ],
   },
 
+  /* Weather by day (cycles). Rain helps Flower, dry days help Fire, storms help Electric: that hero wakes with extra ember. */
+  weather: ['sun', 'cloud', 'rain', 'sun', 'storm', 'cloud', 'rain'],
+  weatherBoost: { rain: 'flower', sun: 'fire', storm: 'electric' },
+
   /* Class stars: how many a period gives, by how many first-try answers. */
   stars: { three: 0.8, two: 0.5 },   // 80% first-try = 3 stars, 50% = 2 stars, otherwise 1 (never 0)
 };

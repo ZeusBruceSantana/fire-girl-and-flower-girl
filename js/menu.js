@@ -17,7 +17,7 @@ const Menu = {
   close() { this.el.className = ''; this.el.innerHTML = ''; this.seat = null; setSceneLayer(null); },
   render() {
     const seat = this.seat, h = S.heroes[seat], kind = WORLD.heroes[h.kind];
-    const tabs = ['spellbook', 'bag', 'journal', 'map', 'badges', 'friends'];
+    const tabs = ['spellbook', 'bag', 'collection', 'journal', 'map', 'badges', 'friends'];
     this.el.innerHTML = `<div class="frame">
       <div class="tabs">${tabs.map(t => `<div class="tab ${t === this.tab ? 'on' : ''}" data-tab="${t}"><span class="icon">${ART['tab-' + t] || ''}</span><span class="word">${esc(WORLD.ui.tabs[t])}</span></div>`).join('')}
         <div class="tab close" data-close><span class="icon">${ART.close}</span><span class="word">${esc(WORLD.ui.close)}</span></div></div>
@@ -70,6 +70,18 @@ const Menu = {
       Speech.say(item.word + '. ' + item.about);
       if (item.slot) { dispatch('hero.equip', seat, { slot: item.slot, item: h.equipped[item.slot] === item.id ? null : item.id }); refreshHeroSprite(seat); this.render(); }
     }));
+  },
+  /* ---------- Collection book: every item ever, silhouettes for the unfound, sets ---------- */
+  render_collection(body, seat, h) {
+    const found = id => h.collection[id] || 0;
+    const total = ITEMS.filter(i => i.slot !== null || i.rarity !== 'common').length;
+    const have = ITEMS.filter(i => found(i.id)).length;
+    body.innerHTML = `<div class="coll-top">${esc(WORLD.ui.collected)} <b>${have}</b> / ${ITEMS.length}</div>
+      <div class="sets">${Object.values(ITEM_SETS).map(s => { const done = s.items.every(i => found(i)); return `<div class="set ${done ? 'done' : ''}"><span class="icon">${ART.badge}</span><b>${esc(s.word)}</b> <small>${s.items.filter(i => found(i)).length} / ${s.items.length}</small></div>`; }).join('')}</div>
+      <div class="grid">${['legendary', 'rare', 'common'].map(r => ITEMS.filter(i => i.rarity === r).map(i => `<div class="cell rarity-${r} ${found(i.id) ? 'got' : 'silhouette'}" data-item="${i.id}">
+        <div class="art">${ART[i.art] || ART.gem}</div><div class="word">${found(i.id) ? esc(i.word) : '?'}</div>${found(i.id) > 1 ? `<div class="n">×${found(i.id)}</div>` : ''}</div>`).join('')).join('')}</div>`;
+    void total;
+    body.querySelectorAll('.cell.got').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); const i = ITEMS.find(x => x.id === el.dataset.item); Speech.say(i.word + '. ' + RARITY[i.rarity].word + '. ' + i.about); }));
   },
   /* ---------- Journal ---------- */
   render_journal(body, seat, h) {

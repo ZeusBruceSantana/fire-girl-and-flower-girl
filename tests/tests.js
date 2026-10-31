@@ -297,7 +297,7 @@ test('Every exit, hotspot, teacher, case, adventure and friend points at things 
     for (const c of CASES) {
       if (!WORLD.people[c.giver]) out.push('case ' + c.id + ' unknown giver');
       if (c.unlock.case && !CASES.some(x => x.id === c.unlock.case)) out.push('case ' + c.id + ' unlock unknown case');
-      for (const cl of c.clues) { if (!SCENES[cl.where]) out.push('case ' + c.id + ' clue in unknown scene ' + cl.where); if (!challengeIds.has(cl.puzzle)) out.push('case ' + c.id + ' unknown puzzle ' + cl.puzzle); }
+      for (const cl of c.clues) { if (!SCENES[cl.where] && !MAPS[cl.where]) out.push('case ' + c.id + ' clue in unknown place ' + cl.where); if (!challengeIds.has(cl.puzzle)) out.push('case ' + c.id + ' unknown puzzle ' + cl.puzzle); }
       if (c.suspects.filter(s => s.it).length !== 1) out.push('case ' + c.id + ' needs exactly one culprit');
       if (!BADGES[c.reward.badge]) out.push('case ' + c.id + ' unknown badge ' + c.reward.badge);
       if (c.reward.friend && !WORLD.people[c.reward.friend] && !FRIENDS[c.reward.friend]) out.push('case ' + c.id + ' unknown friend ' + c.reward.friend);

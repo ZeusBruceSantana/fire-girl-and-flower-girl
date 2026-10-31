@@ -102,6 +102,7 @@ async function stageGo(sceneId, { positions = {}, from = null, at = null } = {})
   setScene('world');
   document.body.dataset.place = sceneId;
   uiSceneName(def.word);
+  if (typeof Story !== 'undefined' && Story.check) Story.check(sceneId);
 }
 /* The people in a scene stand at their hotspots: teachers, Cook, the Constable, and today's lunch friends. */
 async function placeNpcs(sceneId, def) {
@@ -209,12 +210,20 @@ const PARTICLE_LOOKS = {
   dust:      { color: ['#fff8e6'], size: [4, 8], vy: [-6, 6], vx: [-10, 10], life: [6, 10], rate: 2, glow: true },
   leaves:    { color: ['#9fd08a', '#c9e27a', '#ffd27a'], size: [10, 18], vy: [40, 80], vx: [-50, 10], life: [5, 9], rate: 3, spin: true },
   bubbles:   { color: ['#dff4ff'], size: [6, 16], vy: [-30, -70], vx: [-10, 10], life: [3, 6], rate: 2, ring: true },
+  rain:      { color: ['#bfe3ff'], size: [4, 6], vy: [900, 1200], vx: [-60, -40], life: [2, 3], rate: 40, streak: true },
+  storm:     { color: ['#bfe3ff', '#fff6a8'], size: [4, 7], vy: [800, 1100], vx: [-160, -100], life: [2, 3], rate: 50, streak: true },
 };
 const rnd = (a, b) => a + Math.random() * (b - a);
+const OUTDOOR = { petals: 1, leaves: 1, bubbles: 1, fireflies: 1 };
+function weatherLook(which) {   // outdoors, rain and storms replace the usual petals and leaves
+  const w = typeof Day !== 'undefined' && Day.weather ? Day.weather() : 'sun';
+  return (OUTDOOR[which] && (w === 'rain' || w === 'storm')) ? w : which;
+}
 function updateParticles(dt, now, which) {
-  const look = PARTICLE_LOOKS[which || (Stage.scene && Stage.scene.particles)];
+  which = weatherLook(which || (Stage.scene && Stage.scene.particles));
+  const look = PARTICLE_LOOKS[which];
   if (!look) { for (const p of Stage.particles) { p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.burst) { p.vy += 900 * dt; } } Stage.particles = Stage.particles.filter(p => p.age < p.life); return; }
-  if (Stage.particles.filter(p => !p.burst).length < 60 && Math.random() < look.rate * dt) {
+  if (Stage.particles.filter(p => !p.burst).length < (look.streak ? 140 : 60) && Math.random() < look.rate * dt) {
     const w = Stage.map ? Stage.map.map.size[0] : SCENE_SIZE.w, h = Stage.map ? Stage.map.map.size[1] : SCENE_SIZE.h;
     Stage.particles.push({ x: rnd(0, w), y: look.vy[0] < 0 ? rnd(h * 0.4, h) : rnd(-50, h * 0.3), vx: rnd(...look.vx), vy: rnd(...look.vy),
       size: rnd(...look.size), color: look.color[Math.floor(Math.random() * look.color.length)], life: rnd(...look.life), age: 0, phase: Math.random() * 7 });
@@ -275,13 +284,14 @@ function drawLayer(ctx, name, panX, panY, s) {
   ctx.drawImage(img, dx, dy, SCENE_SIZE.w * s, SCENE_SIZE.h * s);
 }
 function drawParticles(ctx) {
-  const look = PARTICLE_LOOKS[Stage.map ? Stage.mapParticles : (Stage.scene && Stage.scene.particles)] || {};
+  const look = PARTICLE_LOOKS[weatherLook(Stage.map ? Stage.mapParticles : (Stage.scene && Stage.scene.particles))] || {};
   for (const p of Stage.particles) {
     const t = p.age / p.life, a = t < 0.15 ? t / 0.15 : t > 0.8 ? (1 - t) / 0.2 : 1;
     ctx.globalAlpha = a * 0.9;
     ctx.fillStyle = p.color;
     if (look.glow || p.burst) { ctx.shadowColor = p.color; ctx.shadowBlur = 18; }
     ctx.beginPath();
+    if (look.streak && !p.burst) { ctx.strokeStyle = p.color; ctx.lineWidth = p.size * 0.6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + p.vx * 0.04, p.y + p.vy * 0.04); ctx.stroke(); continue; }
     if (look.spin && !p.burst) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.age * 2 + p.phase); ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
     else { ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
     ctx.shadowBlur = 0;
