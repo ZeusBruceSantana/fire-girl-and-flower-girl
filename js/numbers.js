@@ -220,7 +220,8 @@ const MathChallenge = {
   /* The hint ladder: miss 1 counting highlights, miss 2 Mr. Abacus counts aloud, miss 3 the answer glows. */
   hint(a) {
     const card = a.card, hintEl = card.querySelector('.ch-hint'), tries = a.tries;
-    hintEl.textContent = NUMBERS_UI.tryAgain;
+    setHint(hintEl, NUMBERS_UI.tryAgain);
+    cardWobble(card);
     Speech.say(NUMBERS_UI.tryAgain, { rate: 0.95, interrupt: false });
     if (tries === 1) { card.querySelectorAll('.m-coin:not(.small):not(.tray), .m-pic:not(.tiny), .m-num:not(.blank)').forEach((el, i) => setTimeout(() => el.classList.add('count'), i * 120)); }
     if (tries === 2) {
@@ -233,7 +234,7 @@ const MathChallenge = {
     if (right && (tries >= 3 || !wrongLeft)) right.classList.add('glow');
     if (!right && tries >= 3) {   // make change: show the coins to give
       const tray = card.querySelector('.m-coin.tray'); if (tray) tray.classList.add('glow');
-      hintEl.textContent = NUMBERS_UI.tryAgain + ' ' + a.answer;
+      setHint(hintEl, NUMBERS_UI.tryAgain + ' ' + a.answer);
       Speech.say(String(a.answer), { interrupt: false, rate: 0.8 });
     }
   },

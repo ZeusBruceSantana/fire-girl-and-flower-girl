@@ -11,7 +11,11 @@
 
 const Challenge = {
   el: null, active: {},      // seat -> the running challenge
-  init() { this.el = $('#challenge'); },
+  init() {
+    this.el = $('#challenge');
+    // Reading, Numbers and Myths cards all share #challenge; whenever one arrives or leaves, the layout rule runs again.
+    if (this.el && typeof MutationObserver !== 'undefined') new MutationObserver(layoutChallengeCards).observe(this.el, { childList: true });
+  },
   get any() { return Object.values(this.active)[0] || null; },
 
   /* Pick the next word for a hero: boxes 0-3 with the odds in WORD_BOXES, the least recently seen in that box. */
@@ -112,7 +116,8 @@ const Challenge = {
   /* The hint ladder: miss 1 a small hint, miss 2 the helper says it, miss 3 the answer glows. */
   hint(a) {
     const tries = a.tries, card = a.card, hintEl = card.querySelector('.ch-hint');
-    hintEl.textContent = WORLD.ui.tryAgain;
+    setHint(hintEl, WORLD.ui.tryAgain);
+    cardWobble(card);
     Speech.say(WORLD.ui.tryAgain, { rate: 0.95, interrupt: false });   // never cuts off a word being sounded out
     if (typeof Sound !== 'undefined' && Sound.play) Sound.play('tryAgain');
     if (a.type !== 'letter-tiles') {
@@ -158,6 +163,30 @@ const Challenge = {
   close() { for (const seat of Object.keys(this.active)) this.finish(seat, null); },
 };
 const TILE_WORD_MAX = 8;
+
+/* THE CARD LAYOUT RULE. At most two cards on screen, side by side, one per girl: each girl's first card shows and any
+   later card of hers waits its turn (it appears when the first one is done); a third girl's card waits too. Nothing
+   ever overlaps or runs off the screen. With two players here, a single card still sits on its own half ("split"). */
+function layoutChallengeCards() {
+  const el = $('#challenge');
+  if (!el) return;
+  const cards = [...el.children].filter(c => c.classList.contains('ch-card'));
+  if (!cards.length) return;
+  const seats = S.settings.localSeats, seatOf = c => (c.className.match(/\bseat-(\w+)/) || [])[1];
+  const shown = [], seen = new Set();
+  for (const c of cards) { const s = seatOf(c); if (seen.has(s) || shown.length >= 2) continue; seen.add(s); shown.push(c); }
+  for (const c of cards) c.classList.toggle('queued', !shown.includes(c));
+  el.classList.add('show');
+  el.classList.toggle('split', shown.length > 1 || (seats.length > 1 && seats.every(isPlayerHere)));
+}
+/* A wrong answer: the card wobbles (feedback is physical, not just words). */
+function cardWobble(card) {
+  if (!card) return;
+  card.classList.remove('wobble'); void card.offsetWidth; card.classList.add('wobble');
+  clearTimeout(card.wobbleTimer); card.wobbleTimer = setTimeout(() => card.classList.remove('wobble'), 450);
+}
+/* The hint line: the "try again" glyph and the words. */
+function setHint(hintEl, text) { if (hintEl) hintEl.innerHTML = `<span class="icon">${UI_GLYPHS.hint}</span><span class="words">${esc(text)}</span>`; }
 
 /* A card belongs to one seat. When two cards share the screen (one per twin), a finger from the OTHER half
    of the screen is ignored, so the other player cannot drop your word to box 0 or spoil your stars. A single card
