@@ -56,7 +56,7 @@ async function onArrive(seat, hotspot) {
     // Everyone on this device travels together; the others arrive at the same spot.
     const positions = {}; for (const s of S.settings.localSeats) positions[s] = hotspot.at;
     if (hotspot.secret && !S.shared.flags['tunnel-found']) { dispatch('flag.set', seat, { flag: 'tunnel-found' }); uiToast('A secret way!', { icon: 'heart' }); }
-    await stageGo(hotspot.to, { positions });
+    await stageGo(hotspot.to, { positions, from: 'scene:' + Stage.scene.id });
   } else if (hotspot.kind === 'npc') {
     h.setAnim('hop');
     if (await Day.onNpc(seat, hotspot) !== null) return;

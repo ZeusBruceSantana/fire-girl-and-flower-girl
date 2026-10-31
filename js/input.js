@@ -21,6 +21,7 @@ function inputInit(canvas) {
   canvas.addEventListener('pointerdown', e => {
     e.preventDefault();
     const seat = seatForScreenX(e.clientX);
+    if (Stage.map && scene === 'world' && !sceneLayer) { const [mx, my] = MapStage.screenToWorld(e.clientX, e.clientY); MapStage.tap(seat, mx, my); return; }
     const [x, y] = screenToScene(e.clientX, e.clientY);
     const hotspot = hotspotAt(x, y);
     const now = Date.now();

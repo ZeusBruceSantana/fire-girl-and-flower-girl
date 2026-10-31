@@ -1,2 +1,104 @@
 'use strict';
-/* tests/tests-battle.js: filled in by its lane. */
+/* Battle tests (version 3). Each opens a ready game into the world, starts a battle with Battle.start, and
+   plays it by tapping moves and answering the word challenges. */
+
+async function openWorldB() {
+  await openGame(readySave());
+  await until(() => G('scene') === 'title', 10000, 'the title');
+  tap($g('#title'));
+  await until(() => G('scene') === 'world', 2000, 'the world');
+}
+async function answerChallenge(seat) {   // answer this seat's challenge right, first try
+  await until(() => G(`!!Challenge.active['${seat}']`), 3000, 'a word challenge for ' + seat);
+  const a = G(`({ type: Challenge.active['${seat}'].type, word: Challenge.active['${seat}'].word })`);
+  if (a.type === 'letter-tiles') { for (const l of a.word) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === l)); await sleep(20); } }
+  else tap($g(`.ch-card.seat-${seat} .ch-opt[data-w="${CSS.escape(a.word)}"]`));
+  await until(() => G(`!Challenge.active['${seat}']`), 3000, 'the challenge to finish');
+}
+async function castMove(seat, spellId) {
+  await until(() => G('Battle.state && Battle.state.turnSeat') === seat && $g(`#battle .move[data-spell="${spellId}"]`), 4000, seat + "'s move panel");
+  tap($g(`#battle .move[data-spell="${spellId}"]`));
+  await answerChallenge(seat);
+}
+function startBattle(opts) { G(`window.__battle = null; Battle.start(${JSON.stringify(opts)}).then(r => { window.__battle = r; })`); }
+
+test('A battle: Sprout then a super-effective Spark fills the Giggle meter and pays out', async () => {
+  await openWorldB();
+  G('Battle.rng = () => 0.1');
+  startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1 }], backdrop: 'woods-path', party: ['right', 'left'] });
+  await until(() => G('Battle.active'), 2000, 'the battle to open');
+  expect($g('#battle.show .trouble .giggle'), 'the trouble has a Giggle meter');
+  expectEqual(G('Battle.state.max'), 6, 'giggle 6 for a level-1 weed');
+  await castMove('right', 'sprout');                       // flower vs weed: no match
+  await until(() => G('Battle.state.meter') === 3, 3000, 'meter 3 after Sprout');
+  expect(!$g('#battle .message .w').textContent.includes('Super'), 'no super effective for a plain match');
+  await castMove('left', 'spark');                         // fire vs weed: weak to fire
+  await until(() => G('window.__battle'), 6000, 'the battle to end');
+  expect($g('#battle .message') === null || !G('Battle.active'), 'the screen closed');
+  const r = G('window.__battle');
+  expectEqual([r.won, r.xp], [true, 12], 'won, 12 xp from a level-1 weed');
+  expect(r.coins > 0, 'coins');
+  const S = G('S');
+  expect(S.heroes.left.xp >= 12 && S.heroes.right.xp >= 12, 'both players got xp');
+  expect(S.heroes.left.coins > 0, 'coins landed');
+  expect(S.shared.events.some(e => e.what === 'battle' && e.trouble === 'grumpy-weed'), 'the win is in the shared events');
+  expectEqual(G('Battle.active'), false, 'battle over');
+  expectEqual(G('sceneLayer'), null, 'the world takes taps again');
+});
+
+test('A battle move from the companion seat is automatic and earns nothing', async () => {
+  await openWorldB();
+  G("dispatch('hero.setup', 'away', { kind: 'electric', color: 'purple' }); Battle.rng = () => 0.1");
+  startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1 }], backdrop: 'woods-path', party: ['away', 'left'] });
+  await until(() => G('Battle.state && Battle.state.meter') === 3, 4000, 'the cousin to auto-cast Zap (+3)');
+  expect(G("Battle.state.turnSeat") !== 'away' || !$g('#battle .moves.show'), 'no move panel for an automatic turn');
+  await castMove('left', 'spark');
+  await until(() => G('window.__battle'), 6000, 'the battle to end');
+  expectEqual(G('S.heroes.away.xp'), 0, 'the companion-driven cousin earned no xp');
+  expectEqual(G('S.heroes.away.coins'), 0, 'nor coins');
+  expect(G('S.heroes.left.xp') >= 12, 'the player did');
+});
+
+test('A battle trouble can zap ember away, but never below zero and never anything else', async () => {
+  await openWorldB();
+  G("dispatch('hero.ember', 'right', { amount: -5 }); Battle.rng = () => 0.99");   // ember 0; rng picks the last action: cold-snap's "zap"
+  const before = G('({ coins: S.heroes.right.coins, xp: S.heroes.right.xp, items: S.heroes.right.inventory.length })');
+  startBattle({ troubles: [{ kind: 'cold-snap', level: 2 }], backdrop: 'woods-path', party: ['right'] });
+  await castMove('right', 'sprout');                       // +3 of 16: not full, so the trouble gets a turn
+  await until(() => G('Battle.state.round') === 2, 4000, 'round 2 after the trouble\'s turn');
+  expectEqual(G('S.heroes.right.ember'), Math.max(0, 3 - 1), 'the challenge gave 3, the zap took 1, never below 0');
+  const after = G('({ coins: S.heroes.right.coins, xp: S.heroes.right.xp, items: S.heroes.right.inventory.length })');
+  expectEqual(after, before, 'nothing else changed');
+  G('Battle.cancel()');
+  await until(() => !G('Battle.active'), 3000, 'cancelled');
+});
+
+test('A boss battle has two phases', async () => {
+  await openWorldB();
+  G('Battle.rng = () => 0.1');
+  startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1, boss: true }], backdrop: 'woods-path', party: ['left'] });
+  await until(() => G('Battle.state && Battle.state.max') === 12, 3000, 'a boss meter of 12');
+  await castMove('left', 'spark');                         // 6
+  await until(() => G('Battle.state.round') === 2, 4000, 'round 2');
+  await castMove('left', 'spark');                         // 12: phase 2
+  await until(() => G('Battle.state.phase') === 2, 4000, 'phase 2');
+  expectEqual(G('Battle.state.max'), 6, 'the second phase is half as long');
+  await castMove('left', 'spark');
+  await until(() => G('window.__battle'), 8000, 'the boss to be beaten');
+  expectEqual(G('window.__battle.won'), true, 'won');
+  expectEqual(G('window.__battle.xp'), 24, 'double xp for a boss');
+});
+
+test('A battle can always go on: a hero with no ember still casts her level-1 spell', async () => {
+  await openWorldB();
+  G("dispatch('hero.ember', 'left', { amount: -5 }); Battle.rng = () => 0.1");
+  expectEqual(G('S.heroes.left.ember'), 0, 'ember is empty');
+  startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1 }], backdrop: 'woods-path', party: ['left'] });
+  await until(() => G('Battle.state && Battle.state.turnSeat') === 'left', 3000, 'her turn');
+  const spark = $g('#battle .move[data-spell="spark"]');
+  expect(spark && !spark.classList.contains('poor') && !spark.classList.contains('locked'), 'Spark is free and open');
+  expect($g('#battle .move[data-spell="spark"] .cost').textContent === 'free', 'and says so');
+  await castMove('left', 'spark');
+  await until(() => G('window.__battle'), 6000, 'the battle to end');
+  expect(G('S.heroes.left.ember') >= 0, 'ember never went negative');
+});

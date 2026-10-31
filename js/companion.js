@@ -22,7 +22,7 @@ function decide(seat, state, presence, rng, now) {
 
 let companionRng = Math.random;
 function companionTick(now) {
-  if (!NET.isHost()) return;
+  if (!NET.isHost() || Stage.map) return;
   for (const seat of WORLD.seats) {
     if (isPlayerHere(seat)) continue;
     if (P[seat].driver === 'player' && !S.settings.localSeats.includes(seat)) continue;   // a real player on another device

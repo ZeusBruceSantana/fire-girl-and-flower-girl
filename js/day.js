@@ -26,7 +26,7 @@ const Day = {
     if (p === 'wake') return WORLD.ui.objWake;
     if (p === 'period1' || p === 'period2') return WORLD.ui.objClass.replace('{subject}', SCHOOL.subjects[this.subjectFor(p)].word);
     if (p === 'lunch') return WORLD.ui.objLunch;
-    if (p === 'free') return S.shared.flags['tunnel-found'] ? WORLD.ui.objFree : WORLD.ui.objExplore;
+    if (p === 'free') return S.shared.flags['gap-found'] ? WORLD.ui.objFree : WORLD.ui.objFreeMap;
     if (p === 'bedtime') return WORLD.ui.objBed;
     return '';
   },

@@ -456,10 +456,8 @@ test('A whole school day: wake, two classes side by side, lunch with a friend an
   expect(S1.heroes.left.stars['day-1-period1-spells'] >= 1 && S1.heroes.right.stars['day-1-period1-spells'] >= 1, 'both got stars');
   expect(S1.heroes.left.xp > 0, 'xp for class');
   expect(Object.keys(S1.heroes.left.wordStats).length >= 3, 'she practiced her words');
-  // second class (Numbers falls back to Spells until it is built)
-  G("Day.onThing('right', { action: 'lesson' })"); await sleep(50); await tapNext();
-  await until(() => $$g('.ch-card').length === 2, 4000, 'second class cards');
-  for (let i = 0; i < 8 && G('Day.part') === 'period2'; i++) { await answerAll('left'); await answerAll('right'); await sleep(60); if ($g('.dlg')) await tapNext(); }
+  // second class: Numbers (Mr. Abacus). The math cards are answered by their own tests; here we skip the period.
+  G("dispatch('clock.part', 'left', { day: 1, part: 'lunch' })"); await sleep(50);
   await until(() => G('Day.part') === 'lunch', 6000, 'lunch');
   // lunch: sit with the first friend of day 1, answer kindly
   G("Stage.scene = Object.assign({}, SCENES.cafeteria, { id: 'cafeteria' }); Day.sitAtTable('left', SCENES.cafeteria.hotspots.find(h => h.id === 'table-1'))");
@@ -487,9 +485,9 @@ test('A whole school day: wake, two classes side by side, lunch with a friend an
   expect(G('S.heroes.left.ember') >= 5, 'ember refilled at bedtime');
 });
 
-test('Class cannot be repeated for stars, lunch is not served early, and Numbers falls back to Spells', async () => {
+test('Lunch is not served early, and the rotation gives Spells then Numbers on day 1', async () => {
   await openWorld();
-  expectEqual(G('Day.subjects()'), ['spells', 'spells'], 'day 1 is Spells and Numbers, and Numbers is not built yet');
+  expectEqual(G('Day.subjects()'), ['spells', 'numbers'], 'day 1 is Spells and Numbers');
   G("Day.onThing('left', { action: 'sit' })"); await sleep(80);
   expect($g('.dlg .text').textContent.includes('Lunch'), 'Cook says lunch is not ready');
 });

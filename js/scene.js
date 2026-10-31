@@ -36,6 +36,7 @@ const Stage = {
   scene: null,            // the SCENES entry on screen
   layers: {},             // layer name -> Image
   cam: { x: 1280, y: 720 },
+  map: null,              // the overworld map on screen (map.js), or null when in a room
   scale: 1, visW: 2560, visH: 1440,
   heroes: {},             // seat -> HeroSprite
   npcs: [],               // { id, img, x }
@@ -70,10 +71,14 @@ function stageResize() {
   // "cover": the scene always fills the screen; a narrower screen sees less of the width
   Stage.scale = Math.max(c.width / SCENE_SIZE.w, c.height / SCENE_SIZE.h);
   Stage.visW = c.width / Stage.scale; Stage.visH = c.height / Stage.scale;
+  if (typeof MapStage !== 'undefined') MapStage.onResize();
 }
 
 /* Go to a scene. Heroes appear at their spawn points (or at a given x). Returns when the art has loaded. */
-async function stageGo(sceneId, { positions = {} } = {}) {
+async function stageGo(sceneId, { positions = {}, from = null, at = null } = {}) {
+  if (sceneId.startsWith('map:')) { if (Stage.map) MapStage.leave(); return MapStage.go(sceneId.slice(4), { from }); }
+  if (sceneId.startsWith('scene:')) sceneId = sceneId.slice(6);
+  if (Stage.map) { MapStage.leave(); if (at != null && typeof at === 'number') for (const s of S.settings.localSeats) positions[s] = at; }
   const def = SCENES[sceneId];
   if (!def) return;
   Stage.fadeTarget = 1;
@@ -162,6 +167,7 @@ function hotspotAt(x, y) {
 function stageUpdate(dt, now) {
   Stage.time += dt;
   Stage.fade = lerp(Stage.fade, Stage.fadeTarget, Math.min(1, dt * 6));
+  if (Stage.map) { MapStage.update(dt, now); updateParticles(dt, now, Stage.mapParticles); presenceTick(now); return; }
   if (!Stage.scene) return;
   for (const seat of WORLD.seats) {
     const h = Stage.heroes[seat];
@@ -205,11 +211,11 @@ const PARTICLE_LOOKS = {
   bubbles:   { color: ['#dff4ff'], size: [6, 16], vy: [-30, -70], vx: [-10, 10], life: [3, 6], rate: 2, ring: true },
 };
 const rnd = (a, b) => a + Math.random() * (b - a);
-function updateParticles(dt, now) {
-  const look = PARTICLE_LOOKS[Stage.scene.particles];
+function updateParticles(dt, now, which) {
+  const look = PARTICLE_LOOKS[which || (Stage.scene && Stage.scene.particles)];
   if (!look) { for (const p of Stage.particles) { p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.burst) { p.vy += 900 * dt; } } Stage.particles = Stage.particles.filter(p => p.age < p.life); return; }
   if (Stage.particles.filter(p => !p.burst).length < 60 && Math.random() < look.rate * dt) {
-    const w = SCENE_SIZE.w, h = SCENE_SIZE.h;
+    const w = Stage.map ? Stage.map.map.size[0] : SCENE_SIZE.w, h = Stage.map ? Stage.map.map.size[1] : SCENE_SIZE.h;
     Stage.particles.push({ x: rnd(0, w), y: look.vy[0] < 0 ? rnd(h * 0.4, h) : rnd(-50, h * 0.3), vx: rnd(...look.vx), vy: rnd(...look.vy),
       size: rnd(...look.size), color: look.color[Math.floor(Math.random() * look.color.length)], life: rnd(...look.life), age: 0, phase: Math.random() * 7 });
   }
@@ -230,6 +236,7 @@ function stageDraw() {
   const ctx = Stage.ctx, c = Stage.canvas;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#1a1410'; ctx.fillRect(0, 0, c.width, c.height);
+  if (Stage.map) { MapStage.draw(ctx); const tint = TINTS[Stage.clockTint || Stage.map.map.tint]; if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); } drawVignette(ctx, c); drawFade(ctx, c); return; }
   if (!Stage.scene) { drawFade(ctx, c); return; }
   const s = Stage.scale, left = Stage.cam.x - Stage.visW / 2, top = Stage.cam.y - Stage.visH / 2;
   const panX = left, panY = top;                       // how far the camera has moved from the scene's left/top
@@ -268,7 +275,7 @@ function drawLayer(ctx, name, panX, panY, s) {
   ctx.drawImage(img, dx, dy, SCENE_SIZE.w * s, SCENE_SIZE.h * s);
 }
 function drawParticles(ctx) {
-  const look = PARTICLE_LOOKS[Stage.scene.particles] || {};
+  const look = PARTICLE_LOOKS[Stage.map ? Stage.mapParticles : (Stage.scene && Stage.scene.particles)] || {};
   for (const p of Stage.particles) {
     const t = p.age / p.life, a = t < 0.15 ? t / 0.15 : t > 0.8 ? (1 - t) / 0.2 : 1;
     ctx.globalAlpha = a * 0.9;

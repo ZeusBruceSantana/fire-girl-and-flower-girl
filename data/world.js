@@ -274,6 +274,7 @@ const WORLD = {
     // maps and battles (version 3)
     objFreeMap: 'Free time! Out the door and explore. The woods are past the wall...',
     openChest: 'A chest! Build the word to open it.',
+    locked: 'It will not open.', secretWay: 'A secret way!',
     chestEmpty: 'Already opened.',
     found: 'Found',
     battleStart: 'A {name} blocks the way!',
