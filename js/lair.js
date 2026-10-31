@@ -14,7 +14,7 @@
    shows hidden sparkles on every map). Map code adds it to gearEffects(seat) when deciding what to show. */
 
 const LAIR_UI = {
-  stations: { upgrades: 'The Lantern', gallery: 'The Gallery Wall', invite: 'The Cushions', scrolls: 'The Bookshelf' },
+  stations: { upgrades: 'The Lantern', gallery: 'The Gallery Wall', invite: 'The Cushions', scrolls: 'The Bookshelf', till: 'The Till' },
   fund: 'Lair fund',
   fundNote: 'Every heart you earn also goes into the Lair fund. Yours stay yours.',
   cozyTitle: 'Cozy bits, bought with coins',
@@ -226,6 +226,9 @@ const Lair = {
   },
 
   /* ---------- the bookshelf: Myth Scrolls ---------- */
+  /* ---------- the till: the girls run their own shop (js/till.js) ---------- */
+  render_till(body, seat) { Till.render(body, seat); },
+
   render_scrolls(body, seat, h) {
     body.innerHTML = `<div class="lair-scrolls">${MYTHS.map(m => { const got = h.scrolls.includes(m.id); return `<div class="scroll ${got ? 'got' : 'silhouette'}" data-m="${m.id}">
         <div class="sc-art"><span class="ico rarity-${got ? 'common' : 'unknown'}">${ITEM_ICONS.scroll}</span></div>

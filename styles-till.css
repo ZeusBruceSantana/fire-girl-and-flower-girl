@@ -1,3 +1,45 @@
 /* =====================================================================
    EMBER BLOOM: the girls' till and coin stacks. Tokens, the type scale and the button family live in styles.css.
    ===================================================================== */
+/* The till: a counter with today's customer (round portrait, what they say, what they want), then the queue,
+   the served dots and the one button to open the till. The math cards rise over it like everywhere else. */
+.till { display: flex; flex-direction: column; gap: 2.4vmin; height: 100%; }
+.till-counter { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4vmin; padding: 2vmin; border-radius: var(--r);
+  background: linear-gradient(transparent 70%, rgba(169,120,63,.25) 70%, rgba(169,120,63,.35)); }
+.till-customer { display: flex; align-items: center; gap: 2vmin; max-width: 60%; }
+.till-face { width: 20vmin; height: 20vmin; flex: none; border-radius: 50%; overflow: hidden; background: radial-gradient(#fffaf0, var(--paper-2)); border: .6vmin solid var(--gold-deep); box-shadow: var(--shadow-float); }
+.till-face:empty { background: radial-gradient(#fffaf0, var(--paper-1)); border-style: dashed; box-shadow: none; }
+.till-face svg, .till-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.till-say { padding: 1.6vmin 2.4vmin; font-size: var(--t-body); line-height: 1.4; }
+.till-order { display: flex; align-items: flex-end; gap: 2vmin; min-height: 14vmin; }
+.till-thing { width: 13vmin; height: 13vmin; animation: rise-in var(--dur-in) var(--ease-out); } .till-thing svg { width: 100%; height: 100%; }
+.till-paid { display: flex; align-items: flex-end; }
+.till-foot { display: flex; align-items: center; gap: 3vmin; flex-wrap: wrap; }
+.till-queue { display: flex; gap: 1vmin; flex: 1; min-height: 9vmin; }
+.till-wait { width: 9vmin; height: 9vmin; border-radius: 50%; overflow: hidden; opacity: .55; border: .4vmin solid var(--gold); background: var(--paper-1); }
+.till-wait svg, .till-wait img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.till-served { display: flex; flex-direction: column; align-items: center; gap: .6vmin; font-size: var(--t-small); color: var(--ink-soft); }
+.till-dots { display: flex; gap: 1vmin; }
+.till-dot { width: 3.4vmin; height: 3.4vmin; border-radius: 50%; border: .4vmin solid var(--gold-deep); background: var(--paper-0); }
+.till-dot.done { background: radial-gradient(circle at 35% 30%, #fff2b0, var(--gold) 70%); box-shadow: 0 0 1vmin var(--gold-glow); }
+.till.closed .till-counter { opacity: .85; }
+@media (orientation: portrait) { .till-counter { flex-direction: column; } .till-customer { max-width: 100%; } }
+
+/* ---------- the grown-up page's reading report (js/parent.js progressHtml): plain and readable for a grown-up ---------- */
+#parent .report h4 { margin: .8em 0 .4em; font-family: var(--font-display); font-size: 19px; }
+#parent .report h5 { margin: .9em 0 .3em; font-family: var(--font-display); font-size: 16px; color: var(--ink-soft); }
+#parent .by-pattern { width: 100%; border-collapse: collapse; font-size: 15px; }
+#parent .by-pattern th, #parent .by-pattern td { text-align: left; vertical-align: top; padding: .35em .5em; border-bottom: 1px solid var(--paper-2); }
+#parent .by-pattern thead th { font-size: 13px; color: var(--ink-soft); font-weight: 700; }
+#parent .by-pattern tbody th { font-weight: 700; white-space: nowrap; }
+#parent .by-pattern .w { display: inline-block; margin: 0 .2em .2em 0; padding: 0 .45em; border-radius: 8px; background: var(--paper-1); }
+#parent .by-pattern td.confident .w { background: var(--ok-soft); }
+#parent .by-pattern td.tricky .w { background: #fde6d3; }
+#parent .trickiest { margin: .6em 0; font-size: 15px; }
+#parent .week-row { display: flex; align-items: center; gap: .6em; font-size: 14px; margin: .25em 0; }
+#parent .week-row .wk { min-width: 8.5em; }
+#parent .week-row .bar { flex: 1; max-width: 220px; height: 10px; border-radius: 5px; background: var(--paper-2); overflow: hidden; }
+#parent .week-row .bar .in { display: block; height: 100%; background: var(--gold); border-radius: 5px; }
+#parent .minutes p { margin: .2em 0; font-size: 15px; }
+#parent .tip { margin-top: .8em; padding: .6em .8em; border-radius: 12px; background: var(--paper-1); border-left: 4px solid var(--gold); }
+#parent .tip p { margin: .2em 0 0; font-size: 15px; }

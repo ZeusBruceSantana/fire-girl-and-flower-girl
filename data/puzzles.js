@@ -133,7 +133,7 @@ const MATH_BANDS_BY_LEVEL = [ [1, 1], [3, 2], [6, 3] ];   // [from level, band]
      lastCustomerHearts   the last customer of the day also gives each girl this many hearts */
 const TILL = {
   customers: ['baker', 'gardener', 'lamplighter', 'goatherd', 'signpainter', 'librarian'],
-  goods: ['apple', 'pie', 'seedling', 'star'],
+  goods: [{ art: 'apple', word: 'an apple' }, { art: 'pie', word: 'a pie' }, { art: 'seedling', word: 'a seedling' }, { art: 'star', word: 'a star biscuit' }],
   bands: { 1: { items: 1, priceMax: 9, pays: [10] }, 2: { items: 2, priceMax: 9, pays: [20] }, 3: { items: 2, priceMax: 40, pays: [50, 100] } },
   perDay: 3,
   coins: 1,
