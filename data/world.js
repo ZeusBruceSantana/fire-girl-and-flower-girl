@@ -303,8 +303,15 @@ const WORLD = {
     weatherRain: 'Rain today! Flower Girl feels wonderful.',
     weatherSun: 'A dry sunny day! Fire Girl feels wonderful.',
     weatherStorm: 'A stormy sky! Electric Girl feels wonderful.',
-    whatNow: 'What now?', castSpell: 'Cast a spell', lookCloser: 'Look closer', leaveIt: 'Leave it',
-    comingSoon: 'Hoo. Nothing to do here yet. Soon!',
+    // small things to do on day one (no "soon!" anywhere a child can reach)
+    objGoIn: 'Good morning! Tap the gate to go in.',
+    wardrobe: 'My wardrobe. What shall I wear today?',
+    wish: 'You toss in a coin of light and make a wish. A little ember glows!',
+    wishedToday: 'One wish a day. The fountain is only pretending to be asleep.',
+    lunchBell: 'Ding! The bell rings. Lunch is over.',
+    // saving (a grown-up message; never shown to the girls as a scold)
+    saveFailed: 'Saving is not working on this tablet. Ask a grown-up to check the space.',
+    saveFailedNote: 'Progress could not be saved. The tablet may be out of storage space. Free some space (or delete old photos and apps), then play on. Anything since the last good save will not be kept until saving works again.',
     flags: { 'intro-seen': 'The first day at the Academy.', 'tunnel-found': 'We found the secret tunnel!' },
   },
 
