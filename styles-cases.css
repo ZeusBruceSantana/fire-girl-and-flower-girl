@@ -1,1 +1,35 @@
-/* styles-cases.css */
+/* The case board (js/cases.js): a cork board in the parchment-and-gold look. */
+#cases { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
+#cases.show { display: flex; }
+#cases .frame { width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
+#cases .head { display: flex; align-items: center; justify-content: space-between; padding: 1.6vmin 2.4vmin; border-bottom: .4vmin solid var(--gold); }
+#cases h2 { margin: 0; font-size: 3.6vmin; color: var(--gold-dark); }
+#cases .bigbtn.close { width: calc(var(--btn) * .8); height: calc(var(--btn) * .8); }
+#cases .board { flex: 1; overflow: auto; padding: 2vmin 3vmin; background: #c9a06a; background-image: radial-gradient(rgba(0,0,0,.08) 1px, transparent 1.5px); background-size: 2vmin 2vmin; }
+#cases .case-name { font-size: 4vmin; font-weight: 900; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); margin-bottom: 1.4vmin; }
+#cases .label { font-weight: 900; font-size: 2.6vmin; color: #fff8ea; text-shadow: 0 1px 3px rgba(0,0,0,.4); margin: 1.4vmin 0 .8vmin; }
+#cases .clues { display: flex; flex-direction: column; gap: 1vmin; }
+#cases .clue { position: relative; background: #fff8ea; border-radius: 1.2vmin; padding: 1.4vmin 2vmin 1.4vmin 4vmin; font-size: 2.6vmin; min-height: 6vmin; box-shadow: 0 .5vmin 1.5vmin rgba(0,0,0,.25); transform: rotate(-.6deg); }
+#cases .clue:nth-child(odd) { transform: rotate(.7deg); }
+#cases .clue .pin { position: absolute; left: 1.4vmin; top: 1.4vmin; width: 2vmin; height: 2vmin; border-radius: 50%; background: #e0609c; box-shadow: inset -.3vmin -.3vmin 0 rgba(0,0,0,.25); }
+#cases .clue:not(.found) { opacity: .55; font-weight: 900; text-align: center; }
+#cases .clue.glow { box-shadow: 0 0 0 .8vmin rgba(255,210,63,.7), 0 0 4vmin #ffd23f; animation: breathe 1s infinite; }
+#cases .suspects { display: flex; gap: 2vmin; flex-wrap: wrap; }
+#cases .suspect { width: 22vmin; min-height: var(--btn); background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.4vmin; text-align: center; box-shadow: 0 .6vmin 0 var(--gold-dark); }
+#cases .suspect:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
+#cases .suspects.not-yet .suspect { opacity: .6; filter: grayscale(.5); }
+#cases .suspect .art { width: 14vmin; height: 14vmin; margin: 0 auto; } #cases .suspect .art svg, #cases .suspect .art img { width: 100%; height: 100%; object-fit: contain; }
+#cases .suspect .word { font-weight: 900; font-size: 2.6vmin; margin-top: .6vmin; }
+#cases .suspect.nope { opacity: .45; transform: scale(.94); }
+#cases .suspect.yes { border-color: #5cc77a; box-shadow: 0 0 0 .8vmin rgba(92,199,122,.5), 0 .6vmin 0 #33935a; }
+#cases .verdict { margin-top: 1.6vmin; min-height: 4vmin; font-weight: 900; font-size: 3vmin; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+#cases .empty { font-size: 3.2vmin; font-weight: 900; color: #fff8ea; text-shadow: 0 1px 3px rgba(0,0,0,.4); padding: 4vmin; text-align: center; }
+#cases .others { padding: 1.4vmin 3vmin 2vmin; border-top: .4vmin solid var(--gold); }
+#cases .others .label { color: var(--gold-dark); text-shadow: none; margin: 0 0 .6vmin; }
+#cases .case-row { display: inline-flex; align-items: center; gap: .8vmin; margin: .3vmin 1.6vmin .3vmin 0; font-weight: 900; font-size: 2.4vmin; }
+#cases .case-row .mark { width: 3.4vmin; height: 3.4vmin; } #cases .case-row .mark svg { width: 100%; height: 100%; }
+#cases .case-row.locked { opacity: .45; } #cases .case-row.solved { color: #2f8a4f; }
+/* the two logic puzzles */
+.ch-tiles.mem .ch-tile.mem { background: var(--gold); color: transparent; }
+.ch-tiles.mem .ch-tile.mem.face, .ch-tiles.mem .ch-tile.mem.done { background: #fff; color: var(--ink2); }
+.ch-tiles.mem .ch-tile.mem.done { border-color: #5cc77a; opacity: .7; }
