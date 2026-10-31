@@ -50,7 +50,7 @@ class Doll {
     for (const l of DOLL_LAYERS) { const img = this.layers[l]; if (img) ctx.drawImage(img, -w / 2, -h, w, h); }
     if (this.anim === 'cast') drawCastSparkle(ctx, this, time, w, h);
     ctx.restore();
-    if (this.label) drawLabel(ctx, this);
+    if (this.label && !Stage.map) drawLabel(ctx, this);   // name tags only in rooms and at the gate; an overworld has none
   }
 }
 function drawCastSparkle(ctx, doll, time, w, h) {
@@ -64,7 +64,7 @@ function drawCastSparkle(ctx, doll, time, w, h) {
 }
 function drawLabel(ctx, doll) {
   ctx.save();
-  ctx.font = '900 44px ui-rounded, "Segoe UI", system-ui, sans-serif'; ctx.textAlign = 'center';
+  ctx.font = '800 44px "Baloo 2", ui-rounded, "Segoe UI", system-ui, sans-serif'; ctx.textAlign = 'center';
   const t = doll.label, tw = ctx.measureText(t).width + 40, x = doll.x, y = doll.y - doll.height - 36;
   ctx.fillStyle = 'rgba(255,255,255,.85)'; roundRect(ctx, x - tw / 2, y - 44, tw, 60, 18); ctx.fill();
   ctx.fillStyle = doll.labelColor || '#3e3a4f'; ctx.fillText(t, x, y);

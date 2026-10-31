@@ -1,40 +1,61 @@
 /* =====================================================================
-   EMBER BLOOM: challenge cards (js/challenge.js)
+   EMBER BLOOM: challenge cards (js/challenge.js; the Numbers and Myths cards build on these)
    Tokens, the type scale and the button family live in styles.css.
+   Layout rule (layoutChallengeCards in js/challenge.js): at most two cards on screen, side by side, one per girl;
+   any other card has .queued and waits its turn. Words and digits are the biggest thing on the card (--t-word).
    ===================================================================== */
 /* ---------- challenges ---------- */
 #challenge { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: var(--dim); }
 #challenge.show { display: flex; }
-.ch-card { width: min(90vw, 1200px); padding: 3vmin 4vmin 4vmin; background: var(--parchment); border: .5vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); text-align: center; animation: pop .25s ease-out; }
-#challenge.seat-left .ch-card { border-color: var(--L-dark); } #challenge.seat-right .ch-card { border-color: var(--R-dark); }
+.ch-card { position: relative; width: min(90vw, 1200px); padding: 3vmin 4vmin 3.4vmin; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); text-align: center;
+  animation: rise-in var(--dur-in) var(--ease-out); }
+.ch-card.queued { display: none; }
+.ch-card.wobble { animation: wobble var(--dur-wobble) ease-in-out; }
+.ch-card.not-yours { animation: shake .4s; }          /* a finger from the other half: a nudge, nothing happens */
+#challenge.seat-left .ch-card, .ch-card.seat-left { border-color: var(--L-dark); } #challenge.seat-right .ch-card, .ch-card.seat-right { border-color: var(--R-dark); }
 .ch-top { display: flex; align-items: center; gap: 2vmin; margin-bottom: 2.5vmin; }
 .ch-helper { width: 12vmin; height: 12vmin; flex: none; } .ch-helper svg { width: 100%; height: 100%; }
-.ch-say { flex: 1; font-size: 3.6vmin; font-weight: 800; text-align: left; }
-.ch-hear { width: var(--btn); height: var(--btn); min-width: var(--tap); min-height: var(--tap); flex: none; border-radius: 50%; background: #fff; border: .5vmin solid var(--gold); box-shadow: 0 .6vmin 0 var(--gold-dark); padding: 2.4vmin; }
-.ch-hear:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
+.ch-say { flex: 1; font-size: var(--t-body); font-weight: 600; line-height: 1.3; text-align: left; }
+.ch-hear { width: var(--btn); height: var(--btn); min-width: var(--tap); min-height: var(--tap); flex: none; border-radius: 50%; padding: 2.4vmin;
+  background: radial-gradient(circle at 35% 30%, #fffaf0, var(--paper-1) 80%); border: .4vmin solid var(--gold-deep); box-shadow: 0 var(--press) 0 var(--gold-deep); transition: transform 80ms, box-shadow 80ms; }
+.ch-hear:active { transform: translateY(.6vmin); box-shadow: 0 .2vmin 0 var(--gold-deep); }
+
+/* word choices: buttons of the one family, the word in the display face at --t-word */
 .ch-options { display: flex; gap: 2.4vmin; justify-content: center; flex-wrap: wrap; }
-.ch-opt { min-width: 24vmin; height: var(--btn); min-height: var(--tap); padding: 0 3vmin; display: flex; align-items: center; justify-content: center; background: #fff; border: .6vmin solid var(--gold); border-radius: 3vmin; font-size: 6vmin; font-weight: 800; letter-spacing: .04em; box-shadow: 0 .8vmin 0 var(--gold-dark); }
-.ch-opt:active { transform: translateY(.5vmin); box-shadow: 0 .3vmin 0 var(--gold-dark); }
+.ch-opt { min-width: 24vmin; height: var(--btn); min-height: var(--tap); padding: 0 3vmin; display: flex; align-items: center; justify-content: center;
+  background: var(--paper-0); border: .4vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: 0 var(--press) 0 var(--gold-deep);
+  font-family: var(--font-display); font-size: var(--t-word); font-weight: 700; letter-spacing: .02em; line-height: 1; transition: transform 80ms, box-shadow 80ms, opacity var(--dur-in); }
+.ch-opt:active { transform: translateY(.6vmin); box-shadow: 0 .2vmin 0 var(--gold-deep); }
 .ch-opt.out { opacity: .3; transform: scale(.92); } .ch-opt.fade { opacity: .45; }
-.ch-opt.first-letter span::first-letter { color: #ff7a3d; text-decoration: underline; }
-.ch-opt.glow, .ch-tile.glow { box-shadow: 0 0 0 .8vmin rgba(255,210,63,.6), 0 0 4vmin #ffd23f; animation: breathe 1s infinite; }
-.ch-opt.right, .ch-slot.right { background: #eafbe9; border-color: #5cc77a; }
+.ch-opt.first-letter span::first-letter { color: var(--hint); text-decoration: underline; }
+.ch-opt.glow, .ch-tile.glow { box-shadow: 0 0 0 .8vmin rgba(255,224,138,.8), 0 0 4vmin var(--gold-glow); animation: breathe 1s infinite; }
+.ch-opt.right, .ch-slot.right { background: var(--ok-soft); border-color: var(--ok-deep); box-shadow: 0 var(--press) 0 var(--ok-deep); animation: pop-right var(--dur-pop) ease-out; }
+
+/* build the word: solid, softly inset slots; tiles are buttons */
 .ch-slots { display: flex; gap: 1.4vmin; justify-content: center; margin-bottom: 3vmin; }
-.ch-slot { width: max(11vmin, 52px); height: max(12vmin, 52px); border-radius: 2vmin; background: rgba(255,255,255,.6); border: .5vmin dashed var(--gold); font-size: 6vmin; font-weight: 800; display: flex; align-items: center; justify-content: center; position: relative; }
-.ch-slot .ghost { position: absolute; opacity: 0; color: #c9b58a; } .ch-slot.peek .ghost { opacity: .5; }
-.ch-slot.filled { border-style: solid; background: #fff; }
+.ch-slot { width: max(11vmin, 52px); height: max(12vmin, 52px); border-radius: var(--r); background: rgba(255,248,236,.7); border: .4vmin solid rgba(156,111,20,.4);
+  box-shadow: inset 0 .5vmin 1vmin rgba(60,30,0,.16); font-family: var(--font-display); font-size: var(--t-word); font-weight: 700; display: flex; align-items: center; justify-content: center; position: relative; }
+.ch-slot .ghost { position: absolute; opacity: 0; color: var(--paper-2); } .ch-slot.peek .ghost { opacity: .7; }
+.ch-slot.filled { background: var(--paper-0); border-color: var(--gold-deep); box-shadow: none; }
 .ch-tiles { display: flex; gap: 1.6vmin; justify-content: center; flex-wrap: wrap; }
-.ch-tile { width: max(12vmin, 52px); height: max(12vmin, 52px); border-radius: 2.4vmin; background: #fff; border: .6vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-size: 6.4vmin; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.ch-tile { width: max(12vmin, 52px); height: max(12vmin, 52px); border-radius: var(--r); background: var(--paper-0); border: .4vmin solid var(--gold-deep); box-shadow: 0 var(--press) 0 var(--gold-deep);
+  font-family: var(--font-display); font-size: var(--t-word); font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .ch-tile.used { opacity: .2; pointer-events: none; } .ch-tile.hop { animation: hop .5s; }
 @keyframes hop { 30% { transform: translateY(-3vmin) rotate(-8deg); } 60% { transform: translateY(0) rotate(6deg); } }
-.ch-hint { margin-top: 2vmin; min-height: 4vmin; font-size: 3vmin; font-weight: 800; color: #b05a10; }
 
-/* ---------- class: challenges side by side, and the target range ---------- */
-#challenge.split { align-items: flex-start; padding-top: 16vmin; gap: 2vmin; }
-#challenge.split .ch-card { width: 47vw; padding: 2vmin 2.4vmin 3vmin; }
-#challenge.split .ch-opt { min-width: 16vmin; font-size: 4.6vmin; }
-#challenge.split .ch-tile, #challenge.split .ch-slot { width: max(9vmin, 52px); height: max(10vmin, 52px); font-size: 5vmin; }
+/* the hint: an icon and the words, in the hint colour */
+.ch-hint { margin-top: 2vmin; min-height: max(5vmin, 24px); display: flex; align-items: center; justify-content: center; gap: 1vmin;
+  font-family: var(--font-display); font-size: var(--t-body); font-weight: 700; color: var(--hint); }
+.ch-hint .icon { width: 1.3em; height: 1.3em; flex: none; } .ch-hint .icon svg { width: 100%; height: 100%; }
+.ch-hint:not(:empty) { animation: rise-in var(--dur-in) var(--ease-out); }
+
+/* ---------- class: two cards side by side, below the HUD and the target range ---------- */
+/* The world dims less here than under a single card: the princesses casting below must stay visible. */
+#challenge.split { align-items: flex-start; padding: calc(var(--hud-bottom, 24vmin) + 13vmin) 2vmin 2vmin; gap: 2vmin; background: rgba(30,18,6,.32); }
+#challenge.split .ch-card { width: min(47vw, calc(50vw - 3vmin)); padding: 2vmin 2.4vmin 2.4vmin; }
+#challenge.split .ch-opt { min-width: 16vmin; padding: 0 2vmin; }
+#challenge.split .ch-tile, #challenge.split .ch-slot { width: max(9vmin, 52px); height: max(10vmin, 52px); }
 #challenge.split .ch-hear { width: max(11vmin, 48px); height: max(11vmin, 48px); padding: 1.6vmin; }
-#challenge.split .ch-say { font-size: 2.8vmin; }
-.ch-big { font-size: 9vmin; font-weight: 800; letter-spacing: .06em; margin: 1vmin 0 2vmin; }
-.ch-opt.grown { font-size: 3vmin; background: #eafbe9; border-color: #5cc77a; }
+#challenge.split .ch-helper { width: 9vmin; height: 9vmin; }
+.ch-big { font-family: var(--font-display); font-size: var(--t-display); font-weight: 800; letter-spacing: .04em; line-height: 1.05; margin: 1vmin 0 2vmin; }
+.ch-opt.grown { font-size: var(--t-button); background: linear-gradient(#8ddca4, var(--ok) 90%); border-color: var(--ok-deep); box-shadow: 0 var(--press) 0 var(--ok-deep); color: #fff; text-shadow: 0 .2vmin .4vmin rgba(0,40,10,.45); }

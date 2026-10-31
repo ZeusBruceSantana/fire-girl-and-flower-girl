@@ -1,36 +1,38 @@
-/* Ember Bloom: Numbers class (Mr. Abacus). Builds on the challenge card styles in styles.css. */
+/* Ember Bloom: Numbers class (Mr. Abacus). Builds on the challenge card styles in styles-challenge.css (tokens in styles.css). */
 .ch-card.math .m-row { display: flex; align-items: center; justify-content: center; gap: 1.4vmin; flex-wrap: wrap; margin: 1vmin 0 2.4vmin; }
 .m-coin { width: 11vmin; height: 11vmin; transition: transform .2s; }
 .m-coin svg { width: 100%; height: 100%; }
 .m-coin.counted { transform: translateY(-1.4vmin) scale(1.08); filter: drop-shadow(0 0 1vmin #ffd23f); }
 .m-coin.small { width: 6.5vmin; height: 6.5vmin; }
-.m-coin.tray { border-radius: 50%; box-shadow: 0 .6vmin 0 var(--gold-dark); }
-.m-coin.tray:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
+.m-coin.tray { border-radius: 50%; box-shadow: 0 .6vmin 0 var(--gold-deep); }
+.m-coin.tray:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-deep); }
 .m-coin.glow { filter: drop-shadow(0 0 1.6vmin #ffd23f); animation: breathe 1s infinite; }
 .m-coin.count, .m-pic.count, .m-num.count { animation: countpop .5s; }
 @keyframes countpop { 40% { transform: scale(1.25); filter: drop-shadow(0 0 1vmin #ffd23f); } }
-.ch-opt.num { min-width: 16vmin; font-size: 6vmin; }
-#challenge.split .ch-opt.num { min-width: 12vmin; font-size: 4.8vmin; }
+.ch-opt.num { min-width: 16vmin; font-size: var(--t-word); }
+#challenge.split .ch-opt.num { min-width: 12vmin; }
 .ch-opt.pic { min-width: 14vmin; padding: 1.5vmin; } .ch-opt.pic svg { width: 9vmin; height: 9vmin; }
-.ch-opt.give { font-size: 3.2vmin; background: #eafbe9; border-color: #5cc77a; box-shadow: 0 .8vmin 0 #33935a; }
+/* Give back is an "I am done" control: the confirm look of the one button family */
+.ch-opt.give { font-size: var(--t-button); background: linear-gradient(#8ddca4, var(--ok) 90%); border-color: var(--ok-deep); box-shadow: 0 var(--press) 0 var(--ok-deep); color: #fff; text-shadow: 0 .2vmin .4vmin rgba(0,40,10,.45); }
+.ch-opt.give:active { box-shadow: 0 .2vmin 0 var(--ok-deep); }
 .m-row.shop { gap: 3vmin; }
 .m-item { position: relative; width: 16vmin; height: 16vmin; } .m-item > svg { width: 100%; height: 100%; }
 .m-price { position: absolute; right: -2vmin; bottom: -2vmin; width: 7vmin; height: 7vmin; }
 .m-paid { width: 12vmin; height: 12vmin; } .m-paid svg { width: 100%; height: 100%; }
-.m-change { min-width: 24vmin; min-height: 12vmin; padding: 1vmin 1.6vmin; border-radius: 2vmin; background: rgba(255,255,255,.6); border: .4vmin dashed var(--gold); }
-.m-change.right { background: #eafbe9; border-color: #5cc77a; border-style: solid; }
-.m-change-label { font-weight: 800; font-size: 2.6vmin; }
+.m-change { min-width: 24vmin; min-height: 12vmin; padding: 1vmin 1.6vmin; border-radius: var(--r); background: rgba(255,248,236,.7); border: .4vmin solid rgba(156,111,20,.4); box-shadow: inset 0 .5vmin 1vmin rgba(60,30,0,.16); }
+.m-change.right { background: var(--ok-soft); border-color: var(--ok-deep); box-shadow: none; }
+.m-change-label { font-family: var(--font-display); font-weight: 700; font-size: var(--t-body); }
 .m-given { display: flex; gap: .6vmin; flex-wrap: wrap; min-height: 7vmin; }
 .m-row.tray { gap: 2vmin; }
-.m-num { min-width: 11vmin; height: 11vmin; padding: 0 1vmin; border-radius: 2vmin; background: #fff; border: .5vmin solid var(--gold); font-size: 5vmin; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-.m-num.blank { border-style: dashed; background: rgba(255,255,255,.6); color: #c9b58a; }
-#challenge.split .m-num { min-width: 8vmin; height: 8vmin; font-size: 3.8vmin; }
+.m-num { min-width: 11vmin; height: 11vmin; padding: 0 1vmin; border-radius: var(--r); background: var(--paper-0); border: .4vmin solid var(--gold-deep); font-family: var(--font-display); font-size: var(--t-word); font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.m-num.blank { background: rgba(255,248,236,.7); border-color: rgba(156,111,20,.4); box-shadow: inset 0 .5vmin 1vmin rgba(60,30,0,.16); color: var(--ink-soft); }
+#challenge.split .m-num { min-width: 8vmin; height: 8vmin; }
 .m-pic { width: 8vmin; height: 8vmin; } .m-pic svg { width: 100%; height: 100%; }
-.m-pic.blank { border-radius: 2vmin; border: .5vmin dashed var(--gold); display: flex; align-items: center; justify-content: center; font-size: 5vmin; font-weight: 800; color: #c9b58a; }
+.m-pic.blank { border-radius: var(--r); background: rgba(255,248,236,.7); border: .4vmin solid rgba(156,111,20,.4); box-shadow: inset 0 .5vmin 1vmin rgba(60,30,0,.16); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--t-title); font-weight: 700; color: var(--ink-soft); }
 .m-pic.tiny { width: 3.4vmin; height: 3.4vmin; }
 .m-group { display: flex; gap: .8vmin; flex-wrap: wrap; max-width: 36vmin; justify-content: center; }
 .m-group.faded { opacity: .35; text-decoration: line-through; }
-.m-op { font-size: 7vmin; font-weight: 800; color: var(--gold-dark); padding: 0 1.4vmin; }
+.m-op { font-family: var(--font-display); font-size: var(--t-word); font-weight: 800; color: var(--gold-deep); padding: 0 1.4vmin; }
 .ch-options.jars { align-items: center; }
 .ch-opt.jar { min-width: 22vmin; height: auto; padding: 1.4vmin; }
 .m-jar { position: relative; width: 18vmin; height: 20vmin; } .m-jar > svg { width: 100%; height: 100%; }

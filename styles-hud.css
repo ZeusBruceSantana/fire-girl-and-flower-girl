@@ -1,11 +1,17 @@
 /* =====================================================================
    EMBER BLOOM: the HUD, the place banner, the little cloud and the class target range (js/hud.js, js/ui.js)
    Tokens, the type scale and the button family live in styles.css.
+   --hud-bottom is set by HUD.measure(): how far down the HUD cards and their objective lines reach.
+   The place banner, the class target range and the class cards all start below it.
    ===================================================================== */
+
+/* ---------- the place banner: one style on every map, below the HUD row, never over a card ---------- */
 #place {
-  position: absolute; left: 50%; top: 4vmin; transform: translate(-50%, -2vmin); pointer-events: none;
-  font-size: 4.6vmin; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.45);
-  background: rgba(40,25,10,.45); padding: 1.2vmin 3.4vmin; border-radius: 4vmin; opacity: 0; transition: opacity .4s, transform .4s;
+  position: absolute; left: 50%; top: calc(var(--hud-bottom, 24vmin) + 1.6vmin); transform: translate(-50%, -1.4vmin); pointer-events: none;
+  max-width: min(70vw, 90vmin); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--font-display); font-size: var(--t-title); font-weight: 800; line-height: 1.15; color: var(--ink);
+  background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow);
+  padding: .6vmin 3.6vmin; opacity: 0; transition: opacity var(--dur-in), transform var(--dur-in) var(--ease-out);
 }
 #place.show { opacity: 1; transform: translate(-50%, 0); }
 body[data-scene="title"] #place { opacity: 0; }
@@ -15,43 +21,70 @@ body[data-scene="title"] #place { opacity: 0; }
 #cloud::after { content: ''; position: absolute; left: 1.2vmin; top: -1.6vmin; width: 3vmin; height: 3vmin; border-radius: 50%; background: inherit; }
 #cloud[data-status="live"] { background: #9ad0ff; opacity: 1; }
 #cloud[data-status="connecting"] { animation: pulse 1.2s ease-in-out infinite; }
-@keyframes pulse { 50% { opacity: .25; } }
 
-/* ---------- HUD ---------- */
+/* ---------- the HUD card (also used on the battle screen, via hudCardHtml) ---------- */
 #hud { position: absolute; inset: 0; pointer-events: none; }
-.hudcard { position: absolute; top: 2vmin; display: flex; gap: 1.4vmin; align-items: center; pointer-events: auto; padding: 1vmin 1.6vmin 1vmin 1vmin; }
-.hudcard.seat-left  { left: 2vmin; }
-.hudcard.seat-right { right: 2vmin; flex-direction: row-reverse; text-align: right; }
-.hudcard.seat-away  { left: 2vmin; }   /* the cousin's device shows one seat; her card sits left, clear of the grown-up corner */
-.hudcard { background: var(--parchment); border: .4vmin solid var(--gold-dark); border-radius: 6vmin; box-shadow: var(--frame-shadow); color: var(--ink2); }
+.hudcard { display: flex; gap: 1.6vmin; align-items: center; pointer-events: auto; padding: 1.2vmin 2vmin 1.2vmin 1.2vmin;
+  background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); }
+#hud .hudcard { position: absolute; top: 2vmin; }
+#hud .hudcard.seat-left  { left: 2vmin; }
+#hud .hudcard.seat-away  { left: 2vmin; }   /* the cousin's device shows one seat; her card sits left, clear of the grown-up corner */
+#hud .hudcard.seat-right { right: 2vmin; }
+.hudcard.seat-right { flex-direction: row-reverse; text-align: right; padding: 1.2vmin 1.2vmin 1.2vmin 2vmin; }
+.hudcard.seat-left { border-color: var(--gold-deep); }
 .hudcard.away { opacity: .55; }
+
+/* the portrait medallion: the one portrait shape (a circle in a gold ring that fills with XP) */
 .hudcard .portrait { position: relative; width: max(12vmin, 48px); height: max(12vmin, 48px); flex: none; }
 .hudcard .ring { position: absolute; inset: 0; transform: rotate(-90deg); }
-.hudcard .ring .track { fill: none; stroke: rgba(0,0,0,.12); stroke-width: 8; }
-.hudcard .ring .fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray .6s; }
-.hudcard .face { position: absolute; inset: 1.4vmin; border-radius: 50%; overflow: hidden; background: #fff; border: .4vmin solid #fff; }
-.hudcard .face svg, .hudcard .face img { width: 100%; height: 100%; object-fit: cover; }
-.hudcard .level { position: absolute; right: -.6vmin; bottom: -.6vmin; width: 4.6vmin; height: 4.6vmin; border-radius: 50%; background: var(--gold); border: .4vmin solid #fff; color: #fff; font-weight: 800; font-size: 2.6vmin; display: flex; align-items: center; justify-content: center; box-shadow: 0 .3vmin 1vmin rgba(0,0,0,.3); }
-.hudcard.seat-left .level { right: auto; left: -.6vmin; }
-.hudcard .name { font-weight: 800; font-size: 3vmin; line-height: 1.1; max-width: 34vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hudcard .ring .track { fill: #fff6e0; stroke: rgba(156,111,20,.22); stroke-width: 8; }
+.hudcard .ring .fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray var(--dur-fill); }
+.hudcard .face { position: absolute; inset: 1.4vmin; border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 0 0 .3vmin var(--gold-deep); }
+.hudcard .face svg, .hudcard .face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.hudcard .level { position: absolute; right: -.6vmin; bottom: -.6vmin; min-width: max(4.8vmin, 20px); height: max(4.8vmin, 20px); border-radius: 50%;
+  background: linear-gradient(#ffe9a6, var(--gold) 90%); border: .35vmin solid var(--gold-deep); color: #3a2506;
+  font-family: var(--font-display); font-weight: 800; font-size: var(--t-small); line-height: 1; display: flex; align-items: center; justify-content: center; box-shadow: 0 .3vmin .8vmin rgba(40,20,0,.3); }
+.hudcard.seat-left .level, .hudcard.seat-away .level { right: auto; left: -.6vmin; }
+
+.hudcard .info { display: flex; flex-direction: column; gap: .6vmin; min-width: 0; }
+.hudcard.seat-right .info { align-items: flex-end; }
+.hudcard .name { font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); line-height: 1.05; max-width: 34vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hudcard.seat-left .name { color: var(--L-dark); } .hudcard.seat-right .name { color: var(--R-dark); } .hudcard.seat-away .name { color: var(--A-dark); }
-.hudcard .counters { display: flex; gap: 1.4vmin; margin: .4vmin 0; font-weight: 800; font-size: 2.4vmin; }
-.hudcard.seat-right .counters { justify-content: flex-end; }
-.hudcard .c { display: inline-flex; align-items: center; gap: .4vmin; } .hudcard .c svg { width: 3vmin; height: 3vmin; }
-.hudcard .ember { display: flex; align-items: center; gap: .6vmin; font-weight: 800; font-size: 2.2vmin; }
+
+/* coins and hearts: framed counters, number in the display face */
+.hudcard .counters { display: flex; gap: 1vmin; }
+.hudcard.seat-right .counters { justify-content: flex-end; }   /* same order on both cards: coins, then hearts */
+.hudcard .c { display: inline-flex; align-items: center; gap: .6vmin; min-width: 9vmin; padding: .2vmin 1.4vmin .2vmin .5vmin; border-radius: var(--r);
+  background: var(--paper-0); border: .3vmin solid var(--gold-deep); box-shadow: inset 0 -.3vmin 0 rgba(156,111,20,.18);
+  font-family: var(--font-display); font-weight: 800; font-size: var(--t-small); line-height: 1.1; }
+.hudcard .c svg { width: max(3.2vmin, 14px); height: max(3.2vmin, 14px); flex: none; }
+
+/* the Ember meter: the flame, the bar, the number */
+.hudcard .ember { display: flex; align-items: center; gap: .6vmin; font-family: var(--font-display); font-weight: 800; font-size: var(--t-small); line-height: 1; }
 .hudcard.seat-right .ember { flex-direction: row-reverse; }
-.hudcard .ember svg { width: 3vmin; height: 3vmin; }
-.hudcard .ember .bar, .ember-row .bar { width: 14vmin; height: 1.6vmin; border-radius: 1vmin; background: rgba(0,0,0,.15); overflow: hidden; }
-.hudcard .ember .in, .ember-row .in { height: 100%; background: linear-gradient(90deg, #ff7a3d, #ffd23f); border-radius: 1vmin; transition: width .5s; }
-.hudcard .objective { font-size: max(2vmin, 12px); opacity: .75; max-width: 34vmin; }
+.hudcard .ember svg { width: max(3.2vmin, 14px); height: max(3.2vmin, 14px); }
+.hudcard .ember .bar, .ember-row .bar { width: 15vmin; height: 1.8vmin; border-radius: 1vmin; background: rgba(60,30,0,.16); box-shadow: inset 0 .2vmin .4vmin rgba(60,30,0,.2); overflow: hidden; }
+.hudcard .ember .in, .ember-row .in { height: 100%; background: linear-gradient(90deg, #ff7a3d, #ffd23f); border-radius: 1vmin; transition: width var(--dur-fill); }
+.hudcard.seat-right .ember .bar { transform: scaleX(-1); }   /* the right seat's meter fills toward her portrait too */
+
+/* the objective: the one line a child must read. Body size, one line, an icon, its own strip under the card. Tap to hear it. */
+.hudcard .objective { display: none; }
+#hud .hudcard .objective { position: absolute; top: calc(100% + 1vmin); left: 0; display: flex; align-items: center; gap: 1vmin;
+  width: max-content; max-width: min(46vw, 80vmin); min-height: var(--tap); padding: .4vmin 2vmin .4vmin 1.2vmin;
+  background: rgba(255,248,236,.94); border: .35vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--shadow-float);
+  font-size: var(--t-body); line-height: 1.2; color: var(--ink); white-space: nowrap; }
+#hud .hudcard.seat-right .objective { left: auto; right: 0; }
+#hud .hudcard .objective .icon { width: 1.2em; height: 1.2em; flex: none; } .hudcard .objective .icon svg { width: 100%; height: 100%; }
+#hud .hudcard .objective .text { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="intro"] #hud, body[data-scene="parent"] #hud { display: none; }
 
-#range { position: fixed; left: 0; right: 0; top: 2vmin; display: none; justify-content: space-between; padding: 0 3vmin; pointer-events: none; z-index: 5; }
+/* ---------- the class target range: candles below the HUD row, never behind it ---------- */
+#range { position: fixed; left: 0; right: 0; top: calc(var(--hud-bottom, 24vmin) + 1.2vmin); display: none; justify-content: space-between; padding: 0 3vmin; pointer-events: none; z-index: 41; }
 #range.show { display: flex; }
-.range-row { display: flex; gap: 1vmin; }
+.range-row { display: flex; gap: 1vmin; padding: .8vmin 1.4vmin; border-radius: var(--r); background: rgba(255,248,236,.55); box-shadow: inset 0 0 0 .3vmin rgba(156,111,20,.45); }
 .range-row.seat-right { margin-left: auto; }
-.target { width: 8vmin; height: 8vmin; opacity: .45; filter: grayscale(.8); transition: all .4s; }
+.target { width: 8vmin; height: 8vmin; opacity: .45; filter: grayscale(.8); transition: opacity var(--dur-fill), filter var(--dur-fill), transform var(--dur-fill) var(--ease-out); }
 .target svg { width: 100%; height: 100%; }
 .target.lit { opacity: 1; filter: none; transform: scale(1.15); }
 .target.lit.bright { filter: drop-shadow(0 0 1.6vmin #ffd23f); }
-body[data-layer="challenge"] #hud { opacity: .35; }
+body[data-layer="challenge"] #hud, body[data-layer="class"] #hud { opacity: .35; }
