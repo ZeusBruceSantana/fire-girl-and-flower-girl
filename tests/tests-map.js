@@ -1,6 +1,13 @@
 'use strict';
 /* The overworld (version 3): pathfinding, walking the party, doors, chests, sparkles, troubles. */
 
+/* Close whatever dialogue is up, picking the first choice when one is offered (story beats end with a choice). */
+async function dismissDialogues() {
+  for (let i = 0; i < 20 && ($g('.dlg') || G('sceneLayer') === 'dialogue'); i++) {
+    if ($g('.dlg .choices.show')) tap($$g('.dlg .choice')[0]); else await tapNext();
+    await sleep(80);
+  }
+}
 async function openOnMap(mapId = 'school-grounds') {
   await openGame(readySave());
   await until(() => G('scene') === 'title', 10000, 'the title');
@@ -55,6 +62,7 @@ test('A door on the map opens a room, and the room door leads back outside', asy
   await openOnMap();
   G('MapStage.tap("left", 2048, 990)');        // the front doors
   await until(() => G('document.body.dataset.place') === 'dorm', 8000, 'the dorm');
+  await dismissDialogues();   // a story beat may play here
   expect(!G('Stage.map'), 'the map is left behind');
   expectEqual(G('Stage.heroes.left.height'), G('HERO_HEIGHT'), 'heroes are room-sized again');
   G("onTap({ seat: 'left', x: 2400, y: 1300, hotspot: SCENES.dorm.hotspots.find(h => h.id === 'outside') })");
