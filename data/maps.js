@@ -99,7 +99,7 @@ const MAPS = {
     doors: [
       { id: 'back',  word: 'back to town',          rect: [200, 1400, 150, 260],  to: 'map:middlemarket', at: [3700, 2700] },
       { id: 'gate',  word: 'Persephone\'s Gate',     rect: [1950, 250, 200, 120],  to: 'scene:woods-path', at: 1280, locked: 'gate-of-seasons', lockedSay: 'The gate is half frozen and half scorched. It only opens for warm AND growing, together.' },
-      { id: 'lane',  word: 'the way to Lantern Lane', rect: [3650, 2500, 150, 300], to: 'map:whispering-woods', at: [300, 350], locked: 'route-3', lockedSay: 'Lantern Lane is further than we are allowed today. Soon.' },
+      { id: 'peak',  word: 'the path up to Thunder Peak', rect: [3650, 1600, 150, 300], to: 'map:thunder-peak', at: [300, 2720], locked: 'route-3', lockedSay: 'The path up to the peak. Professor Hoot said: after the story of Zeus.' },
     ],
     things: [
       { id: 'sign-orchard', word: 'a signpost', kind: 'sign', rect: [400, 1300, 120, 120], text: 'Petalvale Orchard. Apples free. Weeds not.' },
@@ -115,6 +115,27 @@ const MAPS = {
       { id: 't-frost-2',  kind: 'cold-snap',    x: 2500, y: 1800, roam: [2420, 1100, 200, 1300], level: 3 },
       { id: 't-smoke-2',  kind: 'sneezy-smoke', x: 3400, y: 2000, roam: [3120, 1620, 650, 540], level: 3 },
       { id: 't-frost-boss', kind: 'cold-snap',  x: 2050, y: 450,  roam: [1920, 320, 240, 340], level: 3, boss: true },
+    ],
+  },
+
+  'thunder-peak': {
+    word: 'Thunder Peak', size: [4096, 3072], tint: 'evening', particles: 'sparks', backdrop: 'tunnel',
+    walk: [[200, 2600, 1200, 260], [1300, 1800, 260, 1060], [1300, 1800, 1200, 260], [2400, 1000, 260, 1060], [2400, 1000, 1000, 260], [3300, 500, 260, 760], [2900, 300, 800, 300], [1700, 2100, 500, 400]],
+    spawn: { default: [300, 2720], 'map:petalvale-orchard': [300, 2720] },
+    doors: [
+      { id: 'down', word: 'the way down', rect: [200, 2600, 120, 260], to: 'map:petalvale-orchard', at: [3400, 1900] },
+    ],
+    things: [
+      { id: 'sign-peak', word: 'a signpost', kind: 'sign', rect: [1420, 2500, 120, 120], text: 'Thunder Peak. Hold on to your hats.' },
+      { id: 'chest-peak', word: 'a chest in the clouds', kind: 'chest', rect: [1850, 2150, 140, 110], inside: [{ item: 'spark-dust', chance: 1 }, { item: 'crown-moon', chance: 0.2 }] },
+      { id: 'sparkle-7', word: 'a sparkle', kind: 'sparkle', rect: [3100, 350, 80, 80], item: 'gem-dewdrop' },
+      { id: 'sparkle-8', word: 'a sparkle', kind: 'sparkle', rect: [2500, 1100, 80, 80], item: 'spark-dust' },
+    ],
+    npcs: [],
+    troubles: [
+      { id: 't-static-1', kind: 'static-sprite', x: 1900, y: 1900, roam: [1320, 1820, 1100, 200], level: 3 },
+      { id: 't-static-2', kind: 'static-sprite', x: 2800, y: 1100, roam: [2420, 1020, 900, 200], level: 4 },
+      { id: 't-static-boss', kind: 'static-sprite', x: 3300, y: 450, roam: [2920, 320, 700, 240], level: 5, boss: true },
     ],
   },
 };
