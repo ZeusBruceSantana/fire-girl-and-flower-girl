@@ -4,7 +4,52 @@
    Names, each child's word list, math level, class length, voice, sound, which seats this device shows,
    the family world code, a PIN, and "start over". Everything typed here stays on this device. */
 
-const Parent = { open: false, holdTimer: 0 };
+const Parent = { open: false, holdTimer: 0, totals: {} };
+
+/* The grown-up page's reading report (Phase D; docs/review/08 rec 15): by sound pattern and by word, a first-try line
+   week by week, time played kept apart from words learned, and one tip for bedtime. No grades, no timers. */
+const PARENT_UI = {
+  readingTitle: 'How reading is going',
+  pattern: 'Sound pattern',
+  confident: 'Confident', gettingThere: 'Getting there', tricky: 'Tricky',
+  trickiest: 'Trickiest word right now: "{word}". Tried {seen} times, {clean} on the first try.',
+  weekly: 'First tries, week by week',
+  weekRow: 'Week of {date}',
+  weekOf: '{clean} of {seen} first try',
+  noWeeks: 'This line starts once she has practised a few words.',
+  minutes: 'Time playing on this device',
+  minutesLine: 'Today: {today} min. Last 7 days: {week} min (she played on {days} of the 7).',
+  minutesNote: 'Shown apart from words learned: a long session is not the same as more learned.',
+  tip: 'Try this at bedtime',
+};
+/* Weeks start on Monday (UTC). A week number is the same on every device. */
+const weekOf = (t = Date.now()) => Math.floor((t / 86400000 + 3) / 7);
+const weekStart = w => new Date((w * 7 - 3) * 86400000);
+const todayKey = (t = Date.now()) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+/* Her word totals: every result, and the clean first tries among them (a result with no miss in it). */
+function wordTotals(seat) {
+  let seen = 0, clean = 0;
+  for (const r of Object.values(S.heroes[seat].wordStats)) { seen += r.seen || 0; clean += Math.max(0, (r.seen || 0) - (r.wrong || 0)); }
+  return { seen, clean };
+}
+/* Write down each local girl's totals the first time a week is seen (before that week's first word lands). */
+function parentTrackWeeks(action) {
+  const w = weekOf();
+  for (const seat of S.settings.localSeats) {
+    const h = S.heroes[seat]; if (!h) continue;
+    const before = Parent.totals[seat] || wordTotals(seat);
+    const now = wordTotals(seat);
+    Parent.totals[seat] = now;
+    if ((!h.weeks || !h.weeks[w]) && (before.seen || now.seen)) dispatch('hero.weekMark', seat, { week: w, seen: before.seen, clean: before.clean });
+  }
+}
+/* One minute of play for each girl playing here (only while the game is on screen and not on the title). */
+function parentTickMinute() {
+  if (document.hidden || ['boot', 'title', 'pick', 'parent'].includes(scene)) return;
+  const day = todayKey(), patch = {};
+  for (const seat of S.settings.localSeats) if (isPlayerHere(seat)) patch[seat] = { [day]: (((S.settings.playMinutes || {})[seat] || {})[day] || 0) + 1 };
+  if (Object.keys(patch).length) dispatch('settings.set', null, { playMinutes: patch });
+}
 
 function parentInit() {
   const corner = $('#corner');
@@ -12,6 +57,9 @@ function parentInit() {
   const stop = () => { if (Parent.holdTimer) clearTimeout(Parent.holdTimer); Parent.holdTimer = 0; };
   corner.addEventListener('pointerdown', start);
   corner.addEventListener('pointerup', stop); corner.addEventListener('pointercancel', stop); corner.addEventListener('pointerleave', stop);
+  parentTrackWeeks(null);
+  onChange(a => { if (a && a.type === 'hero.word') parentTrackWeeks(a); });
+  clearInterval(Parent.minuteTimer); Parent.minuteTimer = setInterval(parentTickMinute, 60000);
 }
 /* Ask for the PIN when one is set; otherwise open. */
 function parentGate() {
@@ -89,9 +137,63 @@ function voiceOptions() {
 }
 function progressHtml(seat) {
   const st = S.heroes[seat].wordStats, words = Object.keys(st);
-  if (!words.length) return `<small>${esc(WORLD.ui.noProgressYet)}</small>`;
-  const box = n => words.filter(w => st[w].box === n);
-  return `<small>${esc(WORLD.ui.knowsIt)}: ${esc(box(3).join(', ') || '–')}<br>${esc(WORLD.ui.gettingThere)}: ${esc([...box(2), ...box(1)].join(', ') || '–')}<br>${esc(WORLD.ui.tricky)}: ${esc(box(0).join(', ') || '–')}</small>`;
+  if (!words.length) return `<small>${esc(WORLD.ui.noProgressYet)}</small>` + minutesHtml(seat);
+  return `<div class="report"><h4>${esc(PARENT_UI.readingTitle)}</h4>${patternTableHtml(seat)}${trickiestHtml(seat)}${weeklyHtml(seat)}${minutesHtml(seat)}${tipHtml(seat)}</div>`;
+}
+/* Confident / Getting there / Tricky, one row per sound pattern (in teaching order), the words in each. */
+function patternTableHtml(seat) {
+  const groups = Words.byPattern(seat);
+  const order = [...PATTERNS.map(p => p.id), 'other'].filter(id => groups[id]);
+  const cell = (list, cls) => `<td class="${cls}">${list.length ? list.map(w => `<span class="w">${esc(w.word)}</span>`).join(' ') : '–'}</td>`;
+  return `<table class="by-pattern"><thead><tr><th>${esc(PARENT_UI.pattern)}</th><th>${esc(PARENT_UI.confident)}</th><th>${esc(PARENT_UI.gettingThere)}</th><th>${esc(PARENT_UI.tricky)}</th></tr></thead><tbody>${
+    order.map(id => { const ws = groups[id]; return `<tr data-pattern="${id}"><th>${esc(Words.patternWord(id))}</th>${cell(ws.filter(w => w.box === 3), 'confident')}${cell(ws.filter(w => w.box === 1 || w.box === 2), 'getting')}${cell(ws.filter(w => w.box === 0), 'tricky')}</tr>`; }).join('')
+  }</tbody></table>`;
+}
+/* The word she misses most, with how her tries went. */
+function trickiestHtml(seat) {
+  const st = S.heroes[seat].wordStats;
+  const list = Object.entries(st).filter(([, r]) => r.wrong > 0).sort(([, a], [, b]) => (a.box - b.box) || b.wrong - a.wrong || (b.wrong / b.seen - a.wrong / a.seen));
+  if (!list.length) return '';
+  const [word, r] = list[0];
+  return `<p class="trickiest">${esc(PARENT_UI.trickiest.replace('{word}', word).replace('{seen}', r.seen).replace('{clean}', Math.max(0, r.seen - r.wrong)))}</p>`;
+}
+/* First tries per week: from each week's mark to the next one (the last week runs to now). */
+function weeklyRows(seat) {
+  const weeks = S.heroes[seat].weeks || {}, keys = Object.keys(weeks).map(Number).sort((a, b) => a - b), now = wordTotals(seat), rows = [];
+  keys.forEach((w, i) => {
+    const from = weeks[w], to = i + 1 < keys.length ? weeks[keys[i + 1]] : now;
+    const seen = to.seen - from.seen, clean = to.clean - from.clean;
+    if (seen > 0) rows.push({ week: w, seen, clean: Math.max(0, Math.min(seen, clean)) });
+  });
+  return rows.slice(-6);
+}
+function weeklyHtml(seat) {
+  const rows = weeklyRows(seat);
+  const fmt = w => weekStart(w).toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  return `<div class="weekly"><h5>${esc(PARENT_UI.weekly)}</h5>${rows.length ? rows.map(r => `<div class="week-row" data-week="${r.week}"><span class="wk">${esc(PARENT_UI.weekRow.replace('{date}', fmt(r.week)))}</span><span class="bar"><span class="in" style="width:${(100 * r.clean / r.seen).toFixed(0)}%"></span></span><span class="of">${esc(PARENT_UI.weekOf.replace('{clean}', r.clean).replace('{seen}', r.seen))}</span></div>`).join('') : `<small>${esc(PARENT_UI.noWeeks)}</small>`}</div>`;
+}
+/* Minutes played on this device: today and the last seven days, kept apart from words learned. */
+function minutesHtml(seat) {
+  const m = (S.settings.playMinutes || {})[seat] || {};
+  const days = Array.from({ length: 7 }, (_, i) => todayKey(Date.now() - i * 86400000));
+  const week = days.reduce((n, d) => n + (m[d] || 0), 0), played = days.filter(d => m[d]).length;
+  return `<div class="minutes"><h5>${esc(PARENT_UI.minutes)}</h5><p>${esc(PARENT_UI.minutesLine.replace('{today}', m[days[0]] || 0).replace('{week}', week).replace('{days}', played))}</p><small>${esc(PARENT_UI.minutesNote)}</small></div>`;
+}
+/* Her weakest pattern: the most tricky words, then the fewest first tries. Its bedtime tip (data/phonics.js). */
+function weakestPattern(seat) {
+  const groups = Words.byPattern(seat);
+  let best = null;
+  for (const [id, ws] of Object.entries(groups)) {
+    const p = PATTERNS.find(x => x.id === id); if (!p || !p.tip) continue;
+    const tricky = ws.filter(w => w.box === 0).length, seen = ws.reduce((n, w) => n + (w.seen || 0), 0), clean = ws.reduce((n, w) => n + Math.max(0, (w.seen || 0) - (w.wrong || 0)), 0);
+    const score = tricky * 10 + (seen ? 1 - clean / seen : 0);
+    if (!best || score > best.score) best = { id, tip: p.tip, word: p.word, score };
+  }
+  return best;
+}
+function tipHtml(seat) {
+  const w = weakestPattern(seat);
+  return w ? `<div class="tip" data-pattern="${w.id}"><h5>${esc(PARENT_UI.tip)} <small>${esc(w.word)}</small></h5><p>${esc(w.tip)}</p></div>` : '';
 }
 /* Write everything in the panel into the save. Only changed things make actions. */
 function parentSave(panel) {
