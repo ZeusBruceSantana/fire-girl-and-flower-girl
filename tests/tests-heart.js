@@ -37,7 +37,8 @@ test('The collection book shows found items and silhouettes, and sets fill up', 
   G("dispatch('hero.item', 'left', { item: 'wand-twig' }); dispatch('hero.item', 'left', { item: 'crown-paper' }); Menu.open('left', 'collection')");
   await until(() => $g('#menu .page-collection'), 2000, 'the book');
   expectEqual($$g('#menu .cell.got').length, 2, 'two found');
-  expect($$g('#menu .cell.silhouette').length > 10, 'the rest are silhouettes');
+  expectEqual($$g('#menu .cell.silhouette').length, G('BOOK_PEEK'), 'a few of the rest wait as silhouettes');
+  expect($g('#menu .page-collection .more'), 'and a line says how many more are out there');
   expect($$g('#menu .set').some(s => s.textContent.includes('School') && s.textContent.includes('2 / 3')), 'the School set shows 2 of 3');
   tap($g('#menu [data-close]'));
 });

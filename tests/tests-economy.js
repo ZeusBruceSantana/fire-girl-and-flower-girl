@@ -71,13 +71,15 @@ test('Economy: the warm roll gives 4 ember and the lantern pie fills the meter f
 test('Economy: a cozy bit in the lantern costs coins, not hearts, and only when she has them', async () => {
   await openWorldEco();
   G("Lair.open('left', 'upgrades')");
-  await until(() => $$g('#lair .lair-card.cozy').length > 0, 2000, 'cozy cards');
-  expect($$g('#lair .lair-card.cozy').length >= 10, 'about a dozen cozy bits (' + $$g('#lair .lair-card.cozy').length + ')');
-  expect($g('#lair .cozy-title'), 'in their own group');
+  await until(() => $$g('#lair .lair-spot.cozy').length > 0, 2000, 'cozy spots in the room');
+  expect($$g('#lair .lair-spot.cozy').length >= 10, 'about a dozen cozy bits (' + $$g('#lair .lair-spot.cozy').length + ')');
+  expect($g('#lair .cozy-title'), 'with a line saying they cost coins');
+  tap($g('#lair .lair-spot[data-up="bunting"]')); await sleep(30);
   const card = $g('#lair .lair-card[data-up="bunting"]');
   expect(card.classList.contains('locked') && !card.querySelector('[data-buy]'), 'bunting cannot be bought with 0 coins');
   expect(card.querySelector('.lc-state').textContent.includes('coins'), 'and says how many coins to go');
   G("dispatch('hero.coins', 'left', { amount: 20 }); Lair.render()"); await sleep(30);
+  tap($g('#lair .lair-spot[data-up="bunting"]')); await sleep(30);
   expect($g('#lair .lair-card[data-up="bunting"].buyable [data-buy]'), 'with 20 coins it can');
   const fund = G('S.shared.lair.fund');
   tap($g('#lair [data-buy="bunting"]')); await sleep(50);
@@ -118,7 +120,8 @@ test('Economy: the Journal lists the troubles she has cheered up and calls one a
   await openWorldEco();
   G("Menu.open('left', 'journal')");
   await until(() => $g('#menu .j-section.troubles'), 2000, 'the troubles section');
-  expectEqual($$g('#menu .j-section.troubles .j-line.unmet').length, G('Object.keys(WORLD.troubles).length'), 'all silhouettes before any battle');
+  expectEqual($$g('#menu .j-section.troubles .j-line[data-kind]').length, 0, 'none listed before any battle');
+  expect($g('#menu .j-section.troubles .j-line.quiet'), 'just a gentle line instead (no row of question marks)');
   G("for (let i = 0; i < 5; i++) dispatch('hero.trouble', 'left', { kind: 'grumpy-weed' }); dispatch('hero.trouble', 'left', { kind: 'cold-snap' }); Menu.render()");
   await sleep(30);
   const weed = $g('#menu .j-section.troubles .j-line[data-kind="grumpy-weed"]'), snap = $g('#menu .j-section.troubles .j-line[data-kind="cold-snap"]');

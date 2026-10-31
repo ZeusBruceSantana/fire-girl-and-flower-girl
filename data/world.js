@@ -323,7 +323,25 @@ const WORLD = {
     // saving (a grown-up message; never shown to the girls as a scold)
     saveFailed: 'Saving is not working on this tablet. Ask a grown-up to check the space.',
     saveFailedNote: 'Progress could not be saved. The tablet may be out of storage space. Free some space (or delete old photos and apps), then play on. Anything since the last good save will not be kept until saving works again.',
-    flags: { 'intro-seen': 'The first day at the Academy.', 'tunnel-found': 'We found the secret tunnel!' },
+    // The Journal's "story so far": one sentence per story flag a child should see. A flag without a sentence here
+    // (visited-..., took-..., story-..., case-...-open) never shows; solved cases are written by js/menu.js.
+    flags: {
+      'intro-seen': 'The first day at the Academy.',
+      'met-electric': 'Electric Girl came to our school.',
+      'gap-found': 'We found a gap in the garden wall.',
+      'gate-open': 'The garden gate is open.',
+      'tunnel-found': 'We found the secret tunnel!',
+      'e-told-worry': 'Electric Girl told us a secret worry.',
+      'secret-safe': 'The Headmistress tested our hearts. We passed.',
+      'junior-helper': 'Constable Pebble made us Junior Helpers.',
+      'route-2': 'The road to Petalvale Orchard is open.',
+      'sprites-explained': 'We learned about the Static Sprites.',
+      'gate-of-seasons': 'Persephone\'s Gate is open.',
+      'flash-cave': 'A flash of light opened the dark cave.',
+      'route-3': 'The path up to Thunder Peak is open.',
+      'ember-bloom-ready': 'We found Ember-Bloom magic, all three of us.',
+      'festival-promised': 'We promised to light up the festival together.',
+    },
   },
 
   /* Silly, never scary. Each has a small picture word. */
@@ -360,13 +378,14 @@ const ART = {
   close: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#f3e9db"/><path d="M34 34 L66 66 M66 34 L34 66" stroke="#9b8a74" stroke-width="10" stroke-linecap="round"/></svg>',
   badge: '<svg viewBox="0 0 100 100"><path d="M50 8 L60 30 L84 32 L66 48 L72 72 L50 60 L28 72 L34 48 L16 32 L40 30Z" fill="#ffd23f" stroke="#d9a400" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="46" r="10" fill="#fff"/></svg>',
   gem: '<svg viewBox="0 0 100 100"><path d="M30 20 L70 20 L88 44 L50 88 L12 44Z" fill="#7fc4ff" stroke="#4a9be0" stroke-width="4" stroke-linejoin="round"/><path d="M30 20 L50 44 L70 20 M12 44 L50 44 L88 44 M50 44 L50 88" fill="none" stroke="#fff" stroke-width="3" opacity=".8"/></svg>',
-  'tab-spellbook': '<svg viewBox="0 0 100 100"><path d="M14 22 C30 14 44 16 50 24 C56 16 70 14 86 22 V80 C70 72 56 74 50 82 C44 74 30 72 14 80Z" fill="#fff4dd" stroke="#b07f4f" stroke-width="5" stroke-linejoin="round"/><path d="M50 24 V82" stroke="#b07f4f" stroke-width="4"/><path d="M60 40 l3 6 l6 1 l-5 4 l1 6 l-5 -3 l-5 3 l1 -6 l-5 -4 l6 -1z" fill="#ffd23f"/></svg>',
-  'tab-bag': '<svg viewBox="0 0 100 100"><path d="M20 40 H80 L76 84 H24Z" fill="#c98b4a" stroke="#8a5a2a" stroke-width="5" stroke-linejoin="round"/><path d="M34 40 C34 20 66 20 66 40" fill="none" stroke="#8a5a2a" stroke-width="6"/><rect x="40" y="52" width="20" height="12" rx="3" fill="#ffd23f"/></svg>',
-  'tab-collection': '<svg viewBox="0 0 100 100"><rect x="18" y="12" width="64" height="76" rx="8" fill="#b07f4f"/><rect x="26" y="20" width="48" height="60" rx="5" fill="#fff4dd"/><path d="M38 50 L50 34 L62 50 L50 66Z" fill="#7fc4ff" stroke="#4a9be0" stroke-width="3"/><circle cx="36" cy="30" r="4" fill="#9aa3ad"/><circle cx="64" cy="30" r="4" fill="#ffd23f"/></svg>',
-  'tab-journal': '<svg viewBox="0 0 100 100"><rect x="22" y="14" width="56" height="72" rx="6" fill="#fff4dd" stroke="#8b7fd1" stroke-width="5"/><path d="M34 34 h32 M34 48 h32 M34 62 h20" stroke="#8b7fd1" stroke-width="5" stroke-linecap="round"/><path d="M70 70 L84 56 L90 62 L76 76Z" fill="#ffd23f" stroke="#b07f4f" stroke-width="3"/></svg>',
-  'tab-map': '<svg viewBox="0 0 100 100"><path d="M14 26 L38 16 L62 26 L86 16 V74 L62 84 L38 74 L14 84Z" fill="#e9f5d9" stroke="#5a8a3a" stroke-width="5" stroke-linejoin="round"/><path d="M38 16 V74 M62 26 V84" stroke="#5a8a3a" stroke-width="4"/><path d="M28 50 C40 40 56 62 72 46" fill="none" stroke="#ff7a3d" stroke-width="5" stroke-dasharray="6 6"/></svg>',
-  'tab-badges': '<svg viewBox="0 0 100 100"><circle cx="50" cy="42" r="26" fill="#ffd23f" stroke="#d9a400" stroke-width="5"/><path d="M50 28 l5 10 l11 1 l-8 8 l2 11 l-10 -5 l-10 5 l2 -11 l-8 -8 l11 -1z" fill="#fff"/><path d="M36 64 L30 90 L50 80 L70 90 L64 64" fill="#ff8fb8"/></svg>',
-  'tab-friends': '<svg viewBox="0 0 100 100"><circle cx="36" cy="38" r="14" fill="#ffd9c2"/><circle cx="64" cy="38" r="14" fill="#e9c9b0"/><path d="M14 84 C14 58 58 58 58 84Z" fill="#ff8fb8"/><path d="M42 84 C42 58 86 58 86 84Z" fill="#7fd08a"/><path d="M50 22 C44 14 34 20 40 28 C44 32 50 36 50 36 C50 36 56 32 60 28 C66 20 56 14 50 22Z" fill="#ff6f9c"/></svg>',
+  lock: '<svg viewBox="0 0 100 100"><path d="M32 44 V32 C32 16 68 16 68 32 V44" fill="none" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" stroke-width="8"/><rect x="22" y="42" width="56" height="44" rx="8" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="50" cy="62" r="6" fill="#5a3f1c"/></svg>',   // a case not open yet
+  'tab-spellbook': '<svg viewBox="0 0 100 100"><path d="M12 24 C28 16 42 18 50 26 C58 18 72 16 88 24 V82 C72 74 58 76 50 84 C42 76 28 74 12 82Z" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M50 26 V84" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M70 34 L73 42 L81 43 L75 48 L77 56 L70 52 L63 56 L65 48 L59 43 L67 42Z" fill="#fff8ec"/></svg>',
+  'tab-bag': '<svg viewBox="0 0 100 100"><path d="M18 42 C18 34 24 32 30 32 H70 C76 32 82 34 82 42 L78 84 H22Z" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M36 32 C36 16 64 16 64 32" fill="none" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><rect x="40" y="48" width="20" height="14" rx="4" fill="rgba(90,63,28,.35)"/></svg>',
+  'tab-collection': '<svg viewBox="0 0 100 100"><rect x="18" y="12" width="64" height="76" rx="6" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M50 34 L58 44 L50 66 L42 44Z" fill="#fff8ec" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" stroke-width="3"/><rect x="18" y="76" width="64" height="12" fill="rgba(90,63,28,.35)"/></svg>',
+  'tab-journal': '<svg viewBox="0 0 100 100"><rect x="20" y="12" width="60" height="76" rx="6" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M34 32 H66 M34 46 H66 M34 60 H54" stroke="#5a3f1c" stroke-width="5" stroke-linecap="round"/><path d="M14 22 H24 M14 40 H24 M14 58 H24 M14 76 H24" stroke="#5a3f1c" stroke-width="5" stroke-linecap="round"/></svg>',
+  'tab-map': '<svg viewBox="0 0 100 100"><path d="M10 24 L36 14 L64 24 L90 14 V76 L64 86 L36 76 L10 86Z" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M36 14 V76 M64 24 V86" stroke="rgba(90,63,28,.35)" stroke-width="4"/><path d="M20 62 C34 48 46 66 60 46 S78 36 82 30" fill="none" stroke="#c23b3b" stroke-width="4" stroke-dasharray="6 5" stroke-linecap="round"/></svg>',
+  'tab-badges': '<svg viewBox="0 0 100 100"><path d="M34 8 H48 L44 40 H30Z M52 8 H66 L70 40 H56Z" fill="#e0609c" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" stroke-width="4"/><circle cx="50" cy="62" r="28" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M50 46 L55 57 L67 58 L58 66 L61 78 L50 72 L39 78 L42 66 L33 58 L45 57Z" fill="#fff8ec"/></svg>',
+  'tab-friends': '<svg viewBox="0 0 100 100"><circle cx="35" cy="36" r="14" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="65" cy="36" r="14" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M10 84 C10 62 22 54 35 54 C42 54 48 57 50 60 C52 57 58 54 65 54 C78 54 90 62 90 84Z" fill="#e8b84a" stroke="#5a3f1c" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><path d="M50 74 C46 70 40 70 40 75 C40 80 50 84 50 84 C50 84 60 80 60 75 C60 70 54 70 50 74Z" fill="#e0609c"/></svg>',
   'target-fire': '<svg viewBox="0 0 100 100"><rect x="38" y="46" width="24" height="44" rx="4" fill="#fff4dd" stroke="#e0b070" stroke-width="3"/><path class="flame" d="M50 14 C40 28 38 36 44 42 C46 36 50 34 50 30 C56 36 60 40 56 44 C62 40 62 26 50 14Z" fill="#ff7a3d"/></svg>',
   'target-flower': '<svg viewBox="0 0 100 100"><path d="M34 90 H66 L62 60 H38Z" fill="#c98b4a"/><path class="flame" d="M50 60 V36 M50 44 C40 44 36 36 38 30 C46 30 50 36 50 44 M50 40 C60 40 64 32 62 26 C54 26 50 32 50 40" fill="none" stroke="#5a8a3a" stroke-width="6" stroke-linecap="round"/></svg>',
   'target-electric': '<svg viewBox="0 0 100 100"><path d="M30 70 C30 40 70 40 70 70Z" fill="#ffd23f" stroke="#d9a400" stroke-width="3"/><rect x="46" y="22" width="8" height="18" fill="#d9a400"/><path class="flame" d="M48 72 L60 90 M52 72 L40 90" stroke="#9ad0ff" stroke-width="5" stroke-linecap="round"/></svg>',

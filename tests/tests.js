@@ -420,7 +420,7 @@ test('The menu tabs all open: Bag, Journal, Map (with fog), Badges, Friends', as
   G("Menu.open('right')");
   for (const t of ['bag', 'journal', 'map', 'badges', 'friends']) {
     tap($g(`#menu .tab[data-tab="${t}"]`)); await sleep(60); expect($g(`#menu .page-${t}`), 'tab ' + t + ' renders');
-    if (t === 'map') expect($$g('#menu .place.seen').length >= 1 && $$g('#menu .place.fog').length >= 1, 'the map shows visited places and fog');
+    if (t === 'map') expect($$g('#menu .map-node.seen').length >= 1 && $$g('#menu .map-node.fog').length >= 1, 'the map shows visited places and fog');
   }
   tap($g('#menu [data-close]')); await sleep(50);
   expect(!$g('#menu .frame'), 'closed');
