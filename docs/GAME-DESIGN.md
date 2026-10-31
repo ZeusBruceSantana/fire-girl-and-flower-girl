@@ -487,18 +487,29 @@ how the girls move, meet trouble, and fight.
 ### 18.2 Battles
 - **Screen:** the party (every joined hero plus the companion-driven ones) on the left, one or two
   troubles on the right, a painted backdrop of where you are. Turn-based. Big move buttons.
-- **A hero's turn:** pick a move from her spellbook (costs ember; her level-1 move is always free),
-  then **power it** with a reading or math challenge. The effect = base power × first-try bonus ×
-  elemental match (×2 when her element is what the trouble is weak to) × combo (×1.5 if the
-  previous hero's move matched too). Together moves need two or three heroes to each power a word,
-  then tap at once.
-- **The trouble** has a **Giggle meter** instead of health. Fill it and the trouble cheers up,
-  wanders off, and leaves loot. On its turn it does something silly: sneezes soot (a hero's next
-  move costs 1 more ember), grumbles (nothing), tangles (one hero skips a turn), zaps (steals 1
-  ember). Nothing ever hurts a hero. Battles cannot be lost: level-1 moves are free, so the meter
-  always fills eventually.
-- **Rewards:** XP (level-ups unlock moves and areas), coins, a loot roll by rarity, sometimes the
-  trouble becomes a friend (a sparkle you can call for a hint).
+- **A hero's turn:** pick a move from her spellbook, **pay its ember first** (her level-1 move is
+  always free), then **power it** with a reading or math challenge. Words read in battle earn no
+  ember: classes, chests and bedtime fill the meter, battles spend it, so "the big move or the free
+  one?" is a real choice. The effect = base power × first-try bonus × elemental match (×2 when the
+  move's element is one of the two the trouble is weak to: each trouble is weak to one princess's own
+  element and to one off-element move, Glow and Flash count as light, Vine as earth) × combo (×1.5 if
+  the previous hero's move matched too, so Flower then Fire can combo) × warmed (×1.5 after a Warm).
+  **Support moves at level 2** instead of a second big number: Warm untangles a friend and makes her
+  next move bigger; Dew clears soot and tangles and calms the trouble for a turn; Hum gives a friend
+  ember. Together moves need two or three heroes to each power a word, then tap at once; they cost
+  4 ember each, use up every participant's turn, and are the finisher, not every turn.
+- **The trouble** has a **Giggle meter** instead of health (a level-1 weed takes two moves from a
+  level-1 pair, never one). Fill it and the trouble cheers up, wanders off, and leaves loot. On its
+  turn it does something silly: sneezes soot (a hero's next paid move costs 1 more ember), grumbles
+  (nothing), tangles (one hero skips a turn, never the same girl twice running), zaps (steals 1
+  ember). A boss in its second phase can do an enormous sneeze (soot on everyone). Nothing ever hurts
+  a hero. Battles cannot be lost: level-1 moves are free, so the meter always fills eventually.
+- **Rewards:** XP (the trouble's xp × its level, scaled down as the hero outlevels it, halved with no
+  first-try word; level-ups unlock moves and areas, levels stop at 10 and 9 and 10 grow the meter),
+  coins, a loot roll by rarity. Every kind of trouble cheered up five times becomes a friend (the
+  Journal lists them; calling one for a hint is Phase F). Troubles on the maps take their level from
+  the party; some come in packs, one only in the rain, one only at bedtime; Constable Pebble posts one
+  wanted trouble a day with a guaranteed drop and a three-heart bounty.
 - **Mini-bosses** at the end of a route are bigger, sillier versions with two phases.
 
 ### 18.3 Exploration
