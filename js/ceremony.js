@@ -141,7 +141,7 @@ const Ceremony = {
   },
 
   itemWord(id) { const it = ITEMS.find(i => i.id === id); return it ? it.word : id; },
-  itemArtKey(id) { const it = ITEMS.find(i => i.id === id); return it && ART[it.art] ? it.art : 'gem'; },
+  itemArtKey(id) { const it = ITEMS.find(i => i.id === id); return it ? itemToastIcon(it) : 'gem'; },   // the item's category icon (data/icons.js via js/bag.js)
 };
 const cerPct = f => Math.round(100 * clamp(f || 0, 0, 1));
 const CER_STAR_SVG = '<svg viewBox="0 0 100 100"><path d="M50 6 L62 36 L94 38 L69 58 L78 90 L50 72 L22 90 L31 58 L6 38 L38 36Z" stroke-linejoin="round"/></svg>';
