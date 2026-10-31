@@ -211,7 +211,9 @@ body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="in
 
 /* ---------- dialogue ---------- */
 #dialogue { position: fixed; inset: 0; z-index: 10; display: none; pointer-events: none; }
-#dialogue.show { display: block; }
+#dialogue.show { display: block; pointer-events: auto; }   /* a transparent backdrop: nothing under it takes taps */
+/* While any overlay layer is open (body[data-layer] is its name), the HUD portrait and the Join / Bye buttons are off. */
+body:not([data-layer=""]) .hudcard, body:not([data-layer=""]) #seats .seatbtn { pointer-events: none; }
 .dlg { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); width: min(92vw, 1400px); display: flex; gap: 2vmin; align-items: flex-end; pointer-events: auto; animation: rise .25s ease-out; }
 @keyframes rise { from { transform: translate(-50%, 4vmin); opacity: 0; } }
 .dlg .portrait { width: 22vmin; height: 22vmin; flex: none; border-radius: 3vmin; overflow: hidden; background: radial-gradient(#fff6e3, var(--parch-dark)); border: .5vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
