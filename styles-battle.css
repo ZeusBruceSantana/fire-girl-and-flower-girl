@@ -15,7 +15,7 @@
 #battle .member.auto { opacity: .8; }
 #battle .member .face { width: 9vmin; height: 9vmin; border-radius: 50%; overflow: hidden; background: #fff; border: .4vmin solid #fff; flex: none; }
 #battle .member .face svg, #battle .member .face img { width: 100%; height: 100%; object-fit: cover; }
-#battle .member .name { font-weight: 900; font-size: 2.6vmin; }
+#battle .member .name { font-weight: 900; font-size: 2.6vmin; max-width: 30vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #battle .member .name .lv { display: inline-block; min-width: 3vmin; padding: 0 .6vmin; border-radius: 1.5vmin; background: var(--gold); color: #fff; font-size: 2vmin; text-align: center; margin-left: .4vmin; }
 #battle .member .ember { display: flex; align-items: center; gap: .5vmin; font-weight: 900; font-size: 2.1vmin; margin-top: .3vmin; }
 #battle .member .ember svg { width: 2.8vmin; height: 2.8vmin; }
@@ -56,7 +56,7 @@
 #battle .moves { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); display: none; gap: 2vmin; padding: 2vmin; border-radius: 3vmin;
   background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .5vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
 #battle .moves.show { display: flex; }
-#battle .move { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3vmin; min-width: var(--btn); height: var(--btn); padding: 0 2vmin; border-radius: 2.6vmin; background: #fff8ea; border: .5vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-weight: 900; }
+#battle .move { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3vmin; min-width: var(--btn); height: var(--btn); min-height: var(--tap); padding: 0 2vmin; border-radius: 2.6vmin; background: #fff8ea; border: .5vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-weight: 900; }
 #battle .move:active { transform: translateY(.5vmin); box-shadow: 0 .3vmin 0 var(--gold-dark); }
 #battle .move .icon { width: 5vmin; height: 5vmin; } #battle .move .icon svg { width: 100%; height: 100%; }
 #battle .move .word { font-size: 3vmin; } #battle .move .cost { font-size: 2vmin; color: var(--gold-dark); }

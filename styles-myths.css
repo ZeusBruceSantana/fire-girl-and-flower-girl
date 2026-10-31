@@ -12,7 +12,7 @@
 #storybook.split .book-pic { flex: none; width: 24vmin; height: 24vmin; }
 .book-text { flex: 1; font-size: 4vmin; line-height: 1.45; }
 #storybook.split .book-text { font-size: 3vmin; }
-.book-text .w { display: inline-block; padding: 0 .3vmin; border-radius: 1vmin; } .book-text .w.said { background: #ffe9a8; }
+.book-text .w, .book .w { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 .3vmin; border-radius: 1vmin; } .book-text .w.said { background: #ffe9a8; }
 .book-nav { display: flex; justify-content: flex-end; margin-top: 1.6vmin; }
 .book-nav .bigbtn.next { flex-direction: row; width: auto; min-width: calc(var(--btn) * 1.2); padding: 0 3vmin; gap: 1.2vmin; font-size: 3vmin; }
 .book-nav .bigbtn.next .icon { width: 5vmin; height: 5vmin; }
@@ -21,16 +21,16 @@
 .book-choice { margin-top: 1.6vmin; padding-top: 1.2vmin; border-top: .3vmin dashed var(--gold); }
 .book-ask { font-weight: 900; font-size: 3vmin; margin-bottom: 1vmin; }
 .book-opts { display: flex; flex-direction: column; gap: 1vmin; }
-.book-opt { display: flex; align-items: center; gap: 1.4vmin; padding: 1.2vmin 2vmin; border-radius: 2vmin; background: #fff8ea; border: .4vmin solid var(--gold); font-weight: 900; font-size: 2.8vmin; min-height: calc(var(--btn) * .55); }
+.book-opt { display: flex; align-items: center; gap: 1.4vmin; padding: 1.2vmin 2vmin; border-radius: 2vmin; background: #fff8ea; border: .4vmin solid var(--gold); font-weight: 900; font-size: 2.8vmin; min-height: max(calc(var(--btn) * .55), 48px); }
 .book-opt .n { width: 4vmin; height: 4vmin; border-radius: 50%; background: var(--gold); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 2.4vmin; flex: none; }
 .book-opt.right { background: #eafbe9; border-color: #5cc77a; } .book-opt.wrong { opacity: .6; }
 .book-reply { margin-top: 1vmin; font-size: 2.8vmin; font-weight: 700; color: #b05a10; min-height: 3vmin; }
 
 /* question cards (inside #challenge, next to the reading cards) */
 .ch-card.myth .ch-pics { display: flex; gap: 2vmin; justify-content: center; flex-wrap: wrap; }
-.ch-pic { width: 18vmin; height: 18vmin; border-radius: 2.4vmin; background: #fff; border: .6vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.ch-pic { width: max(18vmin, 56px); height: max(18vmin, 56px); border-radius: 2.4vmin; background: #fff; border: .6vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .ch-pic img, .ch-pic svg { width: 90%; height: 90%; object-fit: contain; }
-#challenge.split .ch-pic { width: 13vmin; height: 13vmin; }
+#challenge.split .ch-pic { width: max(13vmin, 52px); height: max(13vmin, 52px); }
 .ch-pic.used { opacity: .25; pointer-events: none; } .ch-pic.locked { border-color: #5cc77a; box-shadow: 0 0 0 .6vmin rgba(92,199,122,.4); opacity: .7; pointer-events: none; }
 .ch-pic.hop { animation: hop .5s; } .ch-pic.fade { opacity: .4; } .ch-pic.peek { box-shadow: 0 0 2vmin #ffd23f; } .ch-pic.glow { box-shadow: 0 0 0 .8vmin rgba(255,210,63,.6), 0 0 4vmin #ffd23f; animation: breathe 1s infinite; }
 .ch-card.myth .ch-slots { margin-bottom: 2vmin; }
