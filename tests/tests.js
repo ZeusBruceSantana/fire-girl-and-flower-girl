@@ -322,6 +322,8 @@ test('Every exit, hotspot, teacher, case, adventure and friend points at things 
       if (!SCENES[m.backdrop]) out.push('map ' + id + ' unknown backdrop');
       for (const [k, v] of Object.entries(m.spawn)) if (!Array.isArray(v)) out.push('map ' + id + ' bad spawn ' + k);
     }
+    for (const w of (typeof WANTED !== 'undefined' ? WANTED : [])) { if (!WORLD.troubles[w.kind]) out.push('wanted ' + w.id + ' unknown trouble ' + w.kind); if (!MAPS[w.map]) out.push('wanted ' + w.id + ' unknown map ' + w.map); if (!itemIds.has(w.drop)) out.push('wanted ' + w.id + ' drops missing item ' + w.drop); }
+    for (const [id, m] of Object.entries(MAPS)) for (const t of m.troubles) { if (typeof t.level !== 'number' && !['party', 'party+1'].includes(t.level)) out.push('map ' + id + ' trouble ' + t.id + ' bad level'); for (const p of t.pack || []) if (!WORLD.troubles[p.kind]) out.push('map ' + id + ' pack unknown trouble ' + p.kind); }
     for (const t of Object.values(WORLD.troubles)) { for (const l of t.loot) if (!itemIds.has(l.item)) out.push('trouble ' + t.name + ' loot missing item ' + l.item); if (!['fire', 'flower', 'electric'].includes(t.weakTo)) out.push('trouble ' + t.name + ' bad weakTo'); }
     for (const u of LAIR.upgrades) if (u.needs && !LAIR.upgrades.some(x => x.id === u.needs)) out.push('lair upgrade ' + u.id + ' needs unknown ' + u.needs);
     for (const s of Object.values(ITEM_SETS)) for (const i of s.items) if (!itemIds.has(i)) out.push('set lists missing item ' + i);
