@@ -100,8 +100,9 @@ test('The shared world ends up the same whatever order the actions arrive in', a
         : mk('lair.upgrade', 'right', { id: 'u' + (i % 2), hearts: 0 }, i));
     }
     const run = order => { let s = freshSave(); s.settings.deviceId = 'd0'; for (const a of order) s = apply(s, a); return s.shared; };
+    const canon = o => JSON.stringify(o, (k, v) => (v && typeof v === 'object' && !Array.isArray(v)) ? Object.fromEntries(Object.keys(v).sort().map(x => [x, v[x]])) : v);
     const a = run(acts), b = run([...acts].reverse()), c = run([...acts].sort(() => Math.random() - 0.5));
-    return [JSON.stringify(a) === JSON.stringify(b), JSON.stringify(a) === JSON.stringify(c), a.counters['friend-ice'], a.events.length, a.unlockedAreas.length];
+    return [canon(a) === canon(b), canon(a) === canon(c), a.counters['friend-ice'], a.events.length, a.unlockedAreas.length];
   })()`);
   expectEqual(r.slice(0, 2), [true, true], 'forward, reversed and shuffled give the same shared world');
   expectEqual(r[2], 25, 'the counter kept the biggest value');

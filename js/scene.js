@@ -95,6 +95,13 @@ async function stageGo(sceneId, { positions = {} } = {}) {
   uiSceneName(def.word);
 }
 async function loadLayers(id, def) {
+  // A purchased painting is one file, art/scenes/<id>/full.png (listed in art/overrides.js). It replaces all four
+  // placeholder layers and gets a gentle camera drift instead of parallax.
+  const fullBase = 'art/scenes/' + id + '/full';
+  if (typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(fullBase)) {
+    const img = await loadImage(fullBase);
+    if (img) { Stage.layers = { full: img }; return; }
+  }
   const entries = await Promise.all(def.layers.map(async l => [l, await loadImage('art/scenes/' + id + '/' + l)]));
   Stage.layers = Object.fromEntries(entries);
 }
@@ -201,7 +208,7 @@ function stageDraw() {
   const s = Stage.scale, left = Stage.cam.x - Stage.visW / 2, top = Stage.cam.y - Stage.visH / 2;
   const panX = left, panY = top;                       // how far the camera has moved from the scene's left/top
   // layers, back to front, each panning by its own factor
-  for (const name of ['sky', 'far', 'mid']) drawLayer(ctx, name, panX, panY, s);
+  if (Stage.layers.full) drawFull(ctx, panX, panY, s); else for (const name of ['sky', 'far', 'mid']) drawLayer(ctx, name, panX, panY, s);
   // heroes and npcs sorted by foot y (lower on screen = in front)
   const actors = [...Object.values(Stage.heroes).filter(h => h.visible), ...Stage.npcs];
   actors.sort((a, b) => a.y - b.y);
@@ -214,6 +221,14 @@ function stageDraw() {
   if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); }
   if (QUERY.has('debug')) drawDebug(ctx, panX, panY, s);
   drawFade(ctx, c);
+}
+/* One painting: drawn a touch larger than the scene and drifting very slowly, so it still feels alive. */
+function drawFull(ctx, panX, panY, s) {
+  const img = Stage.layers.full, grow = 1.03;
+  const w = SCENE_SIZE.w * s * grow, h = SCENE_SIZE.h * s * grow;
+  const driftX = Math.sin(Stage.time * 0.15) * 0.5 + 0.5, driftY = Math.cos(Stage.time * 0.11) * 0.5 + 0.5;
+  const dx = -panX * s - (w - SCENE_SIZE.w * s) * driftX, dy = -panY * s - (h - SCENE_SIZE.h * s) * driftY;
+  ctx.drawImage(img, dx, dy, w, h);
 }
 function drawLayer(ctx, name, panX, panY, s) {
   const img = Stage.layers[name];
