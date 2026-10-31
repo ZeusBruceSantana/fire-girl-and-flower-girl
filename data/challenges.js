@@ -58,12 +58,21 @@ const CHALLENGES = {
   },
 };
 
-/* Adaptive repetition ("words she misses come back more often"). Each word a hero has seen keeps a box, 0 to 3.
-   New words start in box 1. A right answer on the first try moves up a box (max 3). Any miss moves down to box 0.
-   When a challenge needs a word, the picker draws from the boxes with these odds, then picks the word in that
-   box seen longest ago. Box 0 words also jump back within the next few challenges. */
+/* Adaptive repetition ("words she misses come back more often"; Phase D: "learned" means three clean first tries,
+   spread out). Each word a hero has seen keeps a box, 0 to 3, a streak of clean first tries, the game day it is
+   next due, and whether she has BUILT it (a recall, not a recognition) during this streak.
+     box 1   new (not seen yet)
+     box 2   getting there: one or more clean first tries; next due later today, then tomorrow, then in three days
+     box 3   learned: `learnAfter` clean first tries, each one made when the word was due, at least one a recall
+     box 0   tricky: any miss. Due again at once (it comes back soon) and the streak starts over.
+   A clean first try on a word that is not due yet is practice: it neither climbs nor drops.
+   The picker (js/words.js) draws due words from the boxes with these odds. */
 const WORD_BOXES = {
   startBox: 1,
   pickOdds: { 0: 0.4, 1: 0.3, 2: 0.2, 3: 0.1 },   // must add up to 1
   comeBackWithin: 3,                             // a missed word returns within this many challenges
+  learnAfter: 3,                                 // clean first tries (each when due) before a word is learned
+  gapDays: [0, 1, 3],                            // after the 1st, 2nd, 3rd clean first try: due again in this many days
+  learnedGapDays: 7,                             // a learned word still comes round once a week
+  recallTypes: ['letter-tiles', 'sound-boxes', 'lock'],   // building the word from memory counts as a recall
 };

@@ -109,8 +109,7 @@ const ACTIONS = {
   'hero.adventure': (s, a) => { s.heroes[a.hero].adventures[a.payload.adventure] = { beat: a.payload.beat, done: !!a.payload.done }; },
   'hero.words':  (s, a) => { s.heroes[a.hero].words = cleanWords(a.payload.words); },
   'hero.word':   (s, a) => { const st = s.heroes[a.hero].wordStats, w = a.payload.word, r = st[w] || { seen: 0, right: 0, wrong: 0, lastSeen: 0, box: WORD_BOXES.startBox };
-                             // a first-try win climbs a box; any miss on the way (even if she got it in the end) drops to box 0 so it comes back soon
-                             r.seen++; if (a.payload.right && a.payload.firstTry) { r.right++; r.box = Math.min(3, r.box + 1); } else if (a.payload.right) { r.right++; r.wrong++; r.box = 0; } else { r.wrong++; r.box = 0; } r.lastSeen = a.t; st[w] = r; },
+                             wordResult(r, a.payload, a.payload.day != null ? a.payload.day : s.shared.clock.day); r.lastSeen = a.t; st[w] = r; },
   'hero.painting': (s, a) => { const h = s.heroes[a.hero]; h.paintings.push({ day: a.payload.day, subject: a.payload.subject, img: a.payload.img }); if (h.paintings.length > 30) h.paintings.shift(); },
 
   // ---- the shared world ----
@@ -127,6 +126,23 @@ const ACTIONS = {
   // ---- this device only (never sent) ----
   'settings.set': (s, a) => { merge(s.settings, a.payload); },
 };
+/* One word result into its stats (the WORD_BOXES rule in data/challenges.js). Old saves have no streak, due or
+   recall yet: they read as a streak of none, due now, no recall. */
+function wordResult(r, p, day) {
+  const B = WORD_BOXES;
+  r.seen++;
+  if (p.right && p.firstTry) {
+    r.right++;
+    if ((r.due || 0) > day) return;                                    // not due yet: practice, no change
+    r.streak = (r.box === 0 || r.box === 1 ? 0 : r.streak || 0) + 1;
+    if (p.recall) r.recall = true;
+    if (r.box === 3 || r.streak >= B.learnAfter && r.recall) { r.box = 3; r.due = day + B.learnedGapDays; }
+    else { r.box = 2; r.due = day + B.gapDays[Math.min(r.streak, B.gapDays.length) - 1]; }
+  } else {                                                             // any miss on the way, even if she got it in the end
+    if (p.right) r.right++;
+    r.wrong++; r.box = 0; r.streak = 0; r.recall = false; r.due = day;
+  }
+}
 const LOCAL_ONLY = new Set(['settings.set']);
 /* A word list as typed by a grown-up, tidied: one word per entry ("ice cream" is two), lower case,
    nothing empty, no repeats (the first one stays), at most 200. The parent screen and the reducer both use it. */

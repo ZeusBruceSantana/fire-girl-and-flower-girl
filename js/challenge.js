@@ -18,29 +18,19 @@ const Challenge = {
   },
   get any() { return Object.values(this.active)[0] || null; },
 
-  /* Pick the next word for a hero: boxes 0-3 with the odds in WORD_BOXES, the least recently seen in that box. */
-  pickWord(seat, rng = Math.random) {
-    const h = S.heroes[seat];
-    const pool = h.words.length ? h.words : STARTER_WORDS.flatMap(g => g.words.map(w => w.word));
-    const stats = h.wordStats;
-    const byBox = { 0: [], 1: [], 2: [], 3: [] };
-    for (const w of pool) byBox[(stats[w] ? stats[w].box : WORD_BOXES.startBox)].push(w);
-    let r = rng(), box = 0;
-    for (const b of [0, 1, 2, 3]) { r -= WORD_BOXES.pickOdds[b]; if (r <= 0 && byBox[b].length) { box = b; break; } }
-    let list = byBox[box].length ? byBox[box] : [0, 1, 2, 3].map(b => byBox[b]).find(l => l.length) || pool;
-    list = [...list].sort((a, b) => ((stats[a] && stats[a].lastSeen) || 0) - ((stats[b] && stats[b].lastSeen) || 0));
-    return list[Math.min(list.length - 1, Math.floor(rng() * Math.min(3, list.length)))];
-  },
+  /* The next word for a hero (js/words.js: due words, missed words first, patterns spaced out). */
+  pickWord(seat, rng = Math.random, filter = null) { return Words.pick(seat, { rng, filter }); },
   /* Two wrong words that look a bit like the right one (same length or same first letter when possible). */
   distractors(seat, word, n = 2, rng = Math.random) {
-    const h = S.heroes[seat];
-    const pool = [...new Set([...h.words, ...STARTER_WORDS.flatMap(g => g.words.map(w => w.word))])].filter(w => w !== word);
+    const pool = Words.allWords(seat).filter(w => w !== word);
     const score = w => (w[0] === word[0] ? 2 : 0) + (w.length === word.length ? 1 : 0) + rng() * 0.5;
     return pool.sort((a, b) => score(b) - score(a)).slice(0, n);
   },
 
-  /* emberReward: false means the word earns no ember (in battle, where the spell was paid for first). */
-  run({ seat, type = 'hear-and-pick', reason = null, word = null, prompt = null, emberReward = true }) {
+  /* emberReward: false means the word earns no ember (in battle, where the spell was paid for first).
+     host: an element to draw the card INSIDE (the battle's move area, a lock on a chest) instead of the full-screen
+     challenge layer: no dimmer, no layer of its own; the host's screen keeps running around it. */
+  run({ seat, type = 'hear-and-pick', reason = null, word = null, prompt = null, emberReward = true, host = null }) {
     if (!CHALLENGES[type] || !this['render_' + type]) type = 'hear-and-pick';
     word = word || this.pickWord(seat);
     if (type === 'letter-tiles' && word.length > TILE_WORD_MAX) type = 'hear-and-pick';   // a long word as tiles is an unreadable strip on a phone
@@ -48,12 +38,15 @@ const Challenge = {
       if (this.active[seat]) this.finish(seat, null);
       const card = document.createElement('div');
       card.className = 'ch-card seat-' + seat + ' type-' + type;
-      const a = { seat, type, word, tries: 0, resolve, reason, card, prompt, emberReward };
+      const a = { seat, type, word, tries: 0, resolve, reason, card, prompt, emberReward, host };
       this.active[seat] = a;
-      pushLayer('challenge');
-      this.el.appendChild(card);
+      if (host) { card.classList.add('hosted'); host.appendChild(card); }
+      else {
+        pushLayer('challenge');
+        this.el.appendChild(card);
+        this.el.className = 'show' + (Object.values(this.active).filter(x => !x.host).length > 1 || S.settings.localSeats.length > 1 && S.settings.localSeats.every(isPlayerHere) ? ' split' : '');
+      }
       seatGuard(card, seat);
-      this.el.className = 'show' + (Object.keys(this.active).length > 1 || S.settings.localSeats.length > 1 && S.settings.localSeats.every(isPlayerHere) ? ' split' : '');
       this['render_' + type](a);
     });
   },
@@ -139,7 +132,7 @@ const Challenge = {
     const firstTry = a.tries === 0;
     const reward = CHALLENGES[a.type].reward[Math.min(a.tries, 2)];
     if (el) el.classList.add('right');
-    dispatch('hero.word', a.seat, { word: a.word, right: true, firstTry });
+    dispatch('hero.word', a.seat, { word: a.word, right: true, firstTry, recall: WORD_BOXES.recallTypes.includes(a.type), day: S.shared.clock.day });
     let gained = 0;
     if (a.emberReward) {
       const h = S.heroes[a.seat];
@@ -157,7 +150,7 @@ const Challenge = {
     if (!a) return;
     delete this.active[seat];
     a.card.remove();
-    if (!Object.keys(this.active).length) { this.el.className = ''; this.el.innerHTML = ''; popLayer('challenge'); }
+    if (!a.host && !Object.values(this.active).some(x => !x.host)) { this.el.className = ''; this.el.innerHTML = ''; popLayer('challenge'); }
     a.resolve(result);
   },
   close() { for (const seat of Object.keys(this.active)) this.finish(seat, null); },

@@ -152,7 +152,7 @@ test('Words a hero misses drop to box 0 and first-try wins climb', async () => {
   await openGame(null);
   G(`dispatch('hero.word', 'left', { word: 'ship', right: true, firstTry: true }); dispatch('hero.word', 'left', { word: 'ship', right: true, firstTry: true }); dispatch('hero.word', 'left', { word: 'cat', right: false });`);
   const st = G('S.heroes.left.wordStats');
-  expectEqual([st.ship.box, st.ship.right, st.cat.box, st.cat.wrong], [3, 2, 0, 1], 'ship climbed to box 3, cat fell to box 0');
+  expectEqual([st.ship.box, st.ship.right, st.cat.box, st.cat.wrong], [2, 2, 0, 1], 'ship climbed (learned needs time: Phase D), cat fell to box 0');
 });
 
 /* =====================================================================
