@@ -43,8 +43,6 @@
 
 - Owner generates the first nine scene paintings and the three heroes (ART-PROMPTS.md). As each lands,
   the walk line and tap spots get tuned to it.
-- Engine polish that makes painted art read as a game: vignette, color grading by time of day, soft
-  depth, light shafts, smoother walking.
 - Epic 2, the first school day: the timetable, Spells class (reading challenges with each twin's own
   words), lunch with two friends and ice cream, bedtime summary. The first playable day.
 
