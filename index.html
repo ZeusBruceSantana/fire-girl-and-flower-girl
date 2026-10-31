@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Fire Girl and Flower Girl">
+<meta name="theme-color" content="#fff6ee">
+<meta name="format-detection" content="telephone=no">
+<title>Fire Girl and Flower Girl</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="stylesheet" href="styles.css?v=0">
+</head>
+<body data-scene="boot">
+<!--
+  Epic 0: this is only a placeholder title screen. It proves that the page installs,
+  works offline, saves, and that the tests run. The game itself starts in Epic 1.
+  Content (names, kingdoms, items, quests) lives in the data/ folder, never here.
+-->
+<div id="stage">
+  <div class="half left" id="half-left">
+    <div class="hero-card">
+      <div class="hero-art" id="art-left"></div>
+      <div class="hero-name" id="name-left"></div>
+    </div>
+  </div>
+  <div class="half right" id="half-right">
+    <div class="hero-card">
+      <div class="hero-art" id="art-right"></div>
+      <div class="hero-name" id="name-right"></div>
+    </div>
+  </div>
+  <div id="title">
+    <h1 id="game-title"></h1>
+    <p id="game-tagline"></p>
+    <p class="soon">Coming soon</p>
+  </div>
+</div>
+
+<script src="data/world.js"></script>
+<script src="data/challenges.js"></script>
+<script src="data/items.js"></script>
+<script src="data/areas.js"></script>
+<script src="data/quests.js"></script>
+<script src="data/starter-words.js"></script>
+<script src="js/core.js"></script>
+<script src="js/title.js"></script>
+</body>
+</html>

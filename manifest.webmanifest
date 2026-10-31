@@ -1,0 +1,15 @@
+{
+  "name": "Fire Girl and Flower Girl",
+  "short_name": "Fire & Flower",
+  "description": "A two-player reading adventure: two princesses, one magic school, a town that needs help.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#fff6ee",
+  "theme_color": "#fff6ee",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
