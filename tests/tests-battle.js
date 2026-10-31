@@ -11,7 +11,7 @@ async function openWorldB() {
 async function answerChallenge(seat) {   // answer this seat's challenge right, first try
   await until(() => G(`!!Challenge.active['${seat}']`), 3000, 'a word challenge for ' + seat);
   const a = G(`({ type: Challenge.active['${seat}'].type, word: Challenge.active['${seat}'].word })`);
-  if (a.type === 'letter-tiles') { for (const l of a.word) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === l)); await sleep(20); } }
+  if (a.type === 'letter-tiles') { for (const g of G(`Words.sounds(${JSON.stringify(a.word)})`).map(x => x.g)) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === g)); await sleep(20); } }
   else tap($g(`.ch-card.seat-${seat} .ch-opt[data-w="${CSS.escape(a.word)}"]`));
   await until(() => G(`!Challenge.active['${seat}']`), 3000, 'the challenge to finish');
 }
@@ -114,7 +114,7 @@ test('A battle can always go on: a hero with no ember still casts her level-1 sp
 async function answerTiles(seat) {   // answer a letter-tiles card for this seat, first try
   await until(() => G(`!!Challenge.active['${seat}']`), 4000, 'a word challenge for ' + seat);
   const w = G(`Challenge.active['${seat}'].word`);
-  for (const l of w) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === l)); await sleep(20); }
+  for (const g of G(`Words.sounds(${JSON.stringify(w)})`).map(x => x.g)) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === g)); await sleep(20); }
   await until(() => G(`!Challenge.active['${seat}']`), 3000, 'the challenge to finish');
 }
 

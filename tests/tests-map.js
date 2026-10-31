@@ -81,7 +81,7 @@ test('Sparkles and chests on the map give items once; a sign reads aloud', async
   await tapNext();
   await until(() => $$g('.ch-tile').length > 0, 4000, 'the word to build');
   const w = G("Challenge.active.left.word");
-  for (const l of w) { tap($$g('.ch-tile:not(.used)').find(t => t.dataset.l === l)); await sleep(20); }
+  for (const g of G(`Words.sounds(${JSON.stringify(w)})`).map(x => x.g)) { tap($$g('.ch-tile:not(.used)').find(t => t.dataset.l === g)); await sleep(20); }
   await until(() => G('S.heroes.left.inventory.includes("wand-twig")'), 4000, 'the chest gave the twig wand');
   expect(G('S.shared.flags["took-chest-greenhouse"]'), 'the chest stays open');
   G('MapStage.tap("left", 1810, 1620)');       // the signpost

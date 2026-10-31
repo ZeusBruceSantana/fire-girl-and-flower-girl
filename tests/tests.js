@@ -377,9 +377,10 @@ test('Hear it, tap it: a wrong tap gives a hint and the right word always wins i
   const wrong = $$g('.ch-opt').filter(o => o.dataset.w !== 'ship');
   tap(wrong[0]); await sleep(50);
   expect(wrong[0].classList.contains('out'), 'the wrong one fades out');
-  expect($g('.ch-opt[data-w="ship"]').classList.contains('first-letter'), 'hint 1: the first letter is marked');
+  expect(!$g('.ch-opt[data-w="ship"]').classList.contains('first-letter'), 'the first miss is only a wobble (Phase D: help waits)');
   tap(wrong[1]); await sleep(50);
-  expect($g('.ch-opt[data-w="ship"]').classList.contains('glow') || $$g('.ch-opt.fade').length > 0, 'hint 2 or 3 shows');
+  expect($g('.ch-opt[data-w="ship"]').classList.contains('first-letter'), 'the second miss: the helper asks, the first letter is marked');
+  expect($g('.ch-opt[data-w="ship"]').classList.contains('glow'), 'and with no wrong choice left, the right one glows');
   tap($g('.ch-opt[data-w="ship"]'));
   await until(() => G('window.__res'), 3000, 'the challenge to finish');
   const r = G('window.__res');
@@ -433,7 +434,7 @@ async function answerAll(seat) {   // answer whatever challenge is up for this s
   for (let i = 0; i < 12; i++) {
     const a = G(`Challenge.active['${seat}'] ? { type: Challenge.active['${seat}'].type, word: Challenge.active['${seat}'].word } : null`);
     if (!a) return;
-    if (a.type === 'letter-tiles') { for (const l of a.word) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === l)); await sleep(20); } }
+    if (a.type === 'letter-tiles') { for (const g of G(`Words.sounds(${JSON.stringify(a.word)})`).map(x => x.g)) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === g)); await sleep(20); } }
     else tap($g(`.ch-card.seat-${seat} .ch-opt[data-w="${CSS.escape(a.word)}"]`));
     await sleep(80);
   }
