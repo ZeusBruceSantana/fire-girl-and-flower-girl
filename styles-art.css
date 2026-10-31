@@ -1,5 +1,5 @@
 /* Art class: the shared easel with a palette strip on each girl's side. */
-#artclass { position: fixed; inset: 0; display: none; background: rgba(30,18,6,.5); z-index: 6; }
+#artclass { position: fixed; inset: 0; display: none; background: rgba(30,18,6,.5); z-index: 25; }
 #artclass.show { display: block; }
 #artclass .easel-wrap { position: absolute; inset: 2vmin; display: flex; gap: 1.5vmin; }
 #artclass .easel-side { width: 18vmin; flex: none; display: flex; flex-direction: column; align-items: center; gap: 1.2vmin; padding: 1.2vmin; overflow: auto; overscroll-behavior: contain;
@@ -9,24 +9,24 @@
 #artclass .easel-prompts { display: flex; justify-content: space-between; gap: 2vmin; padding: 1.2vmin 2vmin; min-height: 7vmin; background: linear-gradient(#fff6e3, var(--parch)); border-bottom: .4vmin solid var(--gold); font-weight: 900; font-size: 2.8vmin; color: var(--ink2); }
 #artclass .prompt { flex: 1; } #artclass .prompt.seat-right { text-align: right; }
 #artclass .prompt .n { display: inline-block; background: var(--gold); color: #fff; border-radius: 2vmin; padding: .2vmin 1.2vmin; font-size: 2.2vmin; margin-right: .6vmin; }
-#artclass .prompt .w { display: inline-block; font-size: 4vmin; color: #b05a10; padding: 0 .8vmin; border-radius: 1.2vmin; background: #fff; border: .3vmin solid var(--gold); }
+#artclass .prompt .w { display: inline-flex; align-items: center; min-height: var(--tap); font-size: 4vmin; color: #b05a10; padding: 0 .8vmin; border-radius: 1.2vmin; background: #fff; border: .3vmin solid var(--gold); }
 #artclass .easel-canvas { flex: 1; width: 100%; height: 100%; touch-action: none; cursor: crosshair; display: block; }
 #artclass .pal-title { font-weight: 900; font-size: 2.2vmin; text-align: center; }
 #artclass .colors { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1vmin; }
-#artclass .swatch { width: 6.5vmin; height: 6.5vmin; border-radius: 50%; background: var(--c); border: .5vmin solid #fff; box-shadow: 0 .4vmin 1vmin rgba(0,0,0,.25); }
+#artclass .swatch { width: max(6.5vmin, var(--tap)); height: max(6.5vmin, var(--tap)); border-radius: 50%; background: var(--c); border: .5vmin solid #fff; box-shadow: 0 .4vmin 1vmin rgba(0,0,0,.25); }
 #artclass .swatch.on { border-color: var(--ink2); transform: scale(1.12); }
 #artclass .swatch.crafted { box-shadow: 0 0 0 .4vmin var(--gold), 0 .4vmin 1vmin rgba(0,0,0,.25); }
 #artclass .swatch.glow { box-shadow: 0 0 2vmin var(--c), 0 0 0 .4vmin var(--gold); }
 #artclass .brushes { display: flex; gap: .8vmin; }
-#artclass .brush { width: 5vmin; height: 5vmin; border-radius: 50%; background: #fff; border: .4vmin solid var(--gold); display: flex; align-items: center; justify-content: center; }
+#artclass .brush { width: max(5vmin, var(--tap)); height: max(5vmin, var(--tap)); border-radius: 50%; background: #fff; border: .4vmin solid var(--gold); display: flex; align-items: center; justify-content: center; }
 #artclass .brush span { display: block; border-radius: 50%; background: var(--ink2); }
 #artclass .brush.on { border-color: var(--ink2); background: #ffe9a8; }
 #artclass .stamps { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8vmin; }
-#artclass .stamp { width: 6.5vmin; height: 6.5vmin; border-radius: 1.6vmin; background: #fff; border: .4vmin solid var(--gold); padding: .8vmin; }
+#artclass .stamp { width: max(6.5vmin, var(--tap)); height: max(6.5vmin, var(--tap)); border-radius: 1.6vmin; background: #fff; border: .4vmin solid var(--gold); padding: .8vmin; }
 #artclass .stamp svg { width: 100%; height: 100%; }
 #artclass .stamp.on { border-color: var(--ink2); background: #ffe9a8; }
 #artclass .tools { display: flex; flex-direction: column; gap: .6vmin; width: 100%; }
-#artclass .tool { text-align: center; font-weight: 800; font-size: 2vmin; padding: 1vmin; border-radius: 1.6vmin; background: #fff8ea; border: .3vmin solid var(--gold); }
+#artclass .tool { text-align: center; font-weight: 800; font-size: 2vmin; min-height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 1vmin; border-radius: 1.6vmin; background: #fff8ea; border: .3vmin solid var(--gold); }
 #artclass .tool:active { background: #ffe9a8; }
 #artclass .bigbtn.done { margin-top: auto; border-color: #5cc77a; box-shadow: 0 .8vmin 0 #33935a; background: #eafbe9; width: 14vmin; height: 12vmin; font-size: 2.4vmin; }
 body[data-layer="artclass"] #hud { opacity: .35; }

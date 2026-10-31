@@ -1,5 +1,5 @@
 /* The Lair stations: upgrades, gallery, inviting friends, scrolls. Parchment and gold like the menu. */
-#lair { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
+#lair { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
 #lair.show { display: flex; }
 .lair-frame { width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
 .lair-head { display: flex; align-items: center; gap: 2vmin; padding: 1.6vmin 2.4vmin; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }
@@ -16,7 +16,7 @@
 .lc-word { font-weight: 900; font-size: 3vmin; } .lc-cost { display: inline-flex; align-items: center; gap: .4vmin; font-weight: 900; font-size: 2.4vmin; } .lc-cost svg { width: 3vmin; height: 3vmin; }
 .lc-about { font-size: 2.1vmin; opacity: .75; margin: .6vmin 0; } .lc-unlocks { font-size: 2.1vmin; font-weight: 800; color: var(--gold-dark); }
 .lc-state { margin-top: 1vmin; font-weight: 800; font-size: 2.2vmin; min-height: 5vmin; display: flex; align-items: center; }
-#lair .bigbtn.small, #menu .lair-badges .bigbtn.small { width: auto; height: auto; min-height: 6vmin; padding: 1vmin 2.4vmin; font-size: 2.4vmin; flex-direction: row; }
+#lair .bigbtn.small, #menu .lair-badges .bigbtn.small { width: auto; height: auto; min-height: max(6vmin, var(--tap)); min-width: var(--tap); padding: 1vmin 2.4vmin; font-size: 2.4vmin; flex-direction: row; }
 .lair-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(26vmin, 1fr)); gap: 2.4vmin; }
 .lair-gallery .frame { position: relative; background: #fff; border: 1.2vmin solid #c98b4a; outline: .4vmin solid var(--gold-dark); border-radius: .6vmin; padding: .6vmin; min-height: var(--btn); box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.25); }
 .lair-gallery .frame.seat-left { border-color: var(--L); } .lair-gallery .frame.seat-right { border-color: var(--R); }

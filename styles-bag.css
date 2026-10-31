@@ -31,13 +31,13 @@
 .cell.ghost { position: fixed; z-index: 50; width: 17vmin; transform: translate(-50%, -60%) rotate(-4deg); pointer-events: none; opacity: .9; box-shadow: 0 2vmin 4vmin rgba(0,0,0,.35); }
 
 /* ---------- crafting overlay (same frame as the menu) ---------- */
-#crafting { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
+#crafting { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
 #crafting.show { display: flex; }
 #crafting .frame { width: min(94vw, 1300px); max-height: 90vh; display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
 #crafting .tabs { display: flex; gap: 1vmin; padding: 1.6vmin 1.6vmin 0; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }
-#crafting .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3vmin; padding: 1vmin 0 1.2vmin; border-radius: 2vmin 2vmin 0 0; font-weight: 900; font-size: 2.2vmin; min-height: calc(var(--btn) * .7); background: #fff8ea; border: .3vmin solid var(--gold); border-bottom: 0; }
+#crafting .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3vmin; padding: 1vmin 0 1.2vmin; border-radius: 2vmin 2vmin 0 0; font-weight: 900; font-size: 2.2vmin; min-height: max(calc(var(--btn) * .7), 48px); background: #fff8ea; border: .3vmin solid var(--gold); border-bottom: 0; }
 #crafting .tab .icon { width: 5.5vmin; height: 5.5vmin; } #crafting .tab .icon svg { width: 100%; height: 100%; }
-#crafting .tab.close { flex: 0 0 12vmin; }
+#crafting .tab.close { flex: 0 0 max(12vmin, 48px); }
 #crafting .page { flex: 1; overflow: auto; padding: 2vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
 #crafting .page-title { font-size: 3.2vmin; font-weight: 900; margin-bottom: 1.6vmin; color: var(--gold-dark); }
 #crafting .recipe { display: flex; align-items: center; gap: 2vmin; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.4vmin 2vmin; margin-bottom: 1.4vmin; }
