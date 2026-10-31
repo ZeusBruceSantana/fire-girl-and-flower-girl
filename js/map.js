@@ -49,6 +49,7 @@ const MapStage = {
     this.npcs = def.npcs.map(n => { const who = WORLD.people[n.who] || WORLD.teachers[n.who]; const sp = new NpcSprite(n.id, n.x); sp.y = n.y; sp.height = 300; sp.def = n; sp.facing = -1; sp.setArt(who.art); return sp; });
     const reveal = typeof gearEffects === 'function' && this.party.some(s => isPlayerHere(s) && gearEffects(s).reveal);
     this.things = def.things.filter(th => !S.shared.flags['took-' + th.id] && (!th.hidden || reveal));
+    if (typeof Cases !== 'undefined' && Cases.thingsFor) this.things.push(...Cases.thingsFor(mapId));
     this.scale = Stage.canvas.height / MAP_VIEW_H; this.visW = Stage.canvas.width / this.scale; this.visH = MAP_VIEW_H;
     this.cam.x = at[0]; this.cam.y = at[1]; this.clampCam();
     if (S.settings.localSeats.some(isPlayerHere) && !S.shared.flags['visited-map-' + mapId]) dispatch('flag.set', S.settings.localSeats.find(isPlayerHere), { flag: 'visited-map-' + mapId });
@@ -137,7 +138,8 @@ const MapStage = {
       await stageGo(d.to, { from: 'map:' + this.map.id, at: d.at });
     } else if (target.kind === 'thing') {
       const th = target.obj;
-      if (th.kind === 'sign') await Dialogue.say({ who: th.word, text: th.text });
+      if (th.kind === 'clue' && typeof Cases !== 'undefined') { await Cases.onClue(seat, th); this.things = this.things.filter(x => x !== th); }
+      else if (th.kind === 'sign') await Dialogue.say({ who: th.word, text: th.text });
       else if (th.kind === 'sparkle') { this.take(th); dispatch('hero.item', seat, { item: th.item }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === th.item).word, { icon: 'gem' }); Stage.heroes[seat].setAnim('hop'); }
       else if (th.kind === 'chest') {
         await Dialogue.say({ seat, who: WORLD.helper.name, art: WORLD.helper.art, text: WORLD.ui.openChest });
@@ -150,6 +152,7 @@ const MapStage = {
     } else if (target.kind === 'npc') {
       const n = target.obj.def || target.obj, who = WORLD.people[n.who] || WORLD.teachers[n.who];
       if (n.shop && typeof Shop !== 'undefined' && Shop.open) return Shop.open(seat, n.shop);
+      if (n.who === 'pebble' && typeof Cases !== 'undefined' && Cases.talkToPebble) return Cases.talkToPebble(seat);
       if (n.who === 'cook') return Day.iceCream(seat);
       await Dialogue.say({ who: who.name, art: who.art, text: n.talk || who.about });
     } else if (target.kind === 'trouble') {
@@ -197,6 +200,7 @@ const MapStage = {
       const [x, y, w, h] = th.rect, cx = x + w / 2, cy = y + h / 2;
       ctx.save();
       if (th.kind === 'chest') { ctx.fillStyle = '#8a5a2a'; roundRect(ctx, x, y, w, h, 14); ctx.fill(); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + w * 0.42, y + h * 0.3, w * 0.16, h * 0.4); ctx.strokeStyle = '#5a3a1a'; ctx.lineWidth = 6; roundRect(ctx, x, y, w, h, 14); ctx.stroke(); }
+      else if (th.kind === 'clue') { ctx.globalAlpha = 0.7 + Math.sin(t * 4 + x) * 0.3; ctx.fillStyle = '#7fc4ff'; ctx.shadowColor = '#7fc4ff'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '900 48px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', cx, cy + 17); }
       else if (th.kind === 'sparkle') { ctx.globalAlpha = 0.6 + Math.sin(t * 5 + x) * 0.4; ctx.fillStyle = '#fff6a8'; ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 30; star(ctx, cx, cy, 5, 38, 16, t); ctx.fill(); }
       else if (th.kind === 'sign') { ctx.fillStyle = '#8a5a2a'; ctx.fillRect(cx - 10, cy, 20, h); ctx.fillStyle = '#e9c58a'; roundRect(ctx, x, y, w, h * 0.6, 10); ctx.fill(); ctx.strokeStyle = '#8a5a2a'; ctx.lineWidth = 5; roundRect(ctx, x, y, w, h * 0.6, 10); ctx.stroke(); }
       ctx.restore();

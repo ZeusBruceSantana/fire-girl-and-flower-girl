@@ -39,6 +39,9 @@ const Day = {
     if (action === 'sit' && p === 'lunch') return this.sitAtTable(seat, hotspot);
     if (action === 'sit') return Dialogue.say({ seat, who: WORLD.teachers.cook.name, art: 'cook', text: WORLD.ui.notLunchYet });
     if (action === 'inventory' && typeof Bag !== 'undefined' && Bag.openCrafting) return Bag.openCrafting(seat);
+    if (['upgrades', 'gallery', 'invite', 'scrolls'].includes(action) && typeof Lair !== 'undefined' && Lair.open) return Lair.open(seat, action);
+    if (action === 'cases' && typeof Cases !== 'undefined' && Cases.openBoard) return Cases.openBoard(seat);
+    if (action === 'map') return Menu.open(seat, 'map');
     if (action === 'sleep' && (p === 'bedtime' || p === 'free')) return this.bedtime();
     if (action === 'sleep' && p === 'wake') return this.wake();
     if (action === 'sleep') return Dialogue.say({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: WORLD.ui.notSleepy });
@@ -111,7 +114,8 @@ const Day = {
       kind = pick != null && talk.replies[pick].kind;
       if (!kind) { tries++; await Dialogue.say({ who: f.word, art: f.art, text: WORLD.ui.hmmAgain }); }
     }
-    const hearts = (tries === 0 ? 2 : 1) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
+    let hearts = (tries === 0 ? 2 : 1) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
+    if (typeof ArtClass !== 'undefined' && ArtClass.offerGift) hearts += await ArtClass.offerGift(seat, friendId);   // a painting as a gift, if she has one
     dispatch('hero.hearts', seat, { amount: hearts, friend: friendId });
     dispatch('hero.stars', seat, { key: talkedKey, stars: 1 });
     const newLvl = f.levels.filter(l => (S.heroes[seat].friends[friendId] || 0) >= l.hearts).length;

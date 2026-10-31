@@ -74,6 +74,7 @@ const MAPS = {
     spawn: { default: [2048, 700], 'map:whispering-woods': [2048, 700] },
     doors: [
       { id: 'bridge', word: 'the bridge to the woods', rect: [1948, 300, 200, 200], to: 'map:whispering-woods', at: [3800, 2700] },
+      { id: 'orchard-road', word: 'the road to the orchard', rect: [3800, 1500, 100, 300], to: 'map:petalvale-orchard', at: [300, 1520], locked: 'route-2', lockedSay: 'The orchard road. Professor Hoot said we may go once we have read the story of the seasons.' },
     ],
     things: [
       { id: 'sign-square', word: 'a signpost', kind: 'sign', rect: [1420, 1250, 120, 120], text: 'Middlemarket. Bakery left. Constable right. Market this way.' },
@@ -88,6 +89,32 @@ const MAPS = {
     ],
     troubles: [
       { id: 't-smoke-town', kind: 'sneezy-smoke', x: 3500, y: 2100, roam: [3320, 1900, 560, 380], level: 2 },
+    ],
+  },
+
+  'petalvale-orchard': {
+    word: 'Petalvale Orchard', size: [4096, 3072], tint: 'day', particles: 'petals', backdrop: 'woods-path',
+    walk: [[200, 1400, 1000, 260], [1100, 600, 260, 1100], [1100, 1400, 1400, 260], [2400, 1000, 260, 1800], [2400, 2500, 1300, 300], [1100, 500, 1000, 260], [1900, 300, 300, 400], [3100, 1600, 700, 600]],
+    spawn: { default: [300, 1520], 'map:middlemarket': [300, 1520], 'map:whispering-woods': [300, 1520] },
+    doors: [
+      { id: 'back',  word: 'back to town',          rect: [200, 1400, 150, 260],  to: 'map:middlemarket', at: [3700, 2700] },
+      { id: 'gate',  word: 'Persephone\'s Gate',     rect: [1950, 250, 200, 120],  to: 'scene:woods-path', at: 1280, locked: 'gate-of-seasons', lockedSay: 'The gate is half frozen and half scorched. It only opens for warm AND growing, together.' },
+      { id: 'lane',  word: 'the way to Lantern Lane', rect: [3650, 2500, 150, 300], to: 'map:whispering-woods', at: [300, 350], locked: 'route-3', lockedSay: 'Lantern Lane is further than we are allowed today. Soon.' },
+    ],
+    things: [
+      { id: 'sign-orchard', word: 'a signpost', kind: 'sign', rect: [400, 1300, 120, 120], text: 'Petalvale Orchard. Apples free. Weeds not.' },
+      { id: 'chest-orchard', word: 'a chest under the apple tree', kind: 'chest', rect: [2460, 2560, 140, 110], inside: [{ item: 'crown-daisy', chance: 0.6 }, { item: 'petals', chance: 1 }] },
+      { id: 'sparkle-5', word: 'a sparkle', kind: 'sparkle', rect: [3400, 1900, 80, 80], item: 'gem-dewdrop' },
+      { id: 'sparkle-6', word: 'a sparkle', kind: 'sparkle', rect: [1300, 700, 80, 80], item: 'seed-sun' },
+    ],
+    npcs: [
+      { id: 'fern-orchard', word: 'Old Fern', who: 'gardener', x: 1500, y: 1350, talk: 'The gate at the top of the orchard froze on one side and scorched on the other. Just like the old story. Hmm.' },
+    ],
+    troubles: [
+      { id: 't-weed-3',   kind: 'grumpy-weed',  x: 1700, y: 1500, roam: [1200, 1420, 1100, 200], level: 2 },
+      { id: 't-frost-2',  kind: 'cold-snap',    x: 2500, y: 1800, roam: [2420, 1100, 200, 1300], level: 3 },
+      { id: 't-smoke-2',  kind: 'sneezy-smoke', x: 3400, y: 2000, roam: [3120, 1620, 650, 540], level: 3 },
+      { id: 't-frost-boss', kind: 'cold-snap',  x: 2050, y: 450,  roam: [1920, 320, 240, 340], level: 3, boss: true },
     ],
   },
 };

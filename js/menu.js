@@ -90,6 +90,7 @@ const Menu = {
   },
   /* ---------- Badges ---------- */
   render_badges(body, seat, h) {
+    if (typeof Lair !== 'undefined' && Lair.renderBadges) return Lair.renderBadges(body, seat, h);
     body.innerHTML = `<div class="grid badges">${Object.entries(BADGES).map(([id, b]) => `<div class="cell ${h.badges.includes(id) ? 'got' : 'silhouette'}"><div class="art">${ART.badge || ART.check}</div><div class="word">${esc(h.badges.includes(id) ? b.word : '?')}</div></div>`).join('')}</div>`;
   },
   /* ---------- Friends ---------- */
