@@ -1,35 +1,49 @@
-/* The case board (js/cases.js): a cork board in the parchment-and-gold look. */
+/* =====================================================================
+   EMBER BLOOM: the case board (js/cases.js): a cork board in the parchment-and-gold frame. Clue notes are pinned
+   paper; suspects are cards; locked cases carry a padlock. Tokens and the button family live in styles.css.
+   ===================================================================== */
 #cases { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: var(--dim); }
 #cases.show { display: flex; }
-#cases .frame { position: relative; width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: var(--parchment); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
-#cases .head { display: flex; align-items: center; justify-content: space-between; padding: 1.6vmin 2.4vmin; border-bottom: .4vmin solid var(--gold); }
-#cases h2 { margin: 0; font-size: 3.6vmin; color: var(--gold-dark); }
-#cases .board { flex: 1; overflow: auto; padding: 2vmin 3vmin; background: #c9a06a; background-image: radial-gradient(rgba(0,0,0,.08) 1px, transparent 1.5px); background-size: 2vmin 2vmin; }
-#cases .case-name { font-size: 4vmin; font-weight: 800; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); margin-bottom: 1.4vmin; }
-#cases .label { font-weight: 800; font-size: 2.6vmin; color: #fff8ea; text-shadow: 0 1px 3px rgba(0,0,0,.4); margin: 1.4vmin 0 .8vmin; }
-#cases .clues { display: flex; flex-direction: column; gap: 1vmin; }
-#cases .clue { position: relative; background: #fff8ea; border-radius: 1.2vmin; padding: 1.4vmin 2vmin 1.4vmin 4vmin; font-size: 2.6vmin; min-height: 6vmin; box-shadow: 0 .5vmin 1.5vmin rgba(0,0,0,.25); transform: rotate(-.6deg); }
-#cases .clue:nth-child(odd) { transform: rotate(.7deg); }
-#cases .clue .pin { position: absolute; left: 1.4vmin; top: 1.4vmin; width: 2vmin; height: 2vmin; border-radius: 50%; background: #e0609c; box-shadow: inset -.3vmin -.3vmin 0 rgba(0,0,0,.25); }
-#cases .clue:not(.found) { opacity: .55; font-weight: 800; text-align: center; }
-#cases .clue.glow { box-shadow: 0 0 0 .8vmin rgba(255,210,63,.7), 0 0 4vmin #ffd23f; animation: breathe 1s infinite; }
+#cases .frame { position: relative; width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); overflow: hidden; animation: rise-in var(--dur-in) var(--ease-out); }
+#cases .head { display: flex; align-items: center; padding: 1.6vmin 15vmin 1.6vmin 3vmin; min-height: 13vmin; flex: none; border-bottom: .3vmin solid var(--paper-2); }   /* room for the Close control, top-right */
+#cases h2 { margin: 0; font-size: var(--t-title); line-height: 1.1; color: var(--gold-deep); }
+#cases .board { flex: 1; min-height: 0; overflow: auto; padding: 2.4vmin 3vmin 6vmin; overscroll-behavior: contain; touch-action: pan-y;
+  background: #c9a06a radial-gradient(rgba(70,40,10,.12) 1px, transparent 1.6px) 0 0 / 1.8vmin 1.8vmin; box-shadow: inset 0 0 0 .8vmin #a8784a, inset 0 1vmin 3vmin rgba(60,30,0,.35);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 4vmin), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 4vmin), transparent); }
+#cases .case-name { font-family: var(--font-display); font-size: var(--t-title); font-weight: 800; line-height: 1.1; color: #fff; text-shadow: 0 .3vmin 1vmin rgba(60,30,0,.55); margin-bottom: 1.4vmin; }
+#cases .label { font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); color: #fff8ec; text-shadow: 0 .2vmin .6vmin rgba(60,30,0,.55); margin: 2vmin 0 1.2vmin; }
+
+/* clue notes: pinned paper, laid out on a grid so they never overlap */
+#cases .clues { display: grid; grid-template-columns: repeat(auto-fill, minmax(38vmin, 1fr)); gap: 2.6vmin 2.4vmin; }
+#cases .clues .label { grid-column: 1 / -1; margin: 0; }
+#cases .clue { position: relative; background: #fffaf0; border-radius: .6vmin; padding: 2.6vmin 2.2vmin 1.8vmin; font-size: var(--t-body); line-height: 1.35; min-height: 9vmin;
+  box-shadow: 0 .4vmin .6vmin rgba(60,30,0,.25), 0 1.4vmin 2.4vmin rgba(60,30,0,.2); transform: rotate(-.8deg); }
+#cases .clue:nth-child(odd) { transform: rotate(.9deg); }
+#cases .clue .pin { position: absolute; left: 50%; top: -1vmin; width: 2.8vmin; height: 2.8vmin; margin-left: -1.4vmin; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff9ac4, #e0609c 55%, #a83a6e); box-shadow: 0 .5vmin .6vmin rgba(60,30,0,.45); }
+#cases .clue:not(.found) { background: rgba(255,250,240,.6); color: var(--ink-soft); font-family: var(--font-display); font-weight: 800; font-size: var(--t-title); text-align: center; }
+#cases .clue.glow { box-shadow: 0 0 0 .8vmin var(--gold-glow), 0 0 4vmin var(--gold-glow); animation: breathe 1s infinite; }
+
+/* suspects */
 #cases .suspects { display: flex; gap: 2vmin; flex-wrap: wrap; }
-#cases .suspect { width: 22vmin; min-height: var(--btn); background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.4vmin; text-align: center; box-shadow: 0 .6vmin 0 var(--gold-dark); }
-#cases .suspect:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
-#cases .suspects.not-yet .suspect { opacity: .6; filter: grayscale(.5); }
+#cases .suspect { width: 22vmin; min-height: var(--btn); background: var(--paper-0); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: 1.4vmin 1.2vmin; text-align: center; box-shadow: 0 var(--press) 0 var(--gold-deep); cursor: pointer; transition: transform 80ms, box-shadow 80ms; }
+#cases .suspect:active { transform: translateY(.6vmin); box-shadow: 0 .2vmin 0 var(--gold-deep); }
+#cases .suspects.not-yet .suspect { opacity: .7; filter: saturate(.4); }
 #cases .suspect .art { width: 14vmin; height: 14vmin; margin: 0 auto; } #cases .suspect .art svg, #cases .suspect .art img { width: 100%; height: 100%; object-fit: contain; }
-#cases .suspect .word { font-weight: 800; font-size: 2.6vmin; margin-top: .6vmin; }
-#cases .suspect.nope { opacity: .45; transform: scale(.94); }
-#cases .suspect.yes { border-color: #5cc77a; box-shadow: 0 0 0 .8vmin rgba(92,199,122,.5), 0 .6vmin 0 #33935a; }
-#cases .verdict { margin-top: 1.6vmin; min-height: 4vmin; font-weight: 800; font-size: 3vmin; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
-#cases .empty { font-size: 3.2vmin; font-weight: 800; color: #fff8ea; text-shadow: 0 1px 3px rgba(0,0,0,.4); padding: 4vmin; text-align: center; }
-#cases .others { padding: 1.4vmin 3vmin 2vmin; border-top: .4vmin solid var(--gold); }
-#cases .others .label { color: var(--gold-dark); text-shadow: none; margin: 0 0 .6vmin; }
-#cases .case-row { display: inline-flex; align-items: center; gap: .8vmin; margin: .3vmin 1.6vmin .3vmin 0; font-weight: 800; font-size: 2.4vmin; }
-#cases .case-row .mark { width: 3.4vmin; height: 3.4vmin; } #cases .case-row .mark svg { width: 100%; height: 100%; }
-#cases .case-row.locked { opacity: .45; } #cases .case-row.solved { color: #2f8a4f; }
+#cases .suspect .word { font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); line-height: 1.15; margin-top: .6vmin; overflow-wrap: anywhere; }
+#cases .suspect.nope { opacity: .5; transform: scale(.94); }
+#cases .suspect.yes { border-color: var(--ok-deep); box-shadow: 0 0 0 .8vmin rgba(76,175,109,.45), 0 var(--press) 0 var(--ok-deep); }
+#cases .verdict { margin-top: 1.6vmin; min-height: 4vmin; font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); color: #fff; text-shadow: 0 .2vmin .6vmin rgba(60,30,0,.55); }
+#cases .empty { font-family: var(--font-display); font-size: var(--t-body); font-weight: 700; color: #fff8ec; text-shadow: 0 .2vmin .6vmin rgba(60,30,0,.55); padding: 4vmin; text-align: center; }
+
+/* the row of other cases along the bottom: a tick when solved, a star when open, a padlock when not yet */
+#cases .others { flex: none; padding: 1.4vmin 3vmin 2vmin; border-top: .3vmin solid var(--paper-2); }
+#cases .others .label { color: var(--gold-deep); text-shadow: none; margin: 0 0 .6vmin; }
+#cases .case-row { display: inline-flex; align-items: center; gap: .8vmin; margin: .3vmin 2vmin .3vmin 0; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); }
+#cases .case-row .mark { width: 3.6vmin; height: 3.6vmin; } #cases .case-row .mark svg { width: 100%; height: 100%; }
+#cases .case-row.locked { color: var(--ink-soft); } #cases .case-row.locked .mark { opacity: .6; } #cases .case-row.solved { color: var(--ok-deep); }
+
 /* the two logic puzzles */
 .ch-tiles.mem .ch-tile.mem { background: var(--gold); color: transparent; }
-.ch-tiles.mem .ch-tile.mem.face, .ch-tiles.mem .ch-tile.mem.done { background: #fff; color: var(--ink2); }
-.ch-tiles.mem .ch-tile.mem.done { border-color: #5cc77a; opacity: .7; }
-#cases .head { padding-right: 14vmin; min-height: 13vmin; }   /* room for the Close control, top-right */
+.ch-tiles.mem .ch-tile.mem.face, .ch-tiles.mem .ch-tile.mem.done { background: #fff; color: var(--ink); }
+.ch-tiles.mem .ch-tile.mem.done { border-color: var(--ok); opacity: .7; }

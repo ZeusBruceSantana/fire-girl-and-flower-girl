@@ -3,30 +3,30 @@
 #artclass.show { display: block; }
 #artclass .easel-wrap { position: absolute; inset: 2vmin; display: flex; gap: 1.5vmin; }
 #artclass .easel-side { width: 18vmin; flex: none; display: flex; flex-direction: column; align-items: center; gap: 1.2vmin; padding: 1.2vmin; overflow: auto; overscroll-behavior: contain;
-  background: var(--parchment); border: .5vmin solid var(--gold-dark); border-radius: 2.4vmin; box-shadow: var(--frame-shadow); color: var(--ink2); }
+  background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); }
 #artclass .easel-side:not([data-seat]) { visibility: hidden; }
-#artclass .easel { flex: 1; display: flex; flex-direction: column; background: #fff; border: .6vmin solid var(--gold-dark); border-radius: 2.4vmin; box-shadow: var(--frame-shadow); overflow: hidden; }
-#artclass .easel-prompts { display: flex; justify-content: space-between; gap: 2vmin; padding: 1.2vmin 2vmin; min-height: 7vmin; background: linear-gradient(#fff6e3, var(--parch)); border-bottom: .4vmin solid var(--gold); font-weight: 800; font-size: 2.8vmin; color: var(--ink2); }
+#artclass .easel { flex: 1; display: flex; flex-direction: column; background: #fff; border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); overflow: hidden; }
+#artclass .easel-prompts { display: flex; justify-content: space-between; gap: 2vmin; padding: 1.2vmin 2vmin; min-height: 7vmin; background: linear-gradient(var(--paper-0), var(--paper-1)); border-bottom: .3vmin solid var(--paper-2); font-family: var(--font-display); font-weight: 700; font-size: var(--t-body); color: var(--ink); }
 #artclass .prompt { flex: 1; } #artclass .prompt.seat-right { text-align: right; }
-#artclass .prompt .n { display: inline-block; background: var(--gold); color: #fff; border-radius: 2vmin; padding: .2vmin 1.2vmin; font-size: 2.2vmin; margin-right: .6vmin; }
-#artclass .prompt .w { display: inline-flex; align-items: center; min-height: var(--tap); font-size: 4vmin; color: #b05a10; padding: 0 .8vmin; border-radius: 1.2vmin; background: #fff; border: .3vmin solid var(--gold); }
+#artclass .prompt .n { display: inline-block; background: var(--gold); color: #3a2506; border-radius: var(--r); padding: .1vmin 1.2vmin; font-size: var(--t-small); margin-right: .8vmin; }
+#artclass .prompt .w { display: inline-flex; align-items: center; min-height: var(--tap); font-size: var(--t-title); color: var(--L-dark); padding: 0 1vmin; border-radius: var(--r); background: #fff; border: .3vmin solid var(--gold-deep); }
 #artclass .easel-canvas { flex: 1; width: 100%; height: 100%; touch-action: none; cursor: crosshair; display: block; }
-#artclass .pal-title { font-weight: 800; font-size: 2.2vmin; text-align: center; }
+#artclass .pal-title { font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); text-align: center; }
 #artclass .colors { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1vmin; }
 #artclass .swatch { width: max(6.5vmin, var(--tap)); height: max(6.5vmin, var(--tap)); border-radius: 50%; background: var(--c); border: .5vmin solid #fff; box-shadow: 0 .4vmin 1vmin rgba(0,0,0,.25); }
-#artclass .swatch.on { border-color: var(--ink2); transform: scale(1.12); }
+#artclass .swatch.on { border-color: var(--ink); transform: scale(1.12); }
 #artclass .swatch.crafted { box-shadow: 0 0 0 .4vmin var(--gold), 0 .4vmin 1vmin rgba(0,0,0,.25); }
 #artclass .swatch.glow { box-shadow: 0 0 2vmin var(--c), 0 0 0 .4vmin var(--gold); }
 #artclass .brushes { display: flex; gap: .8vmin; }
 #artclass .brush { width: max(5vmin, var(--tap)); height: max(5vmin, var(--tap)); border-radius: 50%; background: #fff; border: .4vmin solid var(--gold); display: flex; align-items: center; justify-content: center; }
-#artclass .brush span { display: block; border-radius: 50%; background: var(--ink2); }
-#artclass .brush.on { border-color: var(--ink2); background: #ffe9a8; }
+#artclass .brush span { display: block; border-radius: 50%; background: var(--ink); }
+#artclass .brush.on { border-color: var(--ink); background: var(--gold-glow); }
 #artclass .stamps { display: grid; grid-template-columns: repeat(2, 1fr); gap: .8vmin; }
 #artclass .stamp { width: max(6.5vmin, var(--tap)); height: max(6.5vmin, var(--tap)); border-radius: 1.6vmin; background: #fff; border: .4vmin solid var(--gold); padding: .8vmin; }
 #artclass .stamp svg { width: 100%; height: 100%; }
-#artclass .stamp.on { border-color: var(--ink2); background: #ffe9a8; }
+#artclass .stamp.on { border-color: var(--ink); background: var(--gold-glow); }
 #artclass .tools { display: flex; flex-direction: column; gap: .6vmin; width: 100%; }
-#artclass .tool { text-align: center; font-weight: 800; font-size: 2vmin; min-height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 1vmin; border-radius: 1.6vmin; background: #fff8ea; border: .3vmin solid var(--gold); }
-#artclass .tool:active { background: #ffe9a8; }
+#artclass .tool { text-align: center; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); line-height: 1.1; min-height: var(--tap); display: flex; align-items: center; justify-content: center; padding: 1vmin; border-radius: var(--r); background: var(--paper-0); border: .3vmin solid var(--gold-deep); box-shadow: 0 .4vmin 0 var(--gold-deep); }
+#artclass .tool:active { background: var(--gold-glow); transform: translateY(.3vmin); box-shadow: 0 .1vmin 0 var(--gold-deep); }
 #artclass .btn.done { margin-top: auto; }
 body[data-layer="artclass"] #hud { opacity: .35; }
