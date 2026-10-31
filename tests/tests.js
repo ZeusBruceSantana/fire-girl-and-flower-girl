@@ -283,7 +283,7 @@ test('Every exit, hotspot, teacher, case, adventure and friend points at things 
     }
     for (const [id, sc] of Object.entries(SCENES)) {
       for (const h of sc.hotspots) {
-        if (h.kind === 'exit' && !SCENES[h.to]) out.push('scene ' + id + ' exit to missing scene ' + h.to);
+        if (h.kind === 'exit' && !(h.to.startsWith('map:') ? MAPS[h.to.slice(4)] : SCENES[h.to])) out.push('scene ' + id + ' exit to missing place ' + h.to);
         if (h.kind === 'npc' && h.npc !== 'teacher' && !WORLD.teachers[h.npc] && !WORLD.people[h.npc]) out.push('scene ' + id + ' npc unknown ' + h.npc);
       }
       for (const seat of WORLD.seats) if (sc.spawn[seat] == null) out.push('scene ' + id + ' has no spawn for ' + seat);
@@ -314,6 +314,15 @@ test('Every exit, hotspot, teacher, case, adventure and friend points at things 
         if (b.kind === 'choice') for (const pth of b.paths) if (!a.beats[pth.next]) out.push('adventure ' + a.id + ' choice points past the end');
       }
     }
+    for (const [id, m] of Object.entries(MAPS)) {
+      for (const d of m.doors) { const ok = d.to.startsWith('map:') ? MAPS[d.to.slice(4)] : SCENES[d.to.replace('scene:', '')]; if (!ok) out.push('map ' + id + ' door to missing place ' + d.to); }
+      for (const t of m.troubles) if (!WORLD.troubles[t.kind]) out.push('map ' + id + ' unknown trouble ' + t.kind);
+      for (const th of m.things) { if (th.item && !itemIds.has(th.item)) out.push('map ' + id + ' thing with missing item ' + th.item); if (th.inside) for (const i of th.inside) if (!itemIds.has(i.item)) out.push('map ' + id + ' chest with missing item ' + i.item); }
+      for (const n of m.npcs) if (!WORLD.people[n.who] && !WORLD.teachers[n.who]) out.push('map ' + id + ' unknown npc ' + n.who);
+      if (!SCENES[m.backdrop]) out.push('map ' + id + ' unknown backdrop');
+      for (const [k, v] of Object.entries(m.spawn)) if (!Array.isArray(v)) out.push('map ' + id + ' bad spawn ' + k);
+    }
+    for (const t of Object.values(WORLD.troubles)) { for (const l of t.loot) if (!itemIds.has(l.item)) out.push('trouble ' + t.name + ' loot missing item ' + l.item); if (!['fire', 'flower', 'electric'].includes(t.weakTo)) out.push('trouble ' + t.name + ' bad weakTo'); }
     for (const u of LAIR.upgrades) if (u.needs && !LAIR.upgrades.some(x => x.id === u.needs)) out.push('lair upgrade ' + u.id + ' needs unknown ' + u.needs);
     for (const s of Object.values(ITEM_SETS)) for (const i of s.items) if (!itemIds.has(i)) out.push('set lists missing item ' + i);
     const odds = Object.values(WORD_BOXES.pickOdds).reduce((a, b) => a + b, 0);
