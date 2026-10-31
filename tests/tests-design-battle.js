@@ -2,7 +2,7 @@
 /* Phase C, the party in battle and the four ceremonies. Every test name starts "Design:".
    Uses the battle helpers from tests-battle.js (openWorldB, startBattle, castMove, answerChallenge). */
 
-const rectOf = el => el.getBoundingClientRect();
+const battleRectOf = el => el.getBoundingClientRect();
 
 test('Design: the party stands on the left as cut-outs, one per hero, facing the trouble', async () => {
   await openWorldB();
@@ -12,8 +12,8 @@ test('Design: the party stands on the left as cut-outs, one per hero, facing the
   const cuts = $$g('#battle .stage-party .cutout');
   expectEqual(cuts.map(c => c.dataset.seat), ['left', 'right'], 'one cut-out per party member, in party order');
   for (const c of cuts) expect(c.querySelectorAll('.doll img').length > 0, 'the ' + c.dataset.seat + ' cut-out shows her pictures');
-  const trouble = rectOf($g('#battle .trouble .sprite'));
-  for (const c of cuts) expect(rectOf(c).right < trouble.left, 'the ' + c.dataset.seat + ' cut-out stands left of the trouble');
+  const trouble = battleRectOf($g('#battle .trouble .sprite'));
+  for (const c of cuts) expect(battleRectOf(c).right < trouble.left, 'the ' + c.dataset.seat + ' cut-out stands left of the trouble');
   expect($g('#battle .cutout[data-seat="left"]').classList.contains('turn'), 'the hero whose turn it is steps forward');
   expect(!$g('#battle .cutout[data-seat="right"]').classList.contains('turn'), 'the other waits');
   expect(parseFloat(W.getComputedStyle($g('#battle .cutout .doll')).animationDuration) > 0, 'the party bobs while it waits');

@@ -32,11 +32,13 @@ server.listen(0, async () => {
   const port = server.address().port;
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
-  page.on('pageerror', e => console.log('Page error:', e.message));
+  const loadErrors = [];   // an error on the test page itself (a test file that fails to load) must fail the run, not hide its tests
+  page.on('pageerror', e => { console.log('Page error:', e.message); loadErrors.push(e.message); });
   const only = process.argv[2] ? '&only=' + encodeURIComponent(process.argv[2]) : '';   // node tests/run-in-ci.js treehouse  (runs just those tests)
   await page.goto(`http://localhost:${port}/tests/index.html?auto${only}`);
   await page.waitForFunction(() => window.TEST_DONE, null, { timeout: 15 * 60 * 1000 });
-  const results = [manifestResult(), ...await page.evaluate(() => window.TEST_RESULTS)];
+  const results = [manifestResult(), ...await page.evaluate(() => window.TEST_RESULTS),
+    { name: 'Every test file loads without an error', ok: !loadErrors.length, error: loadErrors.length ? loadErrors.join(' | ') : null, ms: 0 }];
   for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : '\n      ' + r.error}  (${(r.ms / 1000).toFixed(1)}s)`);
   const bad = results.filter(r => !r.ok).length;
   console.log(bad ? `\n${bad} of ${results.length} tests failed.` : `\nAll ${results.length} tests passed.`);
