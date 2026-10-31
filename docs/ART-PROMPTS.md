@@ -284,3 +284,34 @@ Same chat as the characters. These make the menus look like part of the book.
 **Portraits** · `art/heroes/<kind>/portrait.png` (1:1, transparent), one per princess:
 > Head-and-shoulders portrait of [paste that princess's description], smiling at the viewer, same painted
 > style, soft round vignette, transparent background.
+
+## 7. Overworld maps (version 3)
+
+Big top-down maps the girls walk across. Same style lock. Add to every map prompt:
+
+> Top-down three-quarter bird's-eye view, like a painted storybook map or a cozy game world seen from
+> above, wide paths clearly visible, no people, no animals, no text. 4:3, largest size.
+
+**school-grounds** · `art/maps/school-grounds/full.png`
+> The grounds of a royal academy for princesses seen from above: the cream castle-school with rose roofs
+> at the top center, a gravel path from its front doors down to a gate in a garden wall at the bottom, a
+> walled garden with flower beds and a fountain on the left, an orchard and a greenhouse on the right, a
+> river curving along the right edge with a small bridge, a hidden gap in the wall at the lower right
+> behind a bush, lanterns along the paths, morning light.
+
+**whispering-woods** · `art/maps/whispering-woods/full.png`
+> A friendly forest seen from above with one wide winding dirt path from the top left (a gap in a garden
+> wall) to the bottom right (a view of a town's rooftops), clearings along the way, a stream with a
+> plank bridge, a hollow tree stump, mossy rocks, toadstool rings, a small cave mouth in a rocky bank,
+> dappled golden light through the canopy; the path and clearings must be clearly walkable and open.
+
+**middlemarket** · `art/maps/middlemarket/full.png`
+> A storybook small town seen from above: a central square with a fountain, a bakery with a round window,
+> a small constable's office with a blue lamp, a market street of striped stalls, an ice cream shop, a
+> town clock tower, cobbled streets wide and clear, a river and a stone bridge at the top edge leading to
+> woods, hills at the bottom, bunting between lanterns, bright daylight.
+
+**Troubles** · `art/troubles/<id>.png` (1:1, transparent, round and silly, no text): `grumpy-weed` (a
+grumpy tangle of leaves with a frown), `sneezy-smoke` (a puff of grey smoke mid-sneeze), `cold-snap` (a
+tiny shivering snowflake sprite with mittens), `static-sprite` (a fuzzy ball of static with hair standing
+on end). Also `grumpy-weed-boss` and `sneezy-smoke-boss`: the same, twice as big and sillier.

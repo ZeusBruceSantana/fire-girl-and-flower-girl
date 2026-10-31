@@ -464,3 +464,71 @@ from here on. Losing stays soft everywhere.
 | 8 | **Rarity and polish** | rarity looks and sounds, collection book, badges, map fog, weather, music, Pure of Heart test | 1–2 |
 | 9 | **Electric Girl** | her story, Thunder Peak, three-way together spells, secret rooms | 1 |
 | 10 | **Live co-play** | the relay, world code on every device, twins on separate devices | 2 |
+
+---
+
+## 18. Version 3: a Pokémon-style RPG
+
+The owner's call after seeing the storybook version: it played like a point-and-click with quizzes.
+Version 3 changes the **core interaction model**. Everything in sections 1 to 17 that is content
+(heroes, school, friends, myths, cases, items, the day loop, learning rules) stays. What changes is
+how the girls move, meet trouble, and fight.
+
+### 18.1 Two kinds of place
+- **Overworld maps** (new): big painted top-down maps you explore. The school grounds, the woods
+  routes, Middlemarket's streets, later the kingdoms. Tap where to go; the party walks there along
+  a path the game finds; the camera scrolls. The three princesses walk in a line, leader first,
+  like a party. Troubles roam in the open and you can see them; walking into one starts a battle.
+  Chests, sparkles, signposts, and doors into buildings are on the map.
+- **Interiors** (the storybook scenes already built): classrooms, the cafeteria, the library, the
+  tunnel, the Lair, shops, the Constable's office. Reached through doors on a map. The paintings
+  the owner is generating are used here and as **battle backdrops**.
+
+### 18.2 Battles
+- **Screen:** the party (every joined hero plus the companion-driven ones) on the left, one or two
+  troubles on the right, a painted backdrop of where you are. Turn-based. Big move buttons.
+- **A hero's turn:** pick a move from her spellbook (costs ember; her level-1 move is always free),
+  then **power it** with a reading or math challenge. The effect = base power × first-try bonus ×
+  elemental match (×2 when her element is what the trouble is weak to) × combo (×1.5 if the
+  previous hero's move matched too). Together moves need two or three heroes to each power a word,
+  then tap at once.
+- **The trouble** has a **Giggle meter** instead of health. Fill it and the trouble cheers up,
+  wanders off, and leaves loot. On its turn it does something silly: sneezes soot (a hero's next
+  move costs 1 more ember), grumbles (nothing), tangles (one hero skips a turn), zaps (steals 1
+  ember). Nothing ever hurts a hero. Battles cannot be lost: level-1 moves are free, so the meter
+  always fills eventually.
+- **Rewards:** XP (level-ups unlock moves and areas), coins, a loot roll by rarity, sometimes the
+  trouble becomes a friend (a sparkle you can call for a hint).
+- **Mini-bosses** at the end of a route are bigger, sillier versions with two phases.
+
+### 18.3 Exploration
+- **Routes** connect places: School Grounds → Whispering Woods (route 1) → Middlemarket → Petalvale
+  Orchard (route 2) → Lantern Lane → Frost Pond → Thunder Peak → Festival Hill. Routes open by
+  level and by story.
+- **Things on a map:** troubles (roam a small area, respawn after a day), chests (Build the word),
+  sparkles (tap, a find), signposts (read aloud), NPCs with quests (a "!"), doors, the Lair
+  entrance, hidden paths revealed by Flash.
+- **Fog of war** on the Journal map lifts as routes are walked.
+
+### 18.4 The day loop with maps
+Wake in the dorm → classes in the classrooms (interiors) → lunch (interior) → free time: out the
+school doors onto the grounds (map) → the woods route → Middlemarket (map) → back for bedtime, or
+sleep at the Lair. Bedtime can also be triggered from the HUD after a long day.
+
+### 18.5 Art for version 3
+Overworld maps are painted top-down (three-quarter "bird's-eye storybook map") at 4096 × 3072 or
+larger, generated from `ART-PROMPTS.md` section 7. Characters stay as painted cut-outs (they bob
+and flip as they walk; no sprite sheets needed). Troubles are painted cut-outs too. Interiors and
+battle backdrops are the scene paintings already in the brief.
+
+### 18.6 Build order (replaces section 17 from here)
+| # | Epic | What lands |
+|---|---|---|
+| 3 | **Map engine and the first battle** | overworld maps with tap-to-walk pathfinding and a scrolling camera, the party walking in a line, doors to interiors, roaming troubles, the battle screen with moves, ember, Giggle meter, elemental triangle, combos, loot and XP, the school grounds and woods route 1 as placeholder maps |
+| 4 | **Numbers, market, bag** | Numbers class as a stall, Middlemarket map with the market and Cook, bag with gear effects, crafting v1 |
+| 5 | **Myths and route 2** | interactive storybook, scrolls, Persephone's Gate as a map with a mini-boss |
+| 6 | **Art and friendship** | shared canvas, gallery, gifting, friend stories, Lair upgrades, friends as battle helpers |
+| 7 | **Town cases** | Constable Pebble, clue boards, three cases on the town map |
+| 8 | **Rarity and polish** | rarity looks and sounds, collection book, badges, weather, music, Pure of Heart |
+| 9 | **Electric Girl** | Thunder Peak, three-way together moves, secret paths |
+| 10 | **Live co-play** | the relay, every device in one world |
