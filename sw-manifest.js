@@ -127,6 +127,7 @@ const SW_FILES = [
   "data/maps.js",
   "data/myths.js",
   "data/phonics.js",
+  "data/pictures.js",
   "data/puzzles.js",
   "data/quests.js",
   "data/scenes.js",

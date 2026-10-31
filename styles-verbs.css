@@ -1,3 +1,77 @@
 /* =====================================================================
    EMBER BLOOM: pick the lock, read the sign, brew the potion. Tokens, the type scale and the button family live in styles.css.
    ===================================================================== */
+/* One panel for the world verbs, above the world, the menus and the battle, below the full-screen word cards:
+   #verbs 35 (see the overlay order in styles.css). */
+#verbs { position: fixed; inset: 0; z-index: 35; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 2vmin; background: var(--dim); }
+#verbs.show { display: flex; }
+
+/* ---------- pick the lock: a brass lock per girl; the build card's letter boxes are its tumblers ---------- */
+#verbs .locks { display: flex; gap: 3vmin; align-items: flex-end; justify-content: center; width: 100%; padding: 0 2vmin; }
+#verbs .lock { position: relative; display: flex; flex-direction: column; align-items: center; animation: rise-in var(--dur-in) var(--ease-out); }
+#verbs .lock .shackle { width: 26vmin; height: 16vmin; margin-bottom: -2vmin; border: 3vmin solid #b8862a; border-bottom: 0; border-radius: 14vmin 14vmin 0 0;
+  box-shadow: inset 0 .6vmin 0 rgba(255,240,190,.5); transition: transform 300ms var(--ease-out); transform-origin: 10% 100%; }
+#verbs .lock.open .shackle { transform: translateY(-4vmin) rotate(-18deg); }
+#verbs .lock .lock-body { position: relative; padding: 3vmin 2.4vmin 2.4vmin; border-radius: calc(var(--r) * 2); background: linear-gradient(#e8c25a, #b8862a 70%, #8c5f14);
+  border: .5vmin solid #6a4610; box-shadow: var(--shadow-float), inset 0 .8vmin 0 rgba(255,245,200,.45); }
+#verbs .lock .keyhole { position: absolute; left: 50%; top: .8vmin; width: 2.4vmin; height: 3.4vmin; transform: translateX(-50%); border-radius: 1.2vmin 1.2vmin .4vmin .4vmin; background: #3b2508; }
+#verbs .lock .ch-card { width: min(44vw, 640px); margin-top: 1.6vmin; padding: 1.4vmin 2vmin 1.6vmin; }
+#verbs .locks.n1 .lock .ch-card { width: min(80vw, 820px); }
+#verbs .lock .ch-helper { display: none; }
+#verbs .lock .ch-slot { background: linear-gradient(#5a4020, #3b2508); border: .5vmin solid #e8c25a; color: #ffe9a6; box-shadow: inset 0 .8vmin 1vmin rgba(0,0,0,.45); transition: transform 200ms var(--ease-out); }
+#verbs .lock .ch-slot.filled { background: linear-gradient(#ffe9a6, #e8c25a); color: #3b2508; transform: translateY(-.6vmin); }
+#verbs .lock.open .lock-body { box-shadow: 0 0 4vmin var(--gold-glow), var(--shadow-float); }
+
+/* ---------- read the sign ---------- */
+#verbs .signpost { display: flex; flex-direction: column; align-items: center; animation: rise-in var(--dur-in) var(--ease-out); }
+#verbs .signpost .board { display: flex; align-items: center; gap: 3vmin; padding: 3vmin 6vmin; border-radius: var(--r); background: linear-gradient(#c98b4a, #a9783f); border: .6vmin solid #6a4a2a;
+  box-shadow: var(--shadow-float), inset 0 .6vmin 0 rgba(255,230,190,.35); }
+#verbs .signpost .sign-word { font-family: var(--font-display); font-weight: 800; font-size: var(--t-display); line-height: 1; color: #fff8ec; text-shadow: 0 .4vmin 0 #6a4a2a; }
+#verbs .signpost .sign-pic { width: 14vmin; height: 14vmin; background: var(--paper-0); border-radius: 50%; padding: 1.4vmin; }
+#verbs .signpost .post { width: 3vmin; height: 10vmin; background: #8a5a2e; border: .4vmin solid #6a4a2a; border-top: 0; }
+#verbs .sign-say { font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); color: #fff; text-shadow: 0 .3vmin 1vmin rgba(40,20,0,.6); }
+#verbs .bubbles { display: flex; gap: 3vmin; }
+#verbs .bubble-pic { width: max(20vmin, 88px); height: max(20vmin, 88px); padding: 2.4vmin; border-radius: 50%; background: var(--paper-0); border: .5vmin solid var(--gold-deep);
+  box-shadow: 0 var(--press) 0 var(--gold-deep), var(--shadow-float); cursor: pointer; transition: transform 80ms, opacity var(--dur-in); }
+#verbs .bubble-pic:active { transform: translateY(.6vmin); }
+#verbs .bubble-pic.out { opacity: .35; }
+#verbs .bubble-pic.right { border-color: var(--ok-deep); box-shadow: 0 0 0 .8vmin var(--ok), 0 0 4vmin var(--gold-glow); animation: pop-right var(--dur-pop) ease-out; }
+#verbs .bubble-pic.glow { box-shadow: 0 0 0 .8vmin var(--gold-glow), 0 0 4vmin var(--light); animation: breathe 1s ease-in-out infinite; }
+#verbs .bubble-pic.hop { animation: hop .5s; }
+#verbs .ch-hint { min-height: 4vmin; font-family: var(--font-display); font-weight: 700; font-size: var(--t-body); color: #ffe9a6; text-shadow: 0 .2vmin .6vmin rgba(40,20,0,.6); }
+#verbs .ch-hint .icon { display: inline-block; width: 1.2em; height: 1.2em; vertical-align: -.2em; margin-right: .3em; }
+
+/* ---------- brew the potion: a recipe of pictures, a shelf of labelled jars, the cauldron ---------- */
+#verbs .brew-frame { position: relative; width: min(94vw, 1300px); padding: 3vmin 4vmin 3vmin; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); animation: rise-in var(--dur-in) var(--ease-out); }
+#verbs .brew-title { font-family: var(--font-display); font-weight: 800; font-size: var(--t-title); color: var(--gold-deep); padding-right: 12vmin; }
+#verbs .recipe-line { display: flex; align-items: center; gap: 1.6vmin; margin: 1.6vmin 0 2.4vmin; }
+#verbs .recipe-line .plus { font-family: var(--font-display); font-weight: 800; font-size: var(--t-title); color: var(--ink-soft); }
+#verbs .ing { width: 14vmin; height: 14vmin; padding: 1.4vmin; border-radius: var(--r); background: var(--paper-0); border: .4vmin dashed var(--gold); display: flex; align-items: center; justify-content: center; transition: transform var(--dur-in); }
+#verbs .ing.word span { font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); }
+#verbs .ing.now { border-style: solid; border-color: var(--gold-deep); box-shadow: 0 0 0 .6vmin var(--gold-glow); transform: scale(1.08); }
+#verbs .ing.done { opacity: .45; border-style: solid; border-color: var(--ok); }
+#verbs .brew-row { display: flex; align-items: flex-end; gap: 3vmin; }
+#verbs .shelf { flex: 1; display: flex; flex-wrap: wrap; gap: 1.6vmin; padding: 1.6vmin; border-bottom: 1.4vmin solid #a9783f; border-radius: var(--r) var(--r) 0 0; background: rgba(169,120,63,.12); }
+#verbs .jar { display: flex; flex-direction: column; align-items: center; width: max(16vmin, 72px); cursor: pointer; transition: transform 200ms var(--ease-out), opacity 200ms; }
+#verbs .jar .glass { width: 10vmin; height: 12vmin; border-radius: 2vmin 2vmin 3vmin 3vmin; background: linear-gradient(rgba(200,230,255,.5), rgba(160,210,240,.75)); border: .4vmin solid #6a8aa0; position: relative; }
+#verbs .jar .glass::before { content: ''; position: absolute; left: 20%; right: 20%; top: -2vmin; height: 2vmin; background: #a9783f; border: .3vmin solid #6a4a2a; border-radius: .6vmin; }
+#verbs .jar .label { margin-top: -6vmin; min-width: 12vmin; padding: .4vmin 1vmin; text-align: center; background: var(--paper-0); border: .3vmin solid var(--gold-deep); border-radius: .8vmin;
+  font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); position: relative; }
+#verbs .jar.in { opacity: 0; transform: translate(10vmin, -6vmin) scale(.4) rotate(40deg); pointer-events: none; }
+#verbs .jar.hop { animation: hop .5s; }
+#verbs .jar.glow .label { box-shadow: 0 0 0 .6vmin var(--gold-glow), 0 0 3vmin var(--light); }
+#verbs .cauldron { --brew: #8f6cf0; position: relative; width: 26vmin; height: 22vmin; flex: none; }
+#verbs .cauldron .pot { position: absolute; inset: 4vmin 0 0; border-radius: 4vmin 4vmin 13vmin 13vmin; background: radial-gradient(circle at 35% 30%, #5a5048, #2a241e 70%); border: .5vmin solid #1a1410; }
+#verbs .cauldron .liquid { position: absolute; left: 6%; right: 6%; top: 2.4vmin; height: 5vmin; z-index: 1; border-radius: 50%; background: #6a8aa0; border: .4vmin solid #1a1410; transition: background var(--dur-fill); }
+#verbs .cauldron.step-1 .liquid { background: color-mix(in srgb, var(--brew) 45%, #6a8aa0); }
+#verbs .cauldron.step-2 .liquid { background: color-mix(in srgb, var(--brew) 75%, #6a8aa0); }
+#verbs .cauldron.step-3 .liquid { background: var(--brew); box-shadow: 0 0 3vmin var(--brew); }
+#verbs .cauldron.pop .liquid { animation: pop-right var(--dur-pop) ease-out; }
+#verbs .cauldron.fizz .liquid { animation: fizz .5s; }
+@keyframes fizz { 25% { transform: translateY(-1vmin) scale(1.05, .9); } 60% { transform: translateY(.4vmin) scale(.95, 1.05); } }
+#verbs .brew-frame .ch-hint { color: var(--hint); text-shadow: none; margin-top: 1.4vmin; }
+@media (orientation: portrait) {
+  #verbs .locks { flex-direction: column; align-items: center; }
+  #verbs .lock .ch-card, #verbs .locks.n1 .lock .ch-card { width: 90vw; }
+  #verbs .brew-row { flex-direction: column; align-items: center; }
+}

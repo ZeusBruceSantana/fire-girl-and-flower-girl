@@ -169,16 +169,20 @@ const MapStage = {
     } else if (target.kind === 'thing') {
       const th = target.obj;
       if (th.kind === 'clue' && typeof Cases !== 'undefined') { await Cases.onClue(seat, th); this.things = this.things.filter(x => x !== th); }
-      else if (th.kind === 'sign') await Dialogue.say({ who: th.word, text: th.text });
+      else if (th.kind === 'sign') await (typeof Verbs !== 'undefined' ? Verbs.readSign(seat, th) : Dialogue.say({ who: th.word, text: th.text }));   // read the sign (Phase D)
       else if (th.kind === 'sparkle') { this.take(th); dispatch('hero.item', seat, { item: th.item }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === th.item).word, { icon: 'gem' }); Stage.heroes[seat].setAnim('hop'); }
       else if (th.kind === 'chest') {
-        await Dialogue.say({ seat, who: WORLD.helper.name, art: WORLD.helper.art, text: WORLD.ui.openChest });
-        const r = await Challenge.run({ seat, type: 'letter-tiles', prompt: WORLD.ui.openChest });
-        if (!r) return;
-        if (typeof Sound !== 'undefined' && Sound.play) Sound.play('chest');
+        // pick the lock (Phase D): every girl here gets her own lock; each one she opens rolls the chest's loot for her
+        const pickers = S.settings.localSeats.filter(s => isPlayerHere(s) && this.party.includes(s));
+        const seats = pickers.length ? pickers : [seat];
+        const rs = await Verbs.pickLock(seats);
+        if (!rs.some(Boolean)) return;
         this.take(th);
-        for (const i of th.inside) if (Math.random() < i.chance) { dispatch('hero.item', seat, { item: i.item }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(x => x.id === i.item).word, { icon: 'gem' }); await sleepMs(TEST_MODE ? 5 : 700); }
-        Stage.heroes[seat].setAnim('hop');
+        for (let k = 0; k < seats.length; k++) {
+          if (!rs[k]) continue;
+          for (const i of th.inside) if (Math.random() < i.chance) { const it = ITEMS.find(x => x.id === i.item); dispatch('hero.item', seats[k], { item: i.item }); uiToast(WORLD.ui.found + ' ' + it.word, { icon: typeof itemToastIcon === 'function' ? itemToastIcon(it) : 'gem' }); await sleepMs(TEST_MODE ? 5 : 700); }
+          if (Stage.heroes[seats[k]]) Stage.heroes[seats[k]].setAnim('hop');
+        }
       }
     } else if (target.kind === 'npc') {
       const n = target.obj.def || target.obj, who = WORLD.people[n.who] || WORLD.teachers[n.who];

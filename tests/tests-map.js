@@ -76,16 +76,15 @@ test('Sparkles and chests on the map give items once; a sign reads aloud', async
   await until(() => G('S.heroes.left.inventory.includes("seed-sun")'), 12000, 'the sun seed');
   expect(G('S.shared.flags["took-sparkle-1"]'), 'the sparkle is gone for good');
   expect(!G('MapStage.things.some(t => t.id === "sparkle-1")'), 'it is off the map');
-  G('MapStage.tap("left", 3220, 1205)');       // the chest
-  await until(() => $g('.dlg'), 8000, 'Hoot explains the chest');
-  await tapNext();
-  await until(() => $$g('.ch-tile').length > 0, 4000, 'the word to build');
-  const w = G("Challenge.active.left.word");
-  for (const l of w) { tap($$g('.ch-tile:not(.used)').find(t => t.dataset.l === l)); await sleep(20); }
+  G('MapStage.tap("left", 3220, 1205)');       // the chest: a lock per girl, opened by building a word (Phase D)
+  await until(() => $$g('#verbs .lock .ch-card').length > 0, 8000, 'the lock to pick');
+  for (const seat of ['left', 'right']) if (G(`!!Challenge.active['${seat}']`)) await answerChallenge(seat);
   await until(() => G('S.heroes.left.inventory.includes("wand-twig")'), 4000, 'the chest gave the twig wand');
   expect(G('S.shared.flags["took-chest-greenhouse"]'), 'the chest stays open');
-  G('MapStage.tap("left", 1810, 1620)');       // the signpost
-  await until(() => $g('.dlg') && $g('.dlg .text').textContent.includes('Garden'), 8000, 'the sign');
+  G('MapStage.tap("left", 1810, 1620)');       // the signpost: read its word, then its line (Phase D)
+  await until(() => $g('#verbs .signpost .sign-word'), 8000, 'the sign');
+  tap($g(`#verbs .bubble-pic[data-pic="${G(`Words.picture('${$g('#verbs .sign-word').textContent.trim()}')`)}"]`));
+  await until(() => $g('.dlg') && $g('.dlg .text').textContent.includes('Garden'), 8000, 'the sign line');
 });
 
 test('Walking into a trouble starts a battle (or its stand-in) and the trouble leaves until tomorrow', async () => {
