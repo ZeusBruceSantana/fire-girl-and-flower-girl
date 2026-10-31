@@ -44,8 +44,15 @@ const MapStage = {
     });
     this.party = order;
     this.path = []; this.pending = null;
-    this.troubles = def.troubles.filter(t => (S.shared.counters['beat-' + t.id] || 0) < S.shared.clock.day).map(t => {
-      const d = WORLD.troubles[t.kind]; const sp = new NpcSprite(t.id, t.x); sp.y = t.y; sp.height = t.boss ? 360 : 240; sp.def = t; sp.kind = d;
+    // Troubles: the map's own (minus the ones beaten today and the ones whose weather or hour is wrong), plus
+    // today's wanted trouble if it was last seen here. Levels written as 'party' follow the players' level.
+    const listed = def.troubles.filter(t => this.troubleOut(t));
+    const wanted = typeof Cases !== 'undefined' && Cases.wantedToday ? Cases.wantedToday() : null;
+    if (wanted && wanted.map === mapId) listed.push({ id: 'wanted-' + wanted.id, kind: wanted.kind, x: wanted.x, y: wanted.y, roam: wanted.roam, level: 'party', wanted: true, word: wanted.word, drop: wanted.drop, bounty: wanted.bounty });
+    this.troubles = listed.filter(t => (S.shared.counters['beat-' + t.id] || 0) < S.shared.clock.day).map(t => {
+      const d = WORLD.troubles[t.kind]; const sp = new NpcSprite(t.id, t.x); sp.y = t.y; sp.height = t.boss ? 360 : 240; sp.kind = d;
+      sp.def = Object.assign({}, t, { level: this.partyLevel(t.level), pack: (t.pack || []).map(p => Object.assign({}, p, { level: this.partyLevel(p.level) })) });   // a copy: the data file is never changed
+      sp.word = t.word || null;
       sp.wander = { next: 0, tx: t.x, ty: t.y }; sp.load({ body: 'art/troubles/' + (t.boss ? d.art + '-boss' : d.art) }); return sp; });
     this.npcs = def.npcs.map(n => { const who = WORLD.people[n.who] || WORLD.teachers[n.who]; const sp = new NpcSprite(n.id, n.x); sp.y = n.y; sp.height = 300; sp.def = n; sp.facing = -1; sp.setArt(who.art); return sp; });
     const reveal = typeof gearEffects === 'function' && this.party.some(s => isPlayerHere(s) && gearEffects(s).reveal);
@@ -66,6 +73,21 @@ const MapStage = {
   leave() {
     for (const seat of WORLD.seats) { const h = Stage.heroes[seat]; if (h) { h.height = HERO_HEIGHT; h.mapTarget = null; } }
     Stage.map = null; this.map = null;
+  },
+  /* Is this trouble out right now? One with "only" keeps to its weather or its hour (data/maps.js). */
+  troubleOut(t) {
+    if (!t.only) return true;
+    if (t.only.weather && (typeof Day === 'undefined' || Day.weather() !== t.only.weather)) return false;
+    if (t.only.part && S.shared.clock.part !== t.only.part) return false;
+    return true;
+  },
+  /* A trouble's level: a number as written, or 'party' = the average level of the players here (at least 1), 'party+1' one more. */
+  partyLevel(level) {
+    if (typeof level === 'number') return level;
+    const players = (this.party || []).filter(isPlayerHere);
+    const avg = players.length ? players.reduce((n, s) => n + S.heroes[s].level, 0) / players.length : 1;
+    const base = Math.max(1, Math.round(avg));
+    return level === 'party+1' ? base + 1 : base;
   },
   onResize() { if (!Stage.canvas) return; this.scale = Stage.canvas.height / MAP_VIEW_H; this.visW = Stage.canvas.width / this.scale; },
   clampCam() { if (!this.map) return; const [w, h] = this.map.size; this.cam.x = clamp(this.cam.x, this.visW / 2, Math.max(this.visW / 2, w - this.visW / 2)); this.cam.y = clamp(this.cam.y, this.visH / 2, Math.max(this.visH / 2, h - this.visH / 2)); },
@@ -176,12 +198,16 @@ const MapStage = {
     this.path = []; this.pending = null;
     const def = t.def, kind = t.kind;
     const party = this.party.filter(s => S.heroes[s].kind);
+    const players = party.filter(isPlayerHere);
+    // the trouble, then anything it brought along (a "pack"), one after the other in the same battle
+    const queue = [{ kind: def.kind, level: def.level, boss: !!def.boss }, ...(def.pack || []).map(p => ({ kind: p.kind, level: p.level, boss: !!p.boss }))];
     let result = null;
-    if (typeof Battle !== 'undefined' && Battle.start) result = await Battle.start({ troubles: [{ kind: def.kind, level: def.level, boss: !!def.boss }], backdrop: this.map.backdrop, party });
+    if (typeof Battle !== 'undefined' && Battle.start) result = await Battle.start({ troubles: queue, backdrop: this.map.backdrop, party });
     else { await Dialogue.say({ who: kind.name, art: null, text: (def.boss ? WORLD.ui.battleBossStart : WORLD.ui.battleStart).replace('{name}', kind.name) + ' (battle coming soon)' }); result = { won: true, xp: 0, coins: 0, loot: [] }; }
     if (result && result.won) {
       dispatch('counter.max', this.leader, { key: 'beat-' + def.id, value: S.shared.clock.day });
       this.troubles = this.troubles.filter(x => x !== t);
+      if (def.wanted && typeof Cases !== 'undefined' && Cases.wantedWon) Cases.wantedWon(def, players);
     }
     this.backOff();
     this.bumpCooldown = BUMP_REST;
