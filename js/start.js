@@ -101,6 +101,7 @@ function enterWorld() {
   setScene('world');
   renderSeatButtons();
   Speech.say(WORLD.tagline, { interrupt: false });
+  HUD.render();
 }
 
 /* ---------- join / leave ---------- */

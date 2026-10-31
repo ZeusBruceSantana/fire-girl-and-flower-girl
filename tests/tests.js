@@ -393,9 +393,9 @@ test('Casting from the Spellbook powers the spell with a word and spends ember',
   expectEqual($$g('#menu .spell:not(.locked)').length, 1, 'only Spark is open at level 1');
   tap($g('#menu .spell[data-spell="spark"]'));
   await until(() => $$g('.ch-opt').length === 3, 3000, 'the word challenge');
-  const target = G('Challenge.active.word');
+  const target = G('Challenge.any.word');
   tap($g(`.ch-opt[data-w="${CSS.escape(target)}"]`));
-  await until(() => !G('Challenge.active'), 3000, 'the cast to finish');
+  await until(() => !G('Challenge.any'), 3000, 'the cast to finish');
   await sleep(100);
   expectEqual(G('S.heroes.left.ember'), 5 + 3 - 1, 'earned 3 for a first try, paid 1 for Spark');
   expect(G("S.shared.events.some(e => e.what === 'cast' && e.spell === 'spark')"), 'the cast is in the shared events');
@@ -411,4 +411,76 @@ test('The menu tabs all open: Bag, Journal, Map (with fog), Badges, Friends', as
   }
   tap($g('#menu [data-close]')); await sleep(50);
   expect(!$g('#menu .frame'), 'closed');
+});
+
+/* =====================================================================
+   THE SCHOOL DAY (Epic 2b)
+   ===================================================================== */
+async function answerAll(seat) {   // answer whatever challenge is up for this seat, first try, until none is up
+  for (let i = 0; i < 12; i++) {
+    const a = G(`Challenge.active['${seat}'] ? { type: Challenge.active['${seat}'].type, word: Challenge.active['${seat}'].word } : null`);
+    if (!a) return;
+    if (a.type === 'letter-tiles') { for (const l of a.word) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === l)); await sleep(20); } }
+    else tap($g(`.ch-card.seat-${seat} .ch-opt[data-w="${CSS.escape(a.word)}"]`));
+    await sleep(80);
+  }
+}
+async function tapNext() {   // a tap finishes the typing; another tap closes the box (unless it is waiting for a choice)
+  for (let i = 0; i < 4 && $g('.dlg') && !$g('.dlg .choices.show'); i++) { tap($g('.dlg .next') || $g('.dlg .body')); await sleep(60); }
+}
+
+test('A whole school day: wake, two classes side by side, lunch with a friend and ice cream, bedtime', async () => {
+  await openWorld();
+  expectEqual(G('Day.part'), 'wake', 'the day starts in the morning');
+  expect($g('.hudcard.seat-left .objective').textContent.includes('bed'), 'the objective says to get up');
+  // wake
+  G("Day.onThing('left', { action: 'sleep' })"); await sleep(50); await tapNext();
+  await until(() => G('Day.part') === 'period1', 3000, 'first class');
+  // first class: both girls answer, side by side
+  G("Day.onThing('left', { action: 'lesson' })"); await sleep(50); await tapNext();
+  await until(() => $$g('.ch-card').length === 2, 4000, 'two challenge cards, one per girl');
+  expect($g('#challenge.split'), 'the cards sit side by side');
+  expect($$g('#range .range-row').length === 2, 'each girl has a row of targets');
+  for (let i = 0; i < 8 && G('Day.part') === 'period1'; i++) { await answerAll('left'); await answerAll('right'); await sleep(60); if ($g('.dlg')) await tapNext(); }
+  await until(() => G('Day.part') === 'period2', 6000, 'second class');
+  const S1 = G('S');
+  expect(S1.heroes.left.stars['day-1-period1-spells'] >= 1 && S1.heroes.right.stars['day-1-period1-spells'] >= 1, 'both got stars');
+  expect(S1.heroes.left.xp > 0, 'xp for class');
+  expect(Object.keys(S1.heroes.left.wordStats).length >= 3, 'she practiced her words');
+  // second class (Numbers falls back to Spells until it is built)
+  G("Day.onThing('right', { action: 'lesson' })"); await sleep(50); await tapNext();
+  await until(() => $$g('.ch-card').length === 2, 4000, 'second class cards');
+  for (let i = 0; i < 8 && G('Day.part') === 'period2'; i++) { await answerAll('left'); await answerAll('right'); await sleep(60); if ($g('.dlg')) await tapNext(); }
+  await until(() => G('Day.part') === 'lunch', 6000, 'lunch');
+  // lunch: sit with the first friend of day 1, answer kindly
+  G("Stage.scene = Object.assign({}, SCENES.cafeteria, { id: 'cafeteria' }); Day.sitAtTable('left', SCENES.cafeteria.hotspots.find(h => h.id === 'table-1'))");
+  await sleep(80); await tapNext();
+  await until(() => $g('.dlg .choices.show'), 4000, 'the friend asks something');
+  const unkind = $$g('.dlg .choice').find(c => !c.querySelector('.icon'));
+  tap($$g('.dlg .choice')[1]); await sleep(80);
+  for (let i = 0; i < 6; i++) { if ($g('.dlg .choices.show')) { tap($$g('.dlg .choice')[0]); await sleep(80); } else if ($g('.dlg')) await tapNext(); else break; }
+  void unkind;
+  await until(() => (G("S.heroes.left.friends.ice") || 0) >= 1, 4000, 'hearts with the Ice princess');
+  expect(G('S.heroes.left.hearts') >= 1, 'she has hearts');
+  // ice cream for the right seat with coins
+  G("dispatch('hero.coins', 'right', { amount: 5 })");
+  const before = G('S.heroes.right.coins');
+  G("Day.iceCream('right')"); await sleep(80);
+  await until(() => $g('.dlg .choices.show'), 3000, 'flavors');
+  tap($$g('.dlg .choice')[0]); await sleep(80); if ($g('.dlg')) await tapNext();
+  await until(() => G('S.heroes.right.coins') === before - 2, 3000, 'vanilla cost 2 coins');
+  await until(() => G('Day.part') === 'free', 4000, 'free time after lunch');
+  // bedtime
+  G("Day.onThing('left', { action: 'sleep' })"); await sleep(80);
+  for (let i = 0; i < 6 && G('Day.day') === 1; i++) { await tapNext(); await sleep(60); }
+  await until(() => G('Day.day') === 2, 4000, 'a new day');
+  expectEqual(G('Day.part'), 'wake', 'day 2 starts in the morning');
+  expect(G('S.heroes.left.ember') >= 5, 'ember refilled at bedtime');
+});
+
+test('Class cannot be repeated for stars, lunch is not served early, and Numbers falls back to Spells', async () => {
+  await openWorld();
+  expectEqual(G('Day.subjects()'), ['spells', 'spells'], 'day 1 is Spells and Numbers, and Numbers is not built yet');
+  G("Day.onThing('left', { action: 'sit' })"); await sleep(80);
+  expect($g('.dlg .text').textContent.includes('Lunch'), 'Cook says lunch is not ready');
 });

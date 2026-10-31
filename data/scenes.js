@@ -50,7 +50,6 @@ const SCENES = {
       { id: 'counter', word: 'the ice cream cart', rect: [1900, 600, 560, 560], kind: 'npc', npc: 'cook' },
       { id: 'table-1', word: 'a table',  rect: [200, 900, 600, 300],  kind: 'thing', action: 'sit' },
       { id: 'table-2', word: 'a table',  rect: [900, 900, 600, 300],  kind: 'thing', action: 'sit' },
-      { id: 'table-3', word: 'a table',  rect: [1500, 900, 400, 300], kind: 'thing', action: 'sit' },
       { id: 'door',    word: 'the door', rect: [40, 520, 220, 700],   kind: 'exit', to: 'library', at: 1280 },
     ] },
 

@@ -43,6 +43,7 @@ const Stage = {
   fade: 1,                // 1 = fully black (start), 0 = clear
   fadeTarget: 0,
   time: 0,
+  clockTint: null,        // the school day's time of day (day.js), overrides the scene's own tint
   ready: false,
   onArrive: null,         // cb(seat, hotspot) when a hero reaches a hotspot
 };
@@ -79,6 +80,7 @@ async function stageGo(sceneId, { positions = {} } = {}) {
   await Promise.all([loadLayers(sceneId, def), sleepMs(Stage.ready ? 260 : 0)]);
   Stage.scene = Object.assign({ id: sceneId }, def);
   Stage.particles = [];
+  await placeNpcs(sceneId, def);
   for (const seat of WORLD.seats) {
     const h = Stage.heroes[seat];
     if (!h) continue;
@@ -95,6 +97,28 @@ async function stageGo(sceneId, { positions = {} } = {}) {
   setScene('world');
   document.body.dataset.place = sceneId;
   uiSceneName(def.word);
+}
+/* The people in a scene stand at their hotspots: teachers, Cook, the Constable, and today's lunch friends. */
+async function placeNpcs(sceneId, def) {
+  Stage.npcs = [];
+  const tables = def.hotspots.filter(h => h.action === 'sit');
+  for (const h of def.hotspots) {
+    let art = null, id = h.npc;
+    if (h.kind === 'npc') {
+      if (h.npc === 'teacher') { const subj = (typeof Day !== 'undefined' && Day.subjectFor(Day.part)) || 'spells'; const t = WORLD.teachers[SCHOOL.subjects[subj].teacher]; art = t.art; id = t.art; }
+      else { const who = WORLD.teachers[h.npc] || WORLD.people[h.npc]; art = who && who.art; }
+    } else if (h.action === 'sit' && sceneId === 'cafeteria' && typeof Day !== 'undefined') {
+      const friendId = Day.friendsToday()[tables.indexOf(h)];
+      if (friendId) { art = FRIENDS[friendId].art; id = friendId; }
+    }
+    if (!art) continue;
+    const npc = new NpcSprite(id, h.rect[0] + h.rect[2] / 2);
+    npc.y = pathY(def.path, npc.x) - (h.kind === 'npc' ? 0 : 40);
+    npc.facing = npc.x > SCENE_SIZE.w / 2 ? -1 : 1;
+    await npc.setArt(art);
+    if (!Object.keys(npc.layers).length) continue;      // no picture yet: leave the spot empty rather than draw a blank
+    Stage.npcs.push(npc);
+  }
 }
 async function loadLayers(id, def) {
   // A purchased painting is one file, art/scenes/<id>/full.png (listed in art/overrides.js). It replaces all four
@@ -221,7 +245,7 @@ function stageDraw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   drawLayer(ctx, 'near', panX, panY, s);
   drawLightShafts(ctx, c, panX, s);
-  const tint = TINTS[Stage.scene.tint];
+  const tint = TINTS[Stage.clockTint && Stage.scene.tint !== 'lantern' ? Stage.clockTint : Stage.scene.tint];
   if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); }
   drawVignette(ctx, c);
   if (QUERY.has('debug')) drawDebug(ctx, panX, panY, s);

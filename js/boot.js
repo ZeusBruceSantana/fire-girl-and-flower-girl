@@ -28,6 +28,7 @@ async function boot() {
   await stageGo('academy-gate');
   for (const seat of WORLD.seats) if (!isPlayerHere(seat)) { const h = Stage.heroes[seat]; h.placeOnPath(SCENES['academy-gate'].spawn[seat]); P[seat] = { scene: 'academy-gate', x: h.x, driver: 'npc' }; }
 
+  applyClockTint();
   HUD.init();
   if (needsSetup()) showPick(); else showTitle();
   await NET.connect(S.settings.worldCode, S.settings.localSeats[0]);
@@ -58,9 +59,11 @@ async function onArrive(seat, hotspot) {
     await stageGo(hotspot.to, { positions });
   } else if (hotspot.kind === 'npc') {
     h.setAnim('hop');
-    const npc = hotspot.npc === 'teacher' ? WORLD.teachers.cinder : (WORLD.teachers[hotspot.npc] || WORLD.people[hotspot.npc]);
+    if (await Day.onNpc(seat, hotspot) !== null) return;
+    const npc = hotspot.npc === 'teacher' ? WORLD.teachers[SCHOOL.subjects[Day.subjectFor(Day.part) || 'spells'].teacher] : (WORLD.teachers[hotspot.npc] || WORLD.people[hotspot.npc]);
     await Dialogue.say({ who: npc ? npc.name : hotspot.word, art: npc ? npc.art : null, text: npc ? npc.about : hotspot.word });
   } else {
+    if (await Day.onThing(seat, hotspot) !== null) return;
     const pick = await Dialogue.choose({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: hotspot.word + '. ' + WORLD.ui.whatNow,
       choices: [{ word: WORLD.ui.castSpell, icon: 'ember', value: 'cast' }, { word: WORLD.ui.lookCloser, icon: 'tab-journal', value: 'look' }, { word: WORLD.ui.leaveIt, icon: 'close', value: 'leave' }] });
     if (pick === 'cast') Menu.open(seat, 'spellbook');

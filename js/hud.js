@@ -37,9 +37,4 @@ const HUD = {
   },
 };
 /* One line of what to do next. Grows with the epics (quests, cases, the timetable). */
-function currentObjective(seat) {
-  const h = S.heroes[seat];
-  if (!S.shared.flags['tunnel-found']) return WORLD.ui.objExplore;
-  if (!h.joined) return WORLD.ui.objAway;
-  return WORLD.ui.objFree;
-}
+function currentObjective(seat) { return Day.objective(seat); }
