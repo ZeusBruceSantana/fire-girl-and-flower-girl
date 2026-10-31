@@ -81,6 +81,7 @@ const SCENES = {
       { id: 'case-board', word: 'the case board',  rect: [1800, 300, 560, 560], kind: 'thing', action: 'cases' },
       { id: 'map-wall',   word: 'the map',         rect: [200, 300, 560, 560],  kind: 'thing', action: 'map' },
       { id: 'lantern',    word: 'the lantern',     rect: [1180, 120, 200, 260], kind: 'thing', action: 'upgrades' },
+      { id: 'till',       word: 'the till',        rect: [1400, 420, 360, 380], kind: 'thing', action: 'till' },   // the girls' own shop (js/till.js)
       { id: 'gallery',    word: 'the gallery wall', rect: [760, 300, 420, 420], kind: 'thing', action: 'gallery', needs: 'gallery' },
       { id: 'cushions',   word: 'the cushions',    rect: [300, 1020, 500, 220], kind: 'thing', action: 'invite', needs: 'guest-cushion' },
       { id: 'bookshelf',  word: 'the bookshelf',   rect: [1900, 900, 440, 340], kind: 'thing', action: 'scrolls', needs: 'bookshelf' },

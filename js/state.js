@@ -40,6 +40,7 @@ function freshHero() {
     paintings: [],          // gallery entries { day, subject, img } (img is a small data url; kept small)
     words: [],              // this hero's word list, typed by a grown-up
     wordStats: {},          // word -> { seen, right, wrong, lastSeen, box }
+    weeks: {},              // week number -> { seen, clean }: her word totals when that week began (the grown-up page's first-try line)
     joined: false,          // is she playing right now (drop-in / drop-out)
     setup: false,           // has she picked her princess and color
   };
@@ -73,6 +74,7 @@ function freshSave() {
       seatOwners: { left: null, right: null, away: null },   // seat -> deviceId playing it (null = nobody: the companion)
       localSeats: ['left', 'right'],   // which seats this device shows (the Surface shows two; a phone shows one)
       roomUrl: null,                   // the relay, when a grown-up sets one up (Epic 10)
+      playMinutes: {},                 // seat -> { 'YYYY-MM-DD': minutes played on this device } (the grown-up page; never sent)
     },
     log: { seen: {}, tail: [], counter: 0 },   // action ids already applied; the last few actions; this device's counter
   };
@@ -108,6 +110,10 @@ const ACTIONS = {
   'hero.quest':  (s, a) => { s.heroes[a.hero].quests[a.payload.quest] = { step: a.payload.step, done: !!a.payload.done }; },
   'hero.adventure': (s, a) => { s.heroes[a.hero].adventures[a.payload.adventure] = { beat: a.payload.beat, done: !!a.payload.done }; },
   'hero.words':  (s, a) => { s.heroes[a.hero].words = cleanWords(a.payload.words); },
+  // The first time a week is seen, her word totals are written down once (later marks for that week change nothing).
+  'hero.weekMark': (s, a) => { const h = s.heroes[a.hero], w = String(a.payload.week); h.weeks = h.weeks || {}; if (h.weeks[w]) return;
+                             h.weeks[w] = { seen: Math.max(0, a.payload.seen | 0), clean: Math.max(0, a.payload.clean | 0) };
+                             const keys = Object.keys(h.weeks).sort((x, y) => x - y); while (keys.length > 12) delete h.weeks[keys.shift()]; },
   'hero.word':   (s, a) => { const st = s.heroes[a.hero].wordStats, w = a.payload.word, r = st[w] || { seen: 0, right: 0, wrong: 0, lastSeen: 0, box: WORD_BOXES.startBox };
                              wordResult(r, a.payload, a.payload.day != null ? a.payload.day : s.shared.clock.day); r.lastSeen = a.t; st[w] = r; },
   'hero.painting': (s, a) => { const h = s.heroes[a.hero]; h.paintings.push({ day: a.payload.day, subject: a.payload.subject, img: a.payload.img }); if (h.paintings.length > 30) h.paintings.shift(); },
