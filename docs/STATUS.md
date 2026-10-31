@@ -35,7 +35,14 @@
 - Interface frames (menus, dialogue, battle) use a drawn parchment look; section 6 of the prompts makes
   painted ones.
 
-## Next
+## Next: the improvement program
+
+A panel of five reviewers and three researchers reviewed the game (`docs/review/`). The plan that came
+out of it is `docs/HANDOVER-2026-10-31.md`: Phase A day-one blockers, B systems rebalance, C interface
+system, D learning as the move, E Season One story (the owner's priority), F depth. A new session is
+starting on Phase A.
+
+## Next (before the review)
 
 1. Drop in the paintings as they are made (SETUP.md section 6). I tune walk lines and tap spots.
 2. Turn on GitHub Pages (SETUP.md section 1) and try it on the Surface by touch. Notes from a real
