@@ -16,7 +16,12 @@
      doors          [{ id, word, rect, to: 'scene:<id>' | 'map:<id>', at, locked?: flag }]  'locked' = a flag that must be set
      things         [{ id, word, kind: 'chest' | 'sparkle' | 'sign', rect, item?, chance?, text? }]
      npcs           [{ id, word, who (WORLD.people / teachers id), x, y, talk? }]
-     troubles       [{ id, kind (WORLD.troubles id), x, y, roam: rect, level, boss?: true }]   */
+     troubles       [{ id, kind (WORLD.troubles id), x, y, roam: rect, level, boss?: true, pack?, only? }]
+                      level: a number, or 'party' (the average level of the players here, at least 1) or 'party+1'
+                      pack:  [{ kind, level }] extra troubles that join the same battle, one after the other
+                      only:  { weather: 'rain' | 'sun' | 'storm' | 'cloud' } or { part: 'bedtime' | 'free' | ... }:
+                             the trouble only comes out when that holds (weather by day in data/school.js; part is the clock)
+   The daily wanted trouble (data/cases.js WANTED) is added to its map by the game, not listed here. */
 
 const MAPS = {
   'school-grounds': {
@@ -39,6 +44,7 @@ const MAPS = {
     ],
     troubles: [
       { id: 't-weed-1', kind: 'grumpy-weed', x: 2900, y: 1500, roam: [2600, 1400, 800, 220], level: 1 },
+      { id: 't-static-night', kind: 'static-sprite', x: 1200, y: 1700, roam: [950, 1620, 1050, 160], level: 'party', only: { part: 'bedtime' } },   // only after dark
     ],
   },
 
@@ -61,10 +67,11 @@ const MAPS = {
     ],
     npcs: [],
     troubles: [
-      { id: 't-weed-2',  kind: 'grumpy-weed',  x: 1500, y: 1000, roam: [950, 950, 1100, 200], level: 1 },
-      { id: 't-smoke-1', kind: 'sneezy-smoke', x: 2000, y: 1400, roam: [1920, 1000, 260, 800], level: 2 },
-      { id: 't-frost-1', kind: 'cold-snap',    x: 2900, y: 1800, roam: [2600, 1550, 600, 400], level: 2 },
-      { id: 't-weed-boss', kind: 'grumpy-weed', x: 3350, y: 2300, roam: [3250, 1800, 200, 700], level: 3, boss: true },
+      { id: 't-weed-2',  kind: 'grumpy-weed',  x: 1500, y: 1000, roam: [950, 950, 1100, 200], level: 'party' },
+      { id: 't-smoke-1', kind: 'sneezy-smoke', x: 2000, y: 1400, roam: [1920, 1000, 260, 800], level: 'party' },
+      { id: 't-frost-1', kind: 'cold-snap',    x: 2900, y: 1800, roam: [2600, 1550, 600, 400], level: 'party' },
+      { id: 't-frost-rain', kind: 'cold-snap', x: 1100, y: 1800, roam: [750, 1650, 600, 400], level: 'party', only: { weather: 'rain' } },   // only in the rain
+      { id: 't-weed-boss', kind: 'grumpy-weed', x: 3350, y: 2300, roam: [3250, 1800, 200, 700], level: 'party+1', boss: true },
     ],
   },
 
@@ -88,7 +95,7 @@ const MAPS = {
       { id: 'cook',   word: 'Cook',             who: 'cook',        x: 850,  y: 2250 },
     ],
     troubles: [
-      { id: 't-smoke-town', kind: 'sneezy-smoke', x: 3500, y: 2100, roam: [3320, 1900, 560, 380], level: 2 },
+      { id: 't-smoke-town', kind: 'sneezy-smoke', x: 3500, y: 2100, roam: [3320, 1900, 560, 380], level: 'party' },
     ],
   },
 
@@ -111,10 +118,10 @@ const MAPS = {
       { id: 'fern-orchard', word: 'Old Fern', who: 'gardener', x: 1500, y: 1350, talk: 'The gate at the top of the orchard froze on one side and scorched on the other. Just like the old story. Hmm.' },
     ],
     troubles: [
-      { id: 't-weed-3',   kind: 'grumpy-weed',  x: 1700, y: 1500, roam: [1200, 1420, 1100, 200], level: 2 },
-      { id: 't-frost-2',  kind: 'cold-snap',    x: 2500, y: 1800, roam: [2420, 1100, 200, 1300], level: 3 },
-      { id: 't-smoke-2',  kind: 'sneezy-smoke', x: 3400, y: 2000, roam: [3120, 1620, 650, 540], level: 3 },
-      { id: 't-frost-boss', kind: 'cold-snap',  x: 2050, y: 450,  roam: [1920, 320, 240, 340], level: 3, boss: true },
+      { id: 't-weed-3',   kind: 'grumpy-weed',  x: 1700, y: 1500, roam: [1200, 1420, 1100, 200], level: 'party' },
+      { id: 't-frost-2',  kind: 'cold-snap',    x: 2500, y: 1800, roam: [2420, 1100, 200, 1300], level: 'party' },
+      { id: 't-smoke-2',  kind: 'sneezy-smoke', x: 3400, y: 2000, roam: [3120, 1620, 650, 540], level: 'party', pack: [{ kind: 'grumpy-weed', level: 'party' }] },   // two at once
+      { id: 't-frost-boss', kind: 'cold-snap',  x: 2050, y: 450,  roam: [1920, 320, 240, 340], level: 'party+1', boss: true },
     ],
   },
 
@@ -133,9 +140,9 @@ const MAPS = {
     ],
     npcs: [],
     troubles: [
-      { id: 't-static-1', kind: 'static-sprite', x: 1900, y: 1900, roam: [1320, 1820, 1100, 200], level: 3 },
-      { id: 't-static-2', kind: 'static-sprite', x: 2800, y: 1100, roam: [2420, 1020, 900, 200], level: 4 },
-      { id: 't-static-boss', kind: 'static-sprite', x: 3300, y: 450, roam: [2920, 320, 700, 240], level: 5, boss: true },
+      { id: 't-static-1', kind: 'static-sprite', x: 1900, y: 1900, roam: [1320, 1820, 1100, 200], level: 'party' },
+      { id: 't-static-2', kind: 'static-sprite', x: 2800, y: 1100, roam: [2420, 1020, 900, 200], level: 'party', pack: [{ kind: 'static-sprite', level: 'party' }] },   // two at once
+      { id: 't-static-boss', kind: 'static-sprite', x: 3300, y: 450, roam: [2920, 320, 700, 240], level: 'party+1', boss: true },
     ],
   },
 };

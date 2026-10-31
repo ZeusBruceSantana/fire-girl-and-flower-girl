@@ -28,6 +28,8 @@ const CASES_UI = {
   oddOneOut: 'Which one does NOT belong?',
   memoryPairs: 'Find the pairs. Tap two cards.',
   pairFound: 'A pair!',
+  wanted: 'Wanted today: {word}, {map}. Three hearts, and whatever it is carrying.',
+  wantedWon: 'Wanted! +{hearts} hearts',
 };
 
 const Cases = {
@@ -156,10 +158,36 @@ const Cases = {
     }
     const c = this.active();
     if (c) {
-      if (this.foundAll(c)) { await Dialogue.say({ who: pebble.name, art: pebble.art, text: CASES_UI.whoDidIt }); return this.openBoard(seat); }
-      return Dialogue.say({ who: pebble.name, art: pebble.art, text: CASES_UI.cluesLeft.replace('{name}', c.word).replace('{found}', this.state(c.id).clues.length).replace('{total}', c.clues.length) });
+      if (this.foundAll(c)) { await Dialogue.say({ who: pebble.name, art: pebble.art, text: CASES_UI.whoDidIt }); await this.openBoard(seat); }
+      else await Dialogue.say({ who: pebble.name, art: pebble.art, text: CASES_UI.cluesLeft.replace('{name}', c.word).replace('{found}', this.state(c.id).clues.length).replace('{total}', c.clues.length) });
+    } else await this.offerNext(seat);
+    await this.wantedTalk(seat);
+  },
+
+  /* ---------- the wanted board: one named trouble a day (data/cases.js WANTED) ---------- */
+  wantedToday() {
+    if (typeof WANTED === 'undefined' || !WANTED.length) return null;
+    const day = S.shared.clock.day;
+    if ((S.shared.counters['wanted-day'] || 0) >= day) return null;   // already cheered up today
+    return WANTED[(day - 1) % WANTED.length];
+  },
+  async wantedTalk(seat) {
+    void seat;
+    const w = this.wantedToday(); if (!w) return;
+    const pebble = WORLD.people.pebble, map = MAPS[w.map];
+    await Dialogue.say({ who: pebble.name, art: pebble.art, text: CASES_UI.wanted.replace('{word}', w.word).replace('{map}', map ? map.word : w.map) });
+  },
+  /* The wanted trouble was cheered up: its drop and the bounty go to every girl who was there. */
+  wantedWon(w, players) {
+    const day = S.shared.clock.day;
+    for (const s of players) {
+      if (w.drop && ITEMS.some(i => i.id === w.drop)) dispatch('hero.item', s, { item: w.drop });
+      if (w.bounty) dispatch('hero.hearts', s, { amount: w.bounty });
     }
-    return this.offerNext(seat);
+    dispatch('counter.max', players[0] || S.settings.localSeats[0], { key: 'wanted-day', value: day });
+    const item = ITEMS.find(i => i.id === w.drop);
+    uiToast(CASES_UI.wantedWon.replace('{hearts}', w.bounty || 0) + (item ? ' · ' + item.word : ''), { icon: 'heart' });
+    if (typeof HUD !== 'undefined') HUD.render();
   },
   async offerNext(seat) {
     const pebble = WORLD.people.pebble;

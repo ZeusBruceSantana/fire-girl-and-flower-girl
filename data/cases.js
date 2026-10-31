@@ -98,3 +98,16 @@ const CASES = [
     solved: 'Mr. Tilt painted them all while hanging upside down from his wobbly ladder and never noticed. The girls turned them back. He got a new ladder.',
     reward: { hearts: 4, coins: 12, badge: 'sign-fixer', friend: 'signpainter' } },
 ];
+
+/* THE WANTED BOARD: one named trouble a day, pinned up at Constable Pebble's. Day 1 is the first entry, day 2 the
+   second, and round again. It roams its map at the party's level, always carries its "drop", and cheering it up
+   pays the bounty in hearts to every girl who was there. Pebble says where it was last seen.
+   Fields: id (the counter and sprite id, forever), word (what Pebble calls it), kind (WORLD.troubles id),
+           map (data/maps.js id), x, y, roam (its patch, on walkable ground), drop (an item id), bounty (hearts) */
+const WANTED = [
+  { id: 'weed-greenhouse',   word: 'the Weed by the Greenhouse',   kind: 'grumpy-weed',   map: 'school-grounds',    x: 3300, y: 1300, roam: [3100, 1150, 600, 400],  drop: 'seed-sun',    bounty: 3 },
+  { id: 'smoke-bridge',      word: 'the Smoke on the Bridge',      kind: 'sneezy-smoke',  map: 'middlemarket',      x: 2048, y: 1000, roam: [1948, 600, 200, 700],   drop: 'gem-amber',   bounty: 3 },
+  { id: 'frost-stream',      word: 'the Frost by the Stream',      kind: 'cold-snap',     map: 'whispering-woods',  x: 2900, y: 1700, roam: [2600, 1550, 600, 400],  drop: 'gem-dewdrop', bounty: 3 },
+  { id: 'weed-orchard-gate', word: 'the Weed at the Orchard Gate', kind: 'grumpy-weed',   map: 'petalvale-orchard', x: 600,  y: 1500, roam: [250, 1420, 900, 200],   drop: 'gem-amber',   bounty: 3 },
+  { id: 'sprite-cloud-path', word: 'the Sprite on the Cloud Path', kind: 'static-sprite', map: 'thunder-peak',      x: 1500, y: 2100, roam: [1320, 1820, 200, 1000], drop: 'spark-dust',  bounty: 3 },
+];
