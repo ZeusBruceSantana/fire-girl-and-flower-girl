@@ -41,10 +41,23 @@ const CHALLENGES = {
     word: 'Build the word',
     needs: 'any',
     fits: ['chest', 'lock', 'big spell'],
-    options: 0,   // the word's own letters, shuffled, plus at most one extra for longer words
-    how: 'The helper says a word. The player drags or taps letter tiles into slots to build it.',
-    hints: ['the first slot shows its letter faintly', 'the helper says the word slowly, sound by sound', 'tiles that are wrong hop back out'],
+    options: 0,   // one tile per sound of the word (sh is one tile), shuffled, plus one look-alike for longer words
+    how: 'Sound boxes. The helper says a word. One box per sound ("sheep" is sh / ee / p); the player taps sound tiles '
+       + 'into the boxes in order. Each tile says its sound when touched. Magic e is a small quiet box tied to its vowel; '
+       + 'the tricky part of a heart word has a heart.',
+    hints: ['(the first miss is only a wobble) the helper asks "What sound comes next?" and the boxes flash their count',
+            'the helper stretches the word sound by sound and the next box shows its letter faintly', 'the right tile glows'],
     reward: [4, 3, 2],
+  },
+  'sound-tap': {
+    word: 'Which letter says it?',
+    needs: 'any',
+    fits: ['spark', 'quick moment', 'warm-up'],
+    options: 3,
+    how: 'The helper says a sound from her words ("shh"). The player taps the letter or letters that make it, out of three. '
+       + 'Practises a sound, not a word, so it does not change the word boxes.',
+    hints: ['(the first miss is only a wobble) the helper asks again and says the sound slowly', 'the helper names a word with that sound and the wrong ones fade', 'the right letters glow'],
+    reward: [2, 2, 1],
   },
   'read-to-grown-up': {
     word: 'Read it to a grown-up',
@@ -56,6 +69,17 @@ const CHALLENGES = {
     hints: ['the grown-up decides when to help', 'tap the helper to hear the word'],
     reward: [3, 3, 3],
   },
+};
+
+/* What the helper says on the reading cards (Phase D). The ladder asks before it tells. */
+const READING_UI = {
+  askStart: 'What sound does it start with?',
+  askNext: 'What sound comes next?',
+  askSound: 'Listen again.',
+  likeIn: '{sound}, like in {word}.',
+  whichLetter: 'Which letter says this sound?',
+  whichLetters: 'Which letters say this sound?',
+  watch: 'Watch me first.',
 };
 
 /* Adaptive repetition ("words she misses come back more often"; Phase D: "learned" means three clean first tries,

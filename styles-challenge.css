@@ -59,3 +59,39 @@
 #challenge.split .ch-helper { width: 9vmin; height: 9vmin; }
 .ch-big { font-family: var(--font-display); font-size: var(--t-display); font-weight: 800; letter-spacing: .04em; line-height: 1.05; margin: 1vmin 0 2vmin; }
 .ch-opt.grown { font-size: var(--t-button); background: linear-gradient(#8ddca4, var(--ok) 90%); border-color: var(--ok-deep); box-shadow: 0 var(--press) 0 var(--ok-deep); color: #fff; text-shadow: 0 .2vmin .4vmin rgba(0,40,10,.45); }
+
+/* ---------- Phase D: sound boxes, heart words, the sound tap, help ---------- */
+/* one box per sound: a team of letters (sh, ee) shares one wider box and one wider tile */
+.ch-slot.filled .put, .ch-slot .ghost { white-space: nowrap; }
+.ch-slot { width: auto; min-width: max(11vmin, 52px); padding: 0 1.4vmin; }
+#challenge.split .ch-slot { width: auto; min-width: max(9vmin, 52px); }
+.ch-tile.multi { width: auto; min-width: max(15vmin, 64px); padding: 0 1.8vmin; }
+/* magic e: a smaller, quieter box tied to its vowel by a gold arc underneath */
+.ch-slot.silent { width: max(8vmin, 44px); min-width: 0; height: max(9vmin, 44px); align-self: flex-end; opacity: .8; font-size: calc(var(--t-word) * .75); }
+.ch-slot.silent .put { color: var(--ink-soft); }
+.ch-slot.magic, .ch-slot.silent { border-bottom: .6vmin solid var(--electric); }
+.ch-tile.silent { color: var(--ink-soft); font-size: calc(var(--t-word) * .8); }
+/* a heart word's tricky part: a small heart on its box, learned by heart */
+.ch-slot.heart { border-color: #d9577e; background: #fff0f4; }
+.ch-slot .heart-mark { position: absolute; top: -1.6vmin; right: -1.4vmin; width: max(4vmin, 18px); height: max(4vmin, 18px); }
+.ch-slot .heart-mark svg { width: 100%; height: 100%; filter: drop-shadow(0 .2vmin .3vmin rgba(120,20,50,.35)); }
+/* the help ladder: the boxes flash their count, the next box and its tile pulse (rung 1); the next box peeks (rung 2) */
+.ch-slots.count .ch-slot { animation: count-flash .5s ease-in-out 2; }
+@keyframes count-flash { 50% { background: var(--gold-glow); border-color: var(--gold-deep); } }
+.ch-slot.next { border-color: var(--gold-deep); box-shadow: 0 0 0 .5vmin var(--gold-glow), inset 0 .5vmin 1vmin rgba(60,30,0,.12); }
+.ch-tile.pulse { animation: breathe 1.2s ease-in-out infinite; border-color: var(--gold); }
+/* a picture beside the prompt when a pattern needs help (only words that have one) */
+.ch-pic { width: 12vmin; height: 12vmin; flex: none; border-radius: 50%; padding: 1vmin; background: var(--paper-0); border: .4vmin solid var(--gold); }
+.ch-pic svg { width: 100%; height: 100%; }
+/* the shown pattern: another word's sounds as chips, then the word */
+.ch-model { display: flex; align-items: center; justify-content: center; gap: 1vmin; flex-wrap: wrap; margin: -1vmin 0 2vmin; padding: 1.2vmin 2vmin;
+  border-radius: var(--r); background: rgba(255,224,138,.35); border: .3vmin dashed var(--gold); font-family: var(--font-display); font-weight: 700; }
+.ch-model-say { font-family: var(--font); font-size: var(--t-small); color: var(--ink-soft); margin-right: 1vmin; }
+.ch-chip { min-width: 6vmin; padding: .4vmin 1.2vmin; border-radius: calc(var(--r) * .7); background: var(--paper-0); border: .3vmin solid var(--gold-deep); font-size: var(--t-button); text-align: center; }
+.ch-chip.silent { opacity: .6; } .ch-chip.heart { border-color: #d9577e; background: #fff0f4; }
+.ch-model-word { margin-left: 1.4vmin; font-size: var(--t-title); }
+/* the sound tap: three big letter tiles */
+.ch-options.sounds .ch-opt { min-width: 20vmin; font-size: calc(var(--t-word) * 1.2); }
+/* a card drawn inside another screen (battle, a chest lock): the host decides where; the card keeps its look */
+.ch-card.hosted { width: auto; max-width: 100%; animation: rise-in var(--dur-in) var(--ease-out); }
+#challenge.split .ch-slot.silent { min-width: 0; width: max(7vmin, 44px); }
