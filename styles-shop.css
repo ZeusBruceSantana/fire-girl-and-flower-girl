@@ -1,1 +1,33 @@
-/* styles-shop.css: filled in by its lane. */
+/* ---------- shops: parchment and gold, big item cards ---------- */
+#shop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
+#shop.show { display: flex; }
+.shop-frame { width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
+#shop.seat-left .shop-frame { border-color: var(--L-dark); } #shop.seat-right .shop-frame { border-color: var(--R-dark); }
+.shop-top { display: flex; align-items: center; gap: 2vmin; padding: 2vmin 3vmin 1vmin; }
+.shop-portrait { width: 14vmin; height: 14vmin; flex: none; border-radius: 3vmin; overflow: hidden; background: radial-gradient(#fff6e3, var(--parch-dark)); border: .5vmin solid var(--gold-dark); }
+.shop-portrait svg, .shop-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.shop-greet { flex: 1; position: relative; padding: 2.4vmin 2vmin 1.6vmin; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2.4vmin; }
+.shop-greet .plate { position: absolute; left: 2vmin; top: -2.2vmin; background: linear-gradient(#ffe39a, var(--gold)); border: .4vmin solid var(--gold-dark); border-radius: 2vmin; padding: .3vmin 2vmin; font-weight: 900; font-size: 2.6vmin; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.shop-say { font-size: 3vmin; line-height: 1.3; } .shop-say.kind { color: #b05a10; }
+.shop-coins { display: flex; align-items: center; gap: 1vmin; font-weight: 900; font-size: 4.4vmin; background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 4vmin; padding: 1vmin 2.4vmin; }
+.shop-coins svg { width: 6vmin; height: 6vmin; }
+.shop-tabs { display: flex; gap: 1vmin; padding: 1vmin 1.6vmin 0; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }
+.shop-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3vmin; padding: 1vmin 0 1.2vmin; border-radius: 2vmin 2vmin 0 0; font-weight: 900; font-size: 2.4vmin; min-height: calc(var(--btn) * .7); background: rgba(255,255,255,.35); border: .3vmin solid transparent; border-bottom: 0; }
+.shop-tab .icon { width: 5.5vmin; height: 5.5vmin; } .shop-tab .icon svg { width: 100%; height: 100%; }
+.shop-tab.on { background: #fff8ea; border-color: var(--gold); transform: translateY(.4vmin); }
+.shop-tab.close { flex: 0 0 12vmin; }
+.shop-page { flex: 1; overflow: auto; padding: 2vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(22vmin, 1fr)); gap: 2vmin; }
+.shop-card { position: relative; background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.4vmin; text-align: center; min-height: var(--btn); box-shadow: 0 .6vmin 0 var(--gold-dark); }
+.shop-card:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
+.shop-card .art { width: 9vmin; height: 9vmin; margin: 0 auto; } .shop-card .art svg { width: 100%; height: 100%; }
+.shop-card .word { font-weight: 900; font-size: 2.6vmin; }
+.shop-card .price { display: inline-flex; align-items: center; gap: .4vmin; font-weight: 900; font-size: 2.6vmin; margin-top: .4vmin; } .shop-card .price svg { width: 3.4vmin; height: 3.4vmin; }
+.shop-card .note { font-size: 2vmin; opacity: .75; margin-top: .4vmin; } .shop-card .note.gift { color: #b8336a; }
+.shop-card .n { position: absolute; right: .8vmin; top: .6vmin; font-weight: 900; font-size: 2.4vmin; color: var(--gold-dark); }
+.shop-card.poor { opacity: .5; filter: grayscale(.6); box-shadow: none; } .shop-card.poor .price { color: #c23b3b; }
+.shop-card.rarity-rare { border-color: #4a9be0; box-shadow: 0 .6vmin 0 #2f6fb0, 0 0 2vmin #7fc4ff; }
+.shop-card.rarity-legendary { border-color: #f0b429; box-shadow: 0 .6vmin 0 #b07d00, 0 0 3vmin #ffd23f; }
+.shop-card.treat { border-color: #ff7a3d; }
+.shop-empty { font-size: 3vmin; opacity: .75; padding: 4vmin; text-align: center; }
+body[data-layer="shop"] #hud { opacity: .35; }

@@ -96,7 +96,7 @@ test('The woods lead to Middlemarket; Cook, the shops and the Constable are on t
   await until(() => G('document.body.dataset.place') === 'map:middlemarket', 20000, 'the town');
   expect(G('MapStage.npcs.length') >= 4, 'townsfolk stand in the square');
   expect(G('MapStage.npcs.some(n => n.def.shop === "bakery")') && G('MapStage.npcs.some(n => n.def.shop === "market")'), 'two shops');
-  G('MapStage.tap("left", 2950, 1700)');       // Constable Pebble
+  G('MapStage.tap("left", 2950, 1520)');       // Constable Pebble (tap her, not her feet)
   await until(() => $g('.dlg') && $g('.dlg .plate') && $g('.dlg .plate').textContent.includes('Pebble'), 12000, 'the Constable talks');
 });
 

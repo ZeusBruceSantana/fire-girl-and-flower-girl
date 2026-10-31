@@ -95,7 +95,10 @@ const ACTIONS = {
   'hero.ember':  (s, a) => { const h = s.heroes[a.hero]; h.ember = clamp(h.ember + a.payload.amount, 0, h.maxEmber); },
   'hero.item':   (s, a) => { const h = s.heroes[a.hero]; h.inventory.push(a.payload.item); h.collection[a.payload.item] = (h.collection[a.payload.item] || 0) + 1; },
   'hero.sell':   (s, a) => { const h = s.heroes[a.hero], i = h.inventory.indexOf(a.payload.item); if (i >= 0) { h.inventory.splice(i, 1); h.coins += a.payload.coins; } },
-  'hero.equip':  (s, a) => { s.heroes[a.hero].equipped[a.payload.slot] = a.payload.item; },
+  'hero.equip':  (s, a) => { const h = s.heroes[a.hero]; h.equipped[a.payload.slot] = a.payload.item; h.maxEmber = 10 + gearBonus(h, 'maxEmber'); h.ember = Math.min(h.ember, h.maxEmber); },
+  'hero.craft':  (s, a) => { const h = s.heroes[a.hero], r = RECIPES.find(x => x.id === a.payload.recipe); if (!r) return;
+                             const inv = h.inventory.slice(); for (const m of r.needs) { const i = inv.indexOf(m); if (i < 0) return; inv.splice(i, 1); }
+                             h.inventory = inv; h.inventory.push(r.makes); h.collection[r.makes] = (h.collection[r.makes] || 0) + 1; },
   'hero.badge':  (s, a) => { const h = s.heroes[a.hero]; if (!h.badges.includes(a.payload.badge)) h.badges.push(a.payload.badge); },
   'hero.scroll': (s, a) => { const h = s.heroes[a.hero]; if (!h.scrolls.includes(a.payload.myth)) h.scrolls.push(a.payload.myth); },
   'hero.stars':  (s, a) => { const h = s.heroes[a.hero]; h.stars[a.payload.key] = Math.max(h.stars[a.payload.key] || 0, a.payload.stars); },
@@ -173,3 +176,6 @@ function makeAction(state, type, hero, payload, extra) {
   const n = state.log.counter + 1;
   return Object.assign({ id: state.settings.deviceId + '-' + n, t: Date.now(), dev: state.settings.deviceId, hero: hero || null, type, payload: payload || {} }, extra || {});
 }
+
+/* How much of one effect (maxEmber, hearts, reveal, freeSpark) a hero's worn gear adds up to. */
+function gearBonus(hero, key) { return Object.values(hero.equipped).reduce((n, id) => { const it = ITEMS.find(i => i.id === id); return n + ((it && it.effect && it.effect[key]) || 0); }, 0); }

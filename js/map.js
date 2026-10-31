@@ -148,7 +148,7 @@ const MapStage = {
         Stage.heroes[seat].setAnim('hop');
       }
     } else if (target.kind === 'npc') {
-      const n = target.obj, who = WORLD.people[n.who] || WORLD.teachers[n.who];
+      const n = target.obj.def || target.obj, who = WORLD.people[n.who] || WORLD.teachers[n.who];
       if (n.shop && typeof Shop !== 'undefined' && Shop.open) return Shop.open(seat, n.shop);
       if (n.who === 'cook') return Day.iceCream(seat);
       await Dialogue.say({ who: who.name, art: who.art, text: n.talk || who.about });

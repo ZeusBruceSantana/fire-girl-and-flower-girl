@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+<ellipse cx="200" cy="588" rx="120" ry="12" fill="#000" opacity=".12"/>
+<rect x="150" y="420" width="40" height="150" rx="18" fill="#f2c9a6"/><rect x="214" y="420" width="40" height="150" rx="18" fill="#f2c9a6"/>
+<rect x="120" y="290" width="36" height="150" rx="18" fill="#f2c9a6" transform="rotate(14 138 300)"/><rect x="246" y="290" width="36" height="150" rx="18" fill="#f2c9a6" transform="rotate(-24 264 300)"/>
+<rect x="150" y="260" width="100" height="150" rx="40" fill="#f2c9a6"/><rect x="178" y="250" width="44" height="50" rx="16" fill="#f2c9a6" opacity=".8"/>
+<circle cx="200" cy="170" r="105" fill="#f2c9a6"/><circle cx="96" cy="180" r="18" fill="#f2c9a6"/><circle cx="304" cy="180" r="18" fill="#f2c9a6"/>
+<path d="M150 300 h100 v180 q-50 24 -100 0Z" fill="#5aa9ff"/><rect x="150" y="300" width="18" height="60" fill="#5aa9ff"/><rect x="232" y="300" width="18" height="60" fill="#5aa9ff"/><rect x="140" y="420" width="120" height="110" rx="20" fill="#5aa9ff"/><circle cx="175" cy="440" r="9" fill="#ffd23f"/><circle cx="225" cy="470" r="8" fill="#d9534f"/><circle cx="195" cy="500" r="7" fill="#7fd08a"/><circle cx="240" cy="330" r="7" fill="#ff8fb8"/><circle cx="160" cy="390" r="6" fill="#a98be6"/>
+<rect x="140" y="540" width="60" height="60" rx="18" fill="#6b4a2b"/><rect x="204" y="540" width="60" height="60" rx="18" fill="#6b4a2b"/><rect x="140" y="580" width="70" height="20" rx="10" fill="#6b4a2b"/><rect x="204" y="580" width="70" height="20" rx="10" fill="#6b4a2b"/>
+<ellipse cx="190" cy="185" rx="12" ry="16" fill="#3e3a4f"/><ellipse cx="248" cy="185" rx="12" ry="16" fill="#3e3a4f"/><circle cx="194" cy="179" r="4" fill="#fff"/><circle cx="252" cy="179" r="4" fill="#fff"/>
+<circle cx="166" cy="214" r="12" fill="#ffb3c8" opacity=".6"/><circle cx="272" cy="214" r="12" fill="#ffb3c8" opacity=".6"/>
+<path d="M202 222 Q222 240 242 224" stroke="#8a4a4a" stroke-width="6" fill="none" stroke-linecap="round"/>
+<path d="M110 180 Q100 120 200 110 Q300 120 290 180 Q250 150 200 160 Q150 150 110 180Z" fill="#5a4a3a"/><g transform="rotate(-10 200 100)"><ellipse cx="200" cy="100" rx="96" ry="28" fill="#5aa9ff"/><rect x="120" y="40" width="160" height="70" rx="30" fill="#5aa9ff"/><rect x="200" y="86" width="110" height="18" rx="9" fill="#3e6fb8"/></g><g transform="rotate(30 300 150)"><rect x="294" y="110" width="12" height="80" rx="6" fill="#c98b4a"/><rect x="290" y="100" width="20" height="24" rx="6" fill="#d9534f"/></g><g transform="translate(300 320)"><rect x="-10" y="-50" width="20" height="100" rx="8" fill="#c98b4a"/><rect x="-18" y="-80" width="36" height="40" rx="8" fill="#ffd23f"/></g>
+</svg>
