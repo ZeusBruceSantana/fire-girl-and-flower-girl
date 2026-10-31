@@ -385,3 +385,82 @@ arrive, every scene is a vector placeholder used only for building and testing.
 | **Parallax** | background layers that move at different speeds, which makes a flat picture feel deep |
 | **Hotspot** | an invisible tappable rectangle in a scene (a door, a person, a chest) |
 | **World code** | the family's long random code that links E's device to the twins' world |
+
+---
+
+## 16. Systems depth (version 2.1)
+
+The owner's bar: a real RPG, not a quiz with a cartoon on top. These systems apply to every epic
+from here on. Losing stays soft everywhere.
+
+### 16.1 The interface
+- **HUD per hero**, in her corner: painted portrait, name, level badge with an XP ring that fills,
+  coins and hearts counters, the **Ember meter**, and the current objective in one line.
+- **Ornate menu** (parchment and gold frames, generated with the art; see `ART-PROMPTS.md` section
+  6): tabs for **Spellbook, Bag, Journal, Map, Badges, Friends**. Big tap targets, icon plus word.
+- **Dialogue box** like an RPG: portrait on the left, name plate, text that types out, choices
+  listed below. Choices change friendship and story. Every word tappable to hear.
+- **World markers:** a glowing "!" over quest-givers, a shimmer on things you can use, twinkles on
+  hidden sparkles, a soft arrow on exits, a faint glimmer on a secret only after it has been found.
+
+### 16.2 Spells and the Ember meter
+- Every hero has an **Ember meter** (0 to 10). Spells cost ember (Spark 1, Warm 2, Glow 3,
+  Blaze 5; the same ladder for the other two). **Reading refills it**: every right answer in class,
+  in a chest or in a duel gives ember. The meter also refills a little at bedtime. It never blocks
+  the story: with 0 ember a hero can still cast her level-1 spell by reading.
+- **Casting is a choice, then a reading.** Open the Spellbook, pick a spell, then power it with a
+  word from your own list (one of the four challenge types). The spell's effect plays in the world.
+- **Together spells** need two or three heroes to each power their part, then tap at once.
+
+### 16.3 Spell duels
+- A trouble has a **mood meter** (grumpy to cheerful), never health. Each turn the hero picks a
+  spell and powers it with a reading or math challenge. The trouble reacts, then does something
+  silly (it never hurts anyone).
+- **The elemental triangle matters:** Dew beats Sneezy Smoke, Spark beats Cold Snap, Vine beats
+  Static Sprite, and so on (`WORLD.troubles[].weakTo`). The right element doubles the effect; a
+  sister casting a matching spell on the next turn **combos** for a bonus. Three heroes, three
+  elements, real tactics at a 7-year-old level.
+- Three good turns and the trouble cheers up and wanders off, leaving a find. A duel never ends in
+  failure: after enough turns it just leaves.
+
+### 16.4 Bag, gear and crafting
+- Gear has **effects**, not only looks: the candle wand adds max ember, the daisy crown earns extra
+  hearts at lunch, mud boots reveal hidden sparkles, the ember cape gives Fire Girl a free Spark
+  each day. Effects are data in `data/items.js` (`effect` field).
+- Equip by **dragging onto the paper doll** in the Bag (tap-to-equip also works).
+- **Crafting at the Lair** turns class materials into useful things: charcoal into ash paint,
+  petals into dye, sparks into glow ink, ash plus dye into a Lantern Paint that unlocks a gallery
+  frame. Recipes are data (`data/crafting.js`). Materials come from classes and adventures.
+
+### 16.5 Journal, map and collections
+- **Journal:** quests and cases with multi-step objectives and a clue board per case.
+- **Map:** the world map with **fog** that lifts as places are visited; tap to travel to places
+  reached before (through the Lair).
+- **Collection book** with silhouettes, sets, and Myth Scrolls; **Badges** wall.
+
+### 16.6 Classes as play
+- **Spells:** a target range. Words light candles in sequence; a streak makes a bigger flame.
+- **Numbers:** run the stall. Customers queue with picture orders; coins, change, more-or-less.
+- **Myths:** an interactive storybook with "what happens next" choices between pages.
+- **Art:** the shared canvas with tools that come from crafting.
+
+### 16.7 World texture
+- The day advances with the timetable: morning light, evening lanterns, night in the woods with
+  fireflies. **Weather** on some days (rain helps Flower, dry days help Fire; data in `school.js`).
+- Each adventure ends with a silly **mini-boss** version of its trouble.
+- **Secret rooms** found only by casting Flash (Electric) or by a friend's hint power.
+
+## 17. Roadmap (version 2.1)
+
+| # | Epic | What lands | Sessions |
+|---|---|---|---|
+| 2a | **RPG interface** | HUD, ornate menu with tabs, dialogue box, world markers, Spellbook and Ember meter, the first reading challenges (hear it, build it) that power spells | 1–2 |
+| 2b | **First school day** | timetable and clock, Spells class as a target range, lunch dialogue with two friends and ice cream, bedtime summary | 2 |
+| 3 | **Tunnel, Lair, Woods** | the secret shelf, Lair stations, Bag with drag-equip and gear effects, first adventure with a real spell duel (mood meter, elemental triangle, combos), chests, sparkles | 2 |
+| 4 | **Numbers and market** | Numbers class as a stall, the market, crafting v1 | 1–2 |
+| 5 | **Myths** | interactive storybook, Myth Scrolls, Persephone's Gate | 1–2 |
+| 6 | **Art and friendship** | shared canvas with crafted tools, gallery, gifting, Hearts, friend stories, Lair upgrades | 2 |
+| 7 | **Town cases** | Constable Pebble, clue boards, three cases | 1–2 |
+| 8 | **Rarity and polish** | rarity looks and sounds, collection book, badges, map fog, weather, music, Pure of Heart test | 1–2 |
+| 9 | **Electric Girl** | her story, Thunder Peak, three-way together spells, secret rooms | 1 |
+| 10 | **Live co-play** | the relay, world code on every device, twins on separate devices | 2 |

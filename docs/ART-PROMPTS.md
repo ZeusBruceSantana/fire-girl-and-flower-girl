@@ -260,3 +260,27 @@ closed eyes": save as `art/heroes/<kind>/full-happy.png`, `full-surprised.png`, 
 
 **Licensing note.** Images you generate under a paid plan are yours to use in a public repository under
 Midjourney's and OpenAI's current terms. If that ever changes, the files can move to a private folder.
+
+## 6. Interface art (frames, icons, portraits)
+
+Same chat as the characters. These make the menus look like part of the book.
+
+**Parchment frame** · `art/ui/frame.png` (square, transparent background)
+> A decorative frame for a fantasy storybook game menu: aged cream parchment panel with soft painted
+> edges and a thin gold filigree border with small flame, flower and lightning motifs in the corners,
+> the center completely empty and plain, square, transparent background outside the frame. Same painted
+> storybook style.
+
+**Name plate** · `art/ui/plate.png` (wide 4:1, transparent)
+> A small decorative gold-and-parchment name plate banner for a storybook game, empty in the middle,
+> transparent background.
+
+**Menu icons** (one image with all eight, 1:1, transparent; I will cut them apart):
+> Eight hand-painted storybook game icons in a 4 by 2 grid on a transparent background, each in a soft
+> gold circle: an open spellbook with sparkles, a leather satchel, a quill and journal, a rolled map, a
+> round badge with a star, two clasped hands for friends, a glowing ember flame, a pink heart. Same painted
+> style, bold and readable at small size, no text.
+
+**Portraits** · `art/heroes/<kind>/portrait.png` (1:1, transparent), one per princess:
+> Head-and-shoulders portrait of [paste that princess's description], smiling at the viewer, same painted
+> style, soft round vignette, transparent background.
