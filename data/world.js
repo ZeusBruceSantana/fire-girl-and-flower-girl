@@ -27,6 +27,7 @@ const WORLD = {
   heroes: {
     fire: {
       title: 'Fire Girl',
+      motion: { magic: 'flame', at: [0.92, 0.31], hair: 1.2, skirt: 1 },   // how her painting moves (js/hero.js): magic at her hand, as a share of the picture
       kingdom: 'emberfall',
       defaultColor: 'orange',
       art: 'fireGirl',
@@ -49,6 +50,7 @@ const WORLD = {
     },
     flower: {
       title: 'Flower Girl',
+      motion: { magic: 'petals', at: [0.91, 0.28], hair: 0.8, skirt: 1.3 },
       kingdom: 'petalvale',
       defaultColor: 'green',
       art: 'flowerGirl',
@@ -64,6 +66,7 @@ const WORLD = {
     },
     electric: {
       title: 'Electric Girl',
+      motion: { magic: 'sparks', at: [0.92, 0.26], hair: 1, skirt: 1.1 },
       kingdom: 'stormhaven',
       defaultColor: 'purple',
       art: 'electricGirl',
