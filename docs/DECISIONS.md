@@ -3,6 +3,19 @@
 Short log of choices that shape the project, newest first. One line of context, one line of
 decision, so a future session does not reopen them without reason.
 
+## 2026-10-31, the improvement program
+
+- **The story bible is approved in outline** (`STORY-DECISIONS.md`): the hundred-year-old Ember Bloom mystery, the
+  Headmistress as one of the three, the Wisp, Inspector Quill as the clock, the Moss princess as the kind rival, three acts
+  with an open chapter count. The ending is big and open: Emberfall and Petalvale reconcile, Stormhaven stays aloof until
+  Year 2. Friendly conflict between the three is allowed; humour may be a little cheeky.
+- **The princesses are not sisters.** They are classmates and best friends from three kingdoms. "Sister" only ever means
+  the two players. No on-screen line calls the princesses sisters.
+- **Stuffie sidekicks are in** (a dog, a snow leopard, and a dragon for Electric Girl), from the twins' interview.
+- **Heart words:** the school's word list is the one the reading-only story moments draw from; a parent uploads it.
+- **The font is Baloo 2** (OFL, bundled under `art/fonts/` so it works offline).
+- **Battles spend ember, classes earn it.** A spell is paid before the word; words in battle earn none; level-1 moves free.
+
 ## 2026-10-31, version 3
 
 - **Pokémon-style core.** After playing the storybook version the owner found it a point-and-click with

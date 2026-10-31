@@ -46,7 +46,10 @@
     Journal; the three-stars badge needs ten three-star classes; the periscope reveals hidden sparkles. The sticker
     book, befriended troubles in battle and the badge wall as spine are Phases D and F as planned.
 
-## Next: Phase C, the interface system (waiting for the owner's go, per the working agreement)
+## Next: Phase C, the interface system (owner's go given; handed to a new session: `docs/HANDOVER-PHASE-C.md`)
+
+The story is approved in outline (`docs/STORY-DECISIONS.md`, owner's answers recorded). Baloo 2 is bundled in `art/fonts/`.
+The five map prompts are in `docs/ART-PROMPTS-MAPS.md`.
 
 One type system, one button family, HUD hierarchy and collisions, real empty states, the party on screen in battle,
 challenge card layout rules, the target range under the HUD, category icons per item, the Lair as a room, the
@@ -58,12 +61,8 @@ frame-sheet hook, and the four ceremonies (class end, battle win, level-up, bedt
 
 ## Decisions needed (the owner)
 
-1. **The story.** `docs/STORY-DECISIONS.md` (also in Drive from-code): 25 questions with a recommendation each.
-   Phase E does not start until they are answered.
-2. **Go for Phase C?** It is one to two sessions and changes every screen's look (not the art, the frames, type and
-   buttons). Decision 25 (the font) is part of it.
-3. **Build-the-word speaks the word before the first try** (reviewer B7). Without hearing it a 7-year-old cannot
+1. **Build-the-word speaks the word before the first try** (reviewer B7). Without hearing it a 7-year-old cannot
    know which word to build. Keep (recommended) or change?
-4. **Gear with `freeSpark`** (ember crown, ember cape) does nothing now that bedtime refills the meter. Proposal: it
+2. **Gear with `freeSpark`** (ember crown, ember cape) does nothing now that bedtime refills the meter. Proposal: it
    becomes "the first paid move each day is free". Yes?
-5. The money name and the kingdom names still stand as defaults.
+3. The money name and the kingdom names still stand as defaults.

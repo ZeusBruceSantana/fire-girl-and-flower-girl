@@ -1,6 +1,27 @@
 # Story decisions for the owner (before Phase E)
 
-**Date:** 2026-10-31 · **Status:** waiting for the owner's answers · **Then:** `docs/STORY-BIBLE.md`, then lines
+**Date:** 2026-10-31 · **Status:** ANSWERED (below) · **Then:** `docs/STORY-BIBLE.md`, then lines
+
+## The owner's answers (2026-10-31)
+
+Yes to all 25 as recommended, with these changes and additions (the owner will add more later):
+
+- **5, the ending: big AND open.** The families reconcile: Emberfall and Petalvale make peace at the festival. Stormhaven
+  stays mysterious and aloof this year, and comes into the story in Year 2. The story continues; the carry-over is deliberate.
+- **10, conflict is fine.** The three may disagree. Not childish.
+- **11, from the twins:** their stuffies (a dog, a snow leopard) can be brought on adventures to give them extra powers.
+  Electric Girl has a dragon as a friend (her sidekick).
+- **18, more chapters.** Each act may expand; more chapters, more flexibility than ten.
+- **22, humour:** a little inappropriate is fine. They should have fun while they learn.
+- **23, reading in the story:** yes, a couple of story lines that are simple reading only (decode it yourself), or the
+  game speaks the word and the child spells it. The words come from the school's list, which the family calls
+  **heart words**. A parent needs a way to upload that list periodically (the parent screen's word list is the start;
+  a separate heart-words list and an easier way in are for Phase D).
+- **25, the font: Baloo 2.**
+
+What this changes in the plan: the stuffie sidekicks and the dragon move from Phase F's "later" into the season (their
+powers need a design: proposal, each stuffie is a once-per-battle helper with one power, carried in the Bag); the
+chapter count is open; Phase D's parent screen gets a heart-words list.
 
 Phase E (Season One) is not written until these are answered. Each has a recommendation so a one-word answer
 works ("yes", "no", "change X"). Anything the owner adds on top overrides the proposals. Note: the princesses
