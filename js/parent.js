@@ -51,6 +51,7 @@ function parentOpen() {
   panel.innerHTML = `
     <h2>${esc(WORLD.ui.parentTitle)} <div class="pbtn close" data-close>${esc(WORLD.ui.done)}</div></h2>
     <p class="note">${esc(WORLD.ui.parentNote)}</p>
+    ${typeof SaveState !== 'undefined' && SaveState.failed ? `<p class="note save-failed" style="color:#c23b3b;font-weight:800;border:3px solid #c23b3b;border-radius:12px;padding:.6em .9em">${esc(WORLD.ui.saveFailedNote)}</p>` : ''}
     <div class="seats">${seats.map(seatBlock).join('')}</div>
     <section>
       <h3>${esc(WORLD.ui.game)}</h3>
@@ -97,7 +98,7 @@ function parentSave(panel) {
   for (const seat of S.settings.localSeats) {
     const name = panel.querySelector(`[data-name="${seat}"]`).value.trim();
     if (name !== S.heroes[seat].name) dispatch('hero.name', seat, { name });
-    const words = panel.querySelector(`[data-words="${seat}"]`).value.split(/[\n,;]+/).map(w => w.trim().toLowerCase()).filter(Boolean);
+    const words = cleanWords(panel.querySelector(`[data-words="${seat}"]`).value.split(/[\n,;\s]+/));   // one word per entry, no repeats (js/state.js)
     if (words.join('\n') !== S.heroes[seat].words.join('\n')) dispatch('hero.words', seat, { words });
     const math = Number(panel.querySelector(`[data-math="${seat}"]`).value);
     if (math !== S.settings.mathLevel[seat]) dispatch('settings.set', null, { mathLevel: { [seat]: math } });

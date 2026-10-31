@@ -84,7 +84,7 @@ function freshSave() {
    ===================================================================== */
 const ACTIONS = {
   // ---- a hero's own things ----
-  'hero.setup':  (s, a) => { const h = s.heroes[a.hero]; Object.assign(h, { kind: a.payload.kind, color: a.payload.color, setup: true }); if (a.payload.name != null) h.name = a.payload.name; },
+  'hero.setup':  (s, a) => { const h = s.heroes[a.hero]; Object.assign(h, { kind: a.payload.kind, color: a.payload.color, setup: true }); if (a.payload.name != null) h.name = String(a.payload.name).slice(0, 24); },
   'hero.name':   (s, a) => { s.heroes[a.hero].name = String(a.payload.name || '').slice(0, 24); },
   'hero.join':   (s, a) => { s.heroes[a.hero].joined = true; },
   'hero.leave':  (s, a) => { s.heroes[a.hero].joined = false; },
@@ -104,7 +104,7 @@ const ACTIONS = {
   'hero.stars':  (s, a) => { const h = s.heroes[a.hero]; h.stars[a.payload.key] = Math.max(h.stars[a.payload.key] || 0, a.payload.stars); },
   'hero.quest':  (s, a) => { s.heroes[a.hero].quests[a.payload.quest] = { step: a.payload.step, done: !!a.payload.done }; },
   'hero.adventure': (s, a) => { s.heroes[a.hero].adventures[a.payload.adventure] = { beat: a.payload.beat, done: !!a.payload.done }; },
-  'hero.words':  (s, a) => { s.heroes[a.hero].words = a.payload.words.map(w => String(w).trim().toLowerCase()).filter(Boolean).slice(0, 200); },
+  'hero.words':  (s, a) => { s.heroes[a.hero].words = cleanWords(a.payload.words); },
   'hero.word':   (s, a) => { const st = s.heroes[a.hero].wordStats, w = a.payload.word, r = st[w] || { seen: 0, right: 0, wrong: 0, lastSeen: 0, box: WORD_BOXES.startBox };
                              // a first-try win climbs a box; any miss on the way (even if she got it in the end) drops to box 0 so it comes back soon
                              r.seen++; if (a.payload.right && a.payload.firstTry) { r.right++; r.box = Math.min(3, r.box + 1); } else if (a.payload.right) { r.right++; r.wrong++; r.box = 0; } else { r.wrong++; r.box = 0; } r.lastSeen = a.t; st[w] = r; },
@@ -125,6 +125,14 @@ const ACTIONS = {
   'settings.set': (s, a) => { merge(s.settings, a.payload); },
 };
 const LOCAL_ONLY = new Set(['settings.set']);
+/* A word list as typed by a grown-up, tidied: one word per entry ("ice cream" is two), lower case,
+   nothing empty, no repeats (the first one stays), at most 200. The parent screen and the reducer both use it. */
+function cleanWords(list) {
+  const out = [];
+  for (const entry of list || []) for (const w of String(entry).toLowerCase().split(/\s+/)) { const t = w.trim(); if (t && !out.includes(t)) out.push(t); }
+  return out.slice(0, 200);
+}
+const SEEN_KEEP = 1000, SEEN_PRUNE_AT = 1200;   // how many applied action ids a save remembers
 /* Shared lists stay sorted, so two devices that saw the same things in a different order hold the same state. */
 function addSorted(list, v) { if (list.includes(v)) return false; list.push(v); list.sort(); return true; }
 function sortEvents(list) { list.sort((x, y) => x.t - y.t || String(x.id).localeCompare(String(y.id))); }
@@ -145,9 +153,14 @@ function apply(state, action) {
   if (!allowed(state, action)) return state;
   const next = structuredClone(state);
   try { ACTIONS[action.type](next, action); } catch (e) { if (TEST_MODE) TEST_ERRORS.push('action ' + action.type + ': ' + e.message); return state; }
-  next.log.seen[action.id] = 1;
-  next.log.tail.push(action);
-  if (next.log.tail.length > 200) { const dropped = next.log.tail.splice(0, next.log.tail.length - 200); /* keep seen ids: they are small */ void dropped; }
+  // seen[id] is when it was applied (old saves hold 1, which just means "long ago"); only the newest ids are kept
+  next.log.seen[action.id] = action.t || 1;
+  const ids = Object.keys(next.log.seen);
+  if (ids.length > SEEN_PRUNE_AT) { ids.sort((x, y) => next.log.seen[y] - next.log.seen[x]); for (const id of ids.slice(SEEN_KEEP)) delete next.log.seen[id]; }
+  // the tail is the last few actions for debugging and replay; a painting's picture lives in the hero's gallery, never here
+  const tailCopy = action.type === 'hero.painting' ? { ...action, payload: { ...action.payload, img: null } } : action;
+  next.log.tail.push(tailCopy);
+  if (next.log.tail.length > 200) next.log.tail.splice(0, next.log.tail.length - 200);
   return next;
 }
 

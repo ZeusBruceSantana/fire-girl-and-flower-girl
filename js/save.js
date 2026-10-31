@@ -36,10 +36,21 @@ function save() {
   saveTimer = setTimeout(saveNow, 250);
 }
 const flushSave = () => { if (saveTimer) saveNow(); };
+/* Whether the last save worked. When it does not (the tablet is out of space), a grown-up is told once
+   with a toast, and the parent screen shows a note until saving works again. Progress is never silently lost. */
+const SaveState = { failed: false, error: null, warned: false };
 function saveNow() {
   clearTimeout(saveTimer);
   saveTimer = 0;
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); return true; } catch (e) { return false; }
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+    SaveState.failed = false; SaveState.error = null;
+    return true;
+  } catch (e) {
+    SaveState.failed = true; SaveState.error = String(e && e.message || e);
+    if (!SaveState.warned && typeof uiToast === 'function' && typeof WORLD !== 'undefined') { SaveState.warned = true; try { uiToast(WORLD.ui.saveFailed, { ms: 5000 }); } catch (e2) { /* the UI is not up yet */ } }
+    return false;
+  }
 }
 addEventListener('pagehide', flushSave);
 document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
