@@ -102,3 +102,50 @@ test('A battle can always go on: a hero with no ember still casts her level-1 sp
   await until(() => G('window.__battle'), 6000, 'the battle to end');
   expect(G('S.heroes.left.ember') >= 0, 'ember never went negative');
 });
+
+async function answerTiles(seat) {   // answer a letter-tiles card for this seat, first try
+  await until(() => G(`!!Challenge.active['${seat}']`), 4000, 'a word challenge for ' + seat);
+  const w = G(`Challenge.active['${seat}'].word`);
+  for (const l of w) { tap($$g(`.ch-card.seat-${seat} .ch-tile:not(.used)`).find(t => t.dataset.l === l)); await sleep(20); }
+  await until(() => G(`!Challenge.active['${seat}']`), 3000, 'the challenge to finish');
+}
+
+test('A together battle move: both girls power their part, tap together, and the meter jumps', async () => {
+  await openWorldB();
+  G("dispatch('hero.xp', 'left', { amount: 120 }); dispatch('hero.xp', 'right', { amount: 120 }); Battle.rng = () => 0.1");
+  expectEqual(G('S.heroes.left.level'), 3, 'level 3');
+  startBattle({ troubles: [{ kind: 'sneezy-smoke', level: 3 }], backdrop: 'woods-path', party: ['left', 'right'] });
+  await until(() => G('Battle.state && Battle.state.turnSeat') === 'left' && $g('#battle .move.together[data-spell="lantern-flower"]'), 4000, 'Lantern Flower on the move list');
+  expect(!$g('#battle .move.together[data-spell="ember-bloom"]'), 'Ember Bloom needs level 8 and all three');
+  const emberBefore = G('[S.heroes.left.ember, S.heroes.right.ember]');
+  tap($g('#battle .move.together[data-spell="lantern-flower"]'));
+  await answerTiles('left');
+  await answerTiles('right');
+  await until(() => $g('#battle .together-tap'), 3000, 'the together tap moment');
+  expect($$g('#battle .together-tap .tapbtn').length === 2, 'one big button per girl');
+  tap($g('#battle .together-tap .tapbtn[data-seat="left"]'));
+  tap($g('#battle .together-tap .tapbtn[data-seat="right"]'));
+  await until(() => G('Battle.state.meter') >= 12, 4000, 'the meter to jump');
+  // (1+3)*1.5 + (1+3)*1.5 = 12, ×2 together = 24, ×2 (flower vs smoke) = 48; max is 8*3 = 24 so the meter fills
+  expectEqual(G('Battle.state.meter'), 24, 'the meter filled from one together move');
+  const emberAfter = G('[S.heroes.left.ember, S.heroes.right.ember]');
+  expectEqual(emberAfter, [emberBefore[0] + 4 - 2, emberBefore[1] + 4 - 2], 'each earned 4 from her part and paid 2');
+  expect(G("S.heroes.left.badges.includes('together') && S.heroes.right.badges.includes('together')"), 'both got the together badge');
+  expect(!G("S.heroes.left.badges.includes('all-three')"), 'all-three needs three');
+  await until(() => G('window.__battle'), 6000, 'the battle to end');
+  expectEqual(G('window.__battle.won'), true, 'won');
+});
+
+test('A together battle move with the companion: her part just works, no tap window needed', async () => {
+  await openWorldB();
+  G("dispatch('hero.setup', 'away', { kind: 'electric', color: 'purple' }); dispatch('hero.xp', 'left', { amount: 120 }); dispatch('hero.leave', 'right', {}); Battle.rng = () => 0.9");
+  startBattle({ troubles: [{ kind: 'cold-snap', level: 1 }], backdrop: 'woods-path', party: ['left', 'away'] });
+  await until(() => G('Battle.state && Battle.state.turnSeat') === 'left' && $$g('#battle .move').length > 0, 4000, "left's turn");
+  expect($g('#battle .move.together[data-spell="firework"]'), 'Firework (fire + electric) is offered with the companion cousin');
+  tap($g('#battle .move.together[data-spell="firework"]'));
+  await answerTiles('left');
+  await until(() => G('Battle.state.meter') > 0, 4000, 'the move to land without a tap window');
+  expect(!$g('#battle .together-tap'), 'no tap window with only one real player');
+  expect(G("S.heroes.away.badges.includes('together')"), 'the cousin gets the badge too');
+  G('Battle.cancel()');
+});

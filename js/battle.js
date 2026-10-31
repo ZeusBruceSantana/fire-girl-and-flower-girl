@@ -33,6 +33,12 @@ const BATTLE_UI = {
   locked: 'level {level}',
   giggle: 'Giggle',
   ember: 'Ember',
+  yourPart: 'Your part of {spell}!',
+  tapNow: 'Together! Tap now!',
+  tapTogether: 'Tap!',
+  tryTogether: 'Almost! Tap at the same time. Again!',
+  togetherMagic: 'Together magic!',
+  togetherCost: '2 each',
 };
 
 const Battle = {
@@ -53,7 +59,7 @@ const Battle = {
     return new Promise(resolve => { this._resolve = resolve; this.run().catch(e => { if (TEST_MODE) TEST_ERRORS.push('battle: ' + (e && e.message)); this.end(); }); });
   },
   /* A test aid (and the parent screen's way out): stop now. */
-  cancel() { if (!this.active) return; this.state.cancelled = true; if (this._pendingMove) { const p = this._pendingMove; this._pendingMove = null; p(null); } },
+  cancel() { if (!this.active) return; this.state.cancelled = true; if (this._pendingMove) { const p = this._pendingMove; this._pendingMove = null; p(null); } if (this._cancelTogether) { const c = this._cancelTogether; this._cancelTogether = null; c(); } },
   end() {
     const st = this.state;
     this.active = false;
@@ -104,6 +110,88 @@ const Battle = {
       return { ...sp, cost, locked: h.level < sp.level, affordable: cost <= h.ember };
     });
   },
+  /* Together spells this seat could start now: her level is high enough, every needed princess is in the party,
+     and the others are either real players on this device or companion-driven (then their part just works). */
+  togetherFor(seat) {
+    const st = this.state, h = S.heroes[seat];
+    return WORLD.balance.togetherSpells.map(sp => {
+      const participants = sp.needs.map(k => st.party.find(s => S.heroes[s].kind === k)).filter(Boolean);
+      const complete = participants.length === sp.needs.length && new Set(participants).size === participants.length;
+      const mine = participants.includes(seat);
+      const others = participants.filter(s => s !== seat);
+      const allPlayers = participants.every(isPlayerHere);
+      const othersAuto = mine && others.every(s => !isPlayerHere(s));
+      const available = complete && mine && h.level >= sp.level && (allPlayers || othersAuto);
+      return { ...sp, together: true, participants, ember: 3, cost: 2, locked: h.level < sp.level, available, affordable: true };
+    }).filter(sp => sp.available || !sp.locked);
+  },
+  async castTogether(seat, spell) {
+    const st = this.state, def = WORLD.troubles[st.trouble.kind];
+    const order = [seat, ...spell.participants.filter(s => s !== seat)];
+    const parts = {};
+    for (const s of order) {
+      if (st.cancelled) return null;
+      if (isPlayerHere(s)) {
+        const r = await Challenge.run({ seat: s, type: 'letter-tiles', prompt: BATTLE_UI.yourPart.replace('{spell}', spell.word) });
+        setSceneLayer('battle');
+        if (!r) return null;
+        parts[s] = !!r.firstTry;
+      } else { parts[s] = true; this.message(BATTLE_UI.autoTurn.replace('{name}', this.heroName(s)).replace('{spell}', spell.word)); await this.wait(500); }
+    }
+    const tappers = order.filter(isPlayerHere);
+    if (tappers.length > 1) { const ok = await this.togetherTap(tappers); if (ok === null) return null; }
+    const matched = spell.participants.some(s => S.heroes[s].kind === def.weakTo);
+    let effect = 0;
+    for (const s of order) effect += (1 + spell.ember) * (parts[s] ? 1.5 : 1);
+    effect = Math.max(1, Math.round(effect * 2 * (matched ? 2 : 1)));
+    for (const s of order) {
+      const cost = Math.min(spell.cost, S.heroes[s].ember);
+      if (cost > 0) dispatch('hero.ember', s, { amount: -cost });
+      st.soot[s] = 0;
+      dispatch('hero.badge', s, { badge: 'together' });
+      if (order.length >= 3) dispatch('hero.badge', s, { badge: 'all-three' });
+    }
+    st.lastMatched = matched;
+    st.meter = Math.min(st.max, st.meter + effect);
+    st.turns++;
+    this.renderParty(); this.renderTrouble();
+    this.floatNumber(effect, true);
+    this.shakeTrouble();
+    this.callout(BATTLE_UI.togetherMagic);
+    this.message(spell.word + '! ' + BATTLE_UI.togetherMagic + (matched ? ' ' + BATTLE_UI.superEffective : ''));
+    Speech.say(BATTLE_UI.togetherMagic, { interrupt: false });
+    for (const s of order) if (Stage.heroes[s]) Stage.heroes[s].setAnim('cast');
+    await this.wait(900);
+    return true;
+  },
+  /* Everyone taps her half within the window. Never fails: a miss just asks again. */
+  togetherTap(seats) {
+    const st = this.state, window_ = TEST_MODE ? 2000 : 1200;
+    return new Promise(resolve => {
+      const wrap = document.createElement('div');
+      wrap.className = 'together-tap';
+      wrap.innerHTML = seats.map(s => `<div class="tapbtn seat-${s}" data-seat="${s}"><div class="bigbtn"><span class="icon">${ART.ember}</span><span class="word">${esc(BATTLE_UI.tapTogether)}</span></div></div>`).join('');
+      this.el.appendChild(wrap);
+      this.message(BATTLE_UI.tapNow);
+      let tapped = {}, timer = 0;
+      const reset = () => { tapped = {}; clearTimeout(timer); timer = 0; wrap.querySelectorAll('.tapbtn').forEach(b => b.classList.remove('done')); this.message(BATTLE_UI.tryTogether); };
+      wrap.querySelectorAll('.tapbtn').forEach(b => b.addEventListener('pointerdown', e => {
+        e.stopPropagation();
+        if (st.cancelled) { wrap.remove(); return resolve(null); }
+        const s = b.dataset.seat;
+        if (tapped[s]) return;
+        tapped[s] = true; b.classList.add('done');
+        if (!timer) timer = setTimeout(reset, window_);
+        if (seats.every(x => tapped[x])) { clearTimeout(timer); wrap.remove(); resolve(true); }
+      }));
+      this._cancelTogether = () => { wrap.remove(); resolve(null); };
+    });
+  },
+  callout(text) {
+    const root = this.el && this.el.querySelector('.floats'); if (!root) return;
+    const c = document.createElement('div'); c.className = 'float big callout together-magic'; c.textContent = text;
+    root.appendChild(c); setTimeout(() => c.remove(), TEST_MODE ? 10 : 1400);
+  },
   playerTurn(seat) {
     const st = this.state;
     this.renderMoves(seat);
@@ -113,6 +201,7 @@ const Battle = {
         this._pendingMove = null;
         if (!spell) return resolve(null);
         this.clearMoves();
+        if (spell.together) { const ok = await this.castTogether(seat, spell); return resolve(ok === null ? null : true); }
         const r = await Challenge.run({ seat, type: spell.ember >= 3 ? 'letter-tiles' : 'hear-and-pick', prompt: BATTLE_UI.cast.replace('{spell}', spell.word) });
         setSceneLayer('battle');
         if (!r || st.cancelled) return resolve(null);
@@ -239,11 +328,13 @@ const Battle = {
   },
   renderMoves(seat) {
     const root = this.el.querySelector('.moves');
+    const together = this.togetherFor(seat).filter(sp => sp.available);
     root.innerHTML = this.spellsFor(seat).map(sp => `<div class="move ${sp.locked ? 'locked' : ''} ${!sp.locked && !sp.affordable ? 'poor' : ''}" data-spell="${sp.id}">
         <span class="icon">${ART.ember}</span><span class="word">${esc(sp.word)}</span>
-        <span class="cost">${sp.locked ? esc(BATTLE_UI.locked.replace('{level}', sp.level)) : sp.cost === 0 ? esc(BATTLE_UI.free) : sp.cost}</span></div>`).join('');
+        <span class="cost">${sp.locked ? esc(BATTLE_UI.locked.replace('{level}', sp.level)) : sp.cost === 0 ? esc(BATTLE_UI.free) : sp.cost}</span></div>`).join('')
+      + together.map(sp => `<div class="move together" data-spell="${sp.id}"><span class="icon">${ART.heart}</span><span class="word">${esc(sp.word)}</span><span class="cost">${esc(BATTLE_UI.togetherCost)}</span></div>`).join('');
     root.classList.add('show');
-    const spells = this.spellsFor(seat);
+    const spells = [...this.spellsFor(seat), ...together];
     root.querySelectorAll('.move').forEach(el => el.addEventListener('pointerdown', e => {
       e.stopPropagation();
       const sp = spells.find(x => x.id === el.dataset.spell);
