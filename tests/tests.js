@@ -38,7 +38,9 @@ test('The title opens over the Academy gate with three princesses', async () => 
   expectEqual($g('#game-title').textContent, G('WORLD.title'), 'the title comes from data/world.js');
   expectEqual(G('document.body.dataset.place'), 'academy-gate', 'the gate scene is behind the title');
   expectEqual(G("Object.values(Stage.heroes).filter(h => h.visible).length"), 3, 'three heroes on the stage (two players and the companion)');
-  expect(G("Object.keys(Stage.layers).length") === 4, 'the four painted layers loaded');
+  const painted = G("!!artFile('art/scenes/academy-gate/full')"), layers = G("Object.keys(Stage.layers)");
+  if (painted) expectEqual(layers, ['full'], 'the gate painting loaded (one picture)');
+  else expect(layers.length === 4, 'the four placeholder layers loaded');
 });
 
 test('In test mode the game uses its own save, never the real one', async () => {

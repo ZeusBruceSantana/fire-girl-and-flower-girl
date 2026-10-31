@@ -15,15 +15,16 @@ const imageCache = {};
 function loadImage(base) {
   if (imageCache[base]) return imageCache[base];
   const p = new Promise(resolve => {
-    const tryExt = exts => {
-      if (!exts.length) return resolve(null);
+    const tryFile = files => {
+      if (!files.length) return resolve(null);
       const img = new Image();
       img.onload = () => resolve(img);
-      img.onerror = () => tryExt(exts.slice(1));
-      img.src = base + '.' + exts[0] + (TEST_MODE ? '' : '?v=' + ART_VERSION);
+      img.onerror = () => tryFile(files.slice(1));
+      img.src = files[0] + (TEST_MODE ? '' : '?v=' + ART_VERSION);
     };
-    // Purchased .png art is used when its path is listed in art/overrides.js; otherwise the .svg placeholder.
-    tryExt((typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(base)) ? ['png', 'svg'] : ['svg']);
+    // Painted art is used when its path is listed in art/overrides.js (artFile, js/core.js); otherwise the .svg placeholder.
+    const painted = artFile(base);
+    tryFile(painted ? [painted, base + '.svg'] : [base + '.svg']);
   });
   imageCache[base] = p;
   return p;
@@ -132,7 +133,7 @@ async function loadLayers(id, def) {
   // A purchased painting is one file, art/scenes/<id>/full.png (listed in art/overrides.js). It replaces all four
   // placeholder layers and gets a gentle camera drift instead of parallax.
   const fullBase = 'art/scenes/' + id + '/full';
-  if (typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(fullBase)) {
+  if (artFile(fullBase)) {
     const img = await loadImage(fullBase);
     if (img) { Stage.layers = { full: img }; return; }
   }

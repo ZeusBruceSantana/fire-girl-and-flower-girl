@@ -14,6 +14,16 @@ if (TEST_MODE) {
   addEventListener('unhandledrejection', e => TEST_ERRORS.push(String(e.reason && e.reason.message || e.reason)));
 }
 
+/* Painted art listed in art/overrides.js. An entry without an extension means a .png ('art/heroes/fire/full');
+   an entry ending in .jpg names a JPG (big opaque paintings: maps and rooms). Returns the file to load, or null
+   when the painting is not listed and the placeholder is used. */
+function artFile(base) {
+  if (typeof ART_OVERRIDES === 'undefined') return null;
+  if (ART_OVERRIDES.includes(base)) return base + '.png';
+  for (const ext of ['jpg', 'webp']) if (ART_OVERRIDES.includes(base + '.' + ext)) return base + '.' + ext;
+  return null;
+}
+
 /* Fill in anything missing from "base" using "extra". Objects are merged one level at a time; arrays and
    plain values are taken whole. Used to load old saves: every new field gets its default. */
 function merge(base, extra) {

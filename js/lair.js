@@ -107,7 +107,7 @@ const Lair = {
      drawn bright, ones she can buy now glow, the rest are faint ghost outlines. Tapping a spot opens one card. */
   roomPictureHtml() {
     const full = 'art/scenes/lair/full';
-    if (typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(full)) return `<img src="${full}.png" alt="">`;
+    if (artFile(full)) return `<img src="${artFile(full)}" alt="">`;
     return (SCENES.lair.layers || []).map(l => `<img src="art/scenes/lair/${l}.svg" alt="">`).join('');
   },
   spotState(up) {

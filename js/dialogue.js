@@ -14,10 +14,10 @@ const Dialogue = {
     const kind = seat && S.heroes[seat] && S.heroes[seat].kind;
     if (kind) {                                         // a hero: her painted portrait if there is one, else her placeholder art
       const base = 'art/heroes/' + kind + '/portrait';
-      if (typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(base)) return `<img src="${base}.png" alt="">`;
+      if (artFile(base)) return `<img src="${artFile(base)}" alt="">`;
       return ART[WORLD.heroes[kind].art] || '';
     }
-    if (art && typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes('art/npcs/' + art)) return `<img src="art/npcs/${art}.png" alt="">`;
+    if (art && artFile('art/npcs/' + art)) return `<img src="${artFile('art/npcs/' + art)}" alt="">`;
     if (art && ART[art]) return ART[art];
     // a townsperson with no picture yet: her placeholder file if it exists, else a friendly blank face
     return art ? `<img src="art/npcs/${art}.svg" alt="" onerror="this.outerHTML = ART.person">` : ART.person;

@@ -79,7 +79,7 @@ class HeroSprite extends Doll {
     this.kind = kind;
     const paths = {};
     const fullBase = 'art/heroes/' + kind + '/full';
-    if (typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(fullBase)) paths.body = fullBase;   // one painted figure
+    if (artFile(fullBase)) paths.body = fullBase;   // one painted figure
     else for (const l of DOLL_LAYERS) paths[l] = 'art/heroes/' + kind + '/' + l;
     for (const [slot, item] of Object.entries(equipped)) {       // worn items swap their own layers in
       const layer = { hand: 'hand', head: 'head', back: 'back', feet: null }[slot];
