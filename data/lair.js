@@ -5,10 +5,12 @@
 
    Fields:
      id, word     name
-     hearts       cost from the shared fund
+     hearts       cost from the shared fund  (the real upgrades)
+     coins        OR a price in coins from the tapping hero's own purse (the cozy bits: looks only, no unlock)
      needs        another upgrade id first, or null
      art          the layer piece drawn into the lair scene when owned (art/scenes/lair/upgrade-<art>.svg|png)
      unlocks      what it does: 'map' (the world map on the wall), 'gallery', 'cases', 'visits', 'snacks', 'stuffies', 'music', 'telescope'
+     effect       (optional) a gear-style effect while owned, summed by lairEffects() in js/lair.js: { reveal: 1 } shows hidden sparkles on every map
      about        one line, read aloud */
 
 const LAIR = {
@@ -23,11 +25,25 @@ const LAIR = {
     { id: 'stuffie-bed', word: 'stuffie bed',   hearts: 8,  needs: 'cushions', art: 'stuffies',   unlocks: 'stuffies',  about: 'A little bed for a stuffed animal who keeps watch.' },
     { id: 'bookshelf',  word: 'bookshelf',     hearts: 8,  needs: 'lantern',  art: 'bookshelf',  unlocks: 'scrolls',   about: 'For the Myth Scrolls. Professor Hoot would approve, if he knew.' },
     { id: 'radio',      word: 'crystal radio', hearts: 10, needs: 'lantern',  art: 'radio',      unlocks: 'music',     about: 'Electric Girl built it. Plays one station: the Lair\'s own tune.' },
-    { id: 'telescope',  word: 'periscope',     hearts: 12, needs: 'map-wall', art: 'periscope',  unlocks: 'telescope', about: 'Pokes up through a drain in the town square. See who is about before you go.' },
+    { id: 'telescope',  word: 'periscope',     hearts: 12, needs: 'map-wall', art: 'periscope',  unlocks: 'telescope', effect: { reveal: 1 }, about: 'Pokes up through a drain in the town square. Spots every hidden sparkle on every map.' },
+
+    // ---- cozy bits: bought with a hero's own coins, looks only (something to save up for once the shops are bought out) ----
+    { id: 'bunting',      word: 'bunting',         coins: 10, needs: null, art: 'bunting',    unlocks: null, about: 'Little flags on a string. Every day is a party day now.' },
+    { id: 'rag-rug',      word: 'rag rug',         coins: 12, needs: null, art: 'rug',        unlocks: null, about: 'Made of old socks. Warm toes. Do not ask whose socks.' },
+    { id: 'lamp-blue',    word: 'blue lamp shade', coins: 15, needs: null, art: 'lamp-blue',  unlocks: null, about: 'The Lair goes the colour of a deep pond. Very calm. Very sleepy.' },
+    { id: 'lamp-pink',    word: 'pink lamp shade', coins: 15, needs: null, art: 'lamp-pink',  unlocks: null, about: 'The Lair goes the colour of strawberry ice cream. Cook would approve.' },
+    { id: 'lamp-gold',    word: 'gold lamp shade', coins: 20, needs: null, art: 'lamp-gold',  unlocks: null, about: 'The Lair glows like a bakery window at dawn.' },
+    { id: 'window-box',   word: 'window box',      coins: 12, needs: null, art: 'windowbox',  unlocks: null, about: 'There is no window. The flowers do not seem to mind.' },
+    { id: 'kettle',       word: 'kettle',          coins: 14, needs: null, art: 'kettle',     unlocks: null, about: 'Fire Girl warms it. It whistles the school song, slightly wrong.' },
+    { id: 'cuckoo-clock', word: 'cuckoo clock',    coins: 18, needs: null, art: 'clock',      unlocks: null, about: 'The cuckoo is a tiny owl. It says "Hoo" on the hour.' },
+    { id: 'star-ceiling', word: 'star ceiling',    coins: 25, needs: null, art: 'stars',      unlocks: null, about: 'Glow ink stars on the ceiling. Electric Girl did the Big Dipper. Twice.' },
+    { id: 'doormat',      word: 'doormat',         coins: 10, needs: null, art: 'doormat',    unlocks: null, about: 'It says WIPE YOUR PAWS. Nobody knows why paws.' },
+    { id: 'wind-chime',   word: 'wind chime',      coins: 16, needs: null, art: 'chime',      unlocks: null, about: 'There is no wind down here. It chimes anyway when someone laughs.' },
+    { id: 'flower-jar',   word: 'flower jar',      coins: 11, needs: null, art: 'flowerjar',  unlocks: null, about: 'One jar, one flower, never wilts. Flower Girl checks on it every day.' },
   ],
 
-  /* The shared Lair fund gets this share of every Heart a hero earns (the rest is hers, with that friend). */
-  fundShare: 0.5,
+  /* The shared Lair fund gets a copy of every Heart a hero earns (hers stay hers; spending never drains the fund). */
+  fundShare: 1.0,
 };
 
 /* BADGES: pinned to each hero's sash. Earned from cases, class stars, together spells. */

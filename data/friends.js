@@ -23,9 +23,9 @@ const FRIENDS = {
     levels: [
       { hearts: 0,  say: 'Hello. You can sit here if you like.' },
       { hearts: 3,  say: 'I made you a snowflake. It will not melt, I promise.', gift: 'gem-dewdrop' },
-      { hearts: 7,  say: 'Can I see your secret place one day?', visit: true },
-      { hearts: 12, say: 'In the woods, look for the frosty leaves. They point the way.', hint: 'frost-arrows' },
-      { hearts: 20, say: 'You are my best friends from any kingdom.', gift: 'crown-moon' },
+      { hearts: 6,  say: 'Can I see your secret place one day?', visit: true },
+      { hearts: 10, say: 'In the woods, look for the frosty leaves. They point the way.', hint: 'frost-arrows' },
+      { hearts: 15, say: 'You are my best friends from any kingdom.', gift: 'crown-moon' },
     ],
     talks: [
       { say: 'I dropped my spoon and now everyone is looking.', replies: [
@@ -41,9 +41,9 @@ const FRIENDS = {
     levels: [
       { hearts: 0,  say: 'Race you to the pudding!' },
       { hearts: 3,  say: 'You are slow but you are nice.', gift: 'boots-spark' },
-      { hearts: 7,  say: 'Show me the secret tunnel. I will not tell. Probably.', visit: true },
-      { hearts: 12, say: 'When the wind blows in the woods, follow it.', hint: 'wind-way' },
-      { hearts: 20, say: 'Best friends. Last one to the lair is a wet sock!', gift: 'cape-petal' },
+      { hearts: 6,  say: 'Show me the secret tunnel. I will not tell. Probably.', visit: true },
+      { hearts: 10, say: 'When the wind blows in the woods, follow it.', hint: 'wind-way' },
+      { hearts: 15, say: 'Best friends. Last one to the lair is a wet sock!', gift: 'cape-petal' },
     ],
     talks: [
       { say: 'I knocked over the whole jug of juice. Again.', replies: [
@@ -59,9 +59,9 @@ const FRIENDS = {
     levels: [
       { hearts: 0,  say: 'This is my pebble. His name is Gerald.' },
       { hearts: 3,  say: 'Gerald says you can be our friend.', gift: 'gem-amber' },
-      { hearts: 7,  say: 'Gerald wants to see the Lair.', visit: true },
-      { hearts: 12, say: 'Tap three times on a hollow rock. There is always something inside.', hint: 'hollow-rock' },
-      { hearts: 20, say: 'I carved you both a pebble. They have your faces.', gift: 'wand-sunstone' },
+      { hearts: 6,  say: 'Gerald wants to see the Lair.', visit: true },
+      { hearts: 10, say: 'Tap three times on a hollow rock. There is always something inside.', hint: 'hollow-rock' },
+      { hearts: 15, say: 'I carved you both a pebble. They have your faces.', gift: 'wand-sunstone' },
     ],
     talks: [
       { say: 'The big girls said my pebbles are silly.', replies: [
@@ -77,9 +77,9 @@ const FRIENDS = {
     levels: [
       { hearts: 0,  say: 'Oh! Hello. Have you seen my other shoe?' },
       { hearts: 3,  say: 'I found my shoe. It was on my foot. Here, a thank-you.', gift: 'seed-sun' },
-      { hearts: 7,  say: 'A secret place? I will forget where it is, so it is safe with me.', visit: true },
-      { hearts: 12, say: 'Clouds always drift toward water. Follow them to the stream.', hint: 'cloud-drift' },
-      { hearts: 20, say: 'I will never forget you. I wrote it on my hand.', gift: 'book-small-magic' },
+      { hearts: 6,  say: 'A secret place? I will forget where it is, so it is safe with me.', visit: true },
+      { hearts: 10, say: 'Clouds always drift toward water. Follow them to the stream.', hint: 'cloud-drift' },
+      { hearts: 15, say: 'I will never forget you. I wrote it on my hand.', gift: 'book-small-magic' },
     ],
     talks: [
       { say: 'I forgot my lunch. Again.', replies: [
@@ -95,9 +95,9 @@ const FRIENDS = {
     levels: [
       { hearts: 0,  say: 'La la la... oh, hi!' },
       { hearts: 3,  say: 'I will teach you a sea song. It only has one word.', gift: 'gem-dewdrop' },
-      { hearts: 7,  say: 'I want to sing in your secret place. The echo!', visit: true },
-      { hearts: 12, say: 'Hum near a chest and it hums back if it is full.', hint: 'chest-hum' },
-      { hearts: 20, say: 'I wrote a song about you three. It has three words.', gift: 'cape-ember' },
+      { hearts: 6,  say: 'I want to sing in your secret place. The echo!', visit: true },
+      { hearts: 10, say: 'Hum near a chest and it hums back if it is full.', hint: 'chest-hum' },
+      { hearts: 15, say: 'I wrote a song about you three. It has three words.', gift: 'cape-ember' },
     ],
     talks: [
       { say: 'Everyone told me to stop singing at lunch.', replies: [
@@ -111,9 +111,9 @@ const FRIENDS = {
     levels: [
       { hearts: 0,  say: 'What. Oh. Sit down, I suppose.' },
       { hearts: 3,  say: 'The bees like you. That is rare. Here.', gift: 'seed-sun' },
-      { hearts: 7,  say: 'Fine. Show me the Lair. I am not excited.', visit: true },
-      { hearts: 12, say: 'Bees know where the sweet things are hidden. Watch them.', hint: 'bee-line' },
-      { hearts: 20, say: 'I was never grumpy. I was waiting for good friends.', gift: 'crown-daisy' },
+      { hearts: 6,  say: 'Fine. Show me the Lair. I am not excited.', visit: true },
+      { hearts: 10, say: 'Bees know where the sweet things are hidden. Watch them.', hint: 'bee-line' },
+      { hearts: 15, say: 'I was never grumpy. I was waiting for good friends.', gift: 'crown-daisy' },
     ],
     talks: [
       { say: 'A bee landed on my ice cream and now I cannot eat it.', replies: [

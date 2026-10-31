@@ -13,7 +13,7 @@ const SHOP_UI = {
   buy: 'Buy', sell: 'Sell', close: 'Close', coins: 'coins',
   bought: 'Yours!', sold: 'Sold!', nothingToSell: 'Nothing to sell yet. Two of a kind, or a treasure, and I will buy it.',
   forHer: 'for {name}', gift: 'A gift for {name}. How kind!',
-  eat: 'Yum! Ember +{n}.', payPrompt: 'Pay for the {item}. Give back the change.',
+  eat: 'Yum! Ember +{n}.', eatFull: 'Yum! Ember full to the top.', payPrompt: 'Pay for the {item}. Give back the change.',
   exactChange: 'Exact change! Here is a coin for being quick.',
   sellFor: 'sells for', already: 'You have one', shopWord: 'Shop',
 };
@@ -69,7 +69,7 @@ const Shop = {
       const can = h.coins >= t.price;
       cards.push(`<div class="shop-card treat ${can ? '' : 'poor'}" data-treat="${t.id}">
         <div class="art">${ART.ember}</div><div class="word">${esc(t.word)}</div>
-        <div class="price">${ART.coin}<b>${t.price}</b></div><div class="note">${esc(SHOP_UI.eat.replace('{n}', t.ember))}</div></div>`);
+        <div class="price">${ART.coin}<b>${t.price}</b></div><div class="note">${esc(t.full ? SHOP_UI.eatFull : SHOP_UI.eat.replace('{n}', t.ember))}</div></div>`);
     }
     for (const id of shop.sells) {
       const item = ITEMS.find(i => i.id === id);
@@ -115,10 +115,11 @@ const Shop = {
     const bonus = await this.payMoment(t.word);
     if (!this.shop) return;
     dispatch('hero.coins', seat, { amount: -t.price });
-    dispatch('hero.ember', seat, { amount: t.ember });
+    const gain = t.full ? S.heroes[seat].maxEmber : Math.min(t.ember, S.heroes[seat].maxEmber - S.heroes[seat].ember);   // a full treat fills the meter; the toast says what was really gained
+    dispatch('hero.ember', seat, { amount: t.full ? S.heroes[seat].maxEmber : t.ember });
     if (bonus) { dispatch('hero.coins', seat, { amount: 1 }); uiToast(SHOP_UI.exactChange, { icon: 'coin' }); }
-    uiToast(SHOP_UI.eat.replace('{n}', t.ember), { icon: 'ember' });
-    Speech.say(SHOP_UI.eat.replace('{n}', t.ember), { interrupt: false });
+    uiToast(SHOP_UI.eat.replace('{n}', gain), { icon: 'ember' });
+    Speech.say(SHOP_UI.eat.replace('{n}', gain), { interrupt: false });
     if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
     this.busy = false;
     this.render();

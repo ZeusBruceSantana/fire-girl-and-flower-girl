@@ -105,8 +105,8 @@ const Day = {
         const stars = ratio >= SCHOOL.stars.three ? 3 : ratio >= SCHOOL.stars.two ? 2 : 1;
         dispatch('hero.stars', seat, { key, stars });
         dispatch('hero.xp', seat, { amount: 5 * r.length + 5 * stars });
-        dispatch('hero.coins', seat, { amount: stars });
-        if (stars === 3) dispatch('hero.badge', seat, { badge: 'three-stars' });
+        dispatch('hero.coins', seat, { amount: stars * 2 });          // 2 / 4 / 6 coins by stars: school alone can afford a rare wand in a week
+        this.checkThreeStars(seat);
         const material = WORLD.heroes[S.heroes[seat].kind].material;
         if (material && ITEMS.some(i => i.id === material)) { dispatch('hero.item', seat, { item: material }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === material).word, { icon: 'gem' }); }
         if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
@@ -115,6 +115,13 @@ const Day = {
       await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classEnd[best] });
       this.advance();
     } finally { popLayer('class'); this.running = false; }
+  },
+
+  /* The Three Stars badge: ten three-star classes, not the first one (a badge should be a story, not a Tuesday). */
+  checkThreeStars(seat) {
+    const h = S.heroes[seat];
+    const n = Object.entries(h.stars).filter(([k, v]) => k.startsWith('day-') && v === 3).length;
+    if (n >= THREE_STARS_FOR_BADGE && !h.badges.includes('three-stars')) { dispatch('hero.badge', seat, { badge: 'three-stars' }); uiToast(BADGES['three-stars'].word, { icon: 'badge' }); }
   },
 
   /* ---------- lunch ---------- */
@@ -131,8 +138,8 @@ const Day = {
     const lvl = f.levels.filter(l => (h.friends[friendId] || 0) >= l.hearts).length;
     await Dialogue.say({ who: met ? f.word : WORLD.ui.aPrincess, art: f.art, text: met ? f.levels[Math.max(0, lvl - 1)].say : f.levels[0].say + ' ' + WORLD.ui.iAm.replace('{name}', f.word) });
     const talk = f.talks[(this.day + idx) % f.talks.length];
-    // The thoughtful reply is worth two hearts on the first try; an honest one ("ok") is always fine and worth one.
-    // Only a careless reply gets "think again", and even then the heart icon shows the way.
+    // The thoughtful reply is worth three hearts on the first try (two after a retry); an honest one ("ok") is
+    // always fine and worth two. Only a careless reply gets "think again", and even then the heart icon shows the way.
     let reply = null, tries = 0;
     while (!reply) {
       const choices = talk.replies.map((r, i) => ({ word: r.word, value: i, icon: r.kind && tries > 0 ? 'heart' : null }));
@@ -142,7 +149,7 @@ const Day = {
       if (r.kind || r.ok) reply = r;
       else { tries++; await Dialogue.say({ who: f.word, art: f.art, text: WORLD.ui.hmmAgain }); }
     }
-    let hearts = (reply.kind && tries === 0 ? 2 : 1) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
+    let hearts = (reply.kind && tries === 0 ? LUNCH_HEARTS.kind : LUNCH_HEARTS.ok) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
     if (typeof ArtClass !== 'undefined' && ArtClass.offerGift) hearts += await ArtClass.offerGift(seat, friendId);   // a painting as a gift, if she has one
     dispatch('hero.hearts', seat, { amount: hearts, friend: friendId });
     dispatch('hero.stars', seat, { key: talkedKey, stars: 1 });
@@ -192,7 +199,7 @@ const Day = {
         const stars = Object.entries(h.stars).filter(([k]) => k.startsWith('day-' + day + '-')).reduce((a, [, v]) => a + v, 0);
         const words = Object.values(h.wordStats).filter(w => w.lastSeen > Date.now() - 6 * 3600 * 1000).length;
         await Dialogue.say({ seat, who: h.name || WORLD.heroes[h.kind].title, text: WORLD.ui.daySummary.replace('{day}', day).replace('{stars}', stars).replace('{words}', words).replace('{coins}', h.coins).replace('{hearts}', h.hearts) });
-        dispatch('hero.ember', seat, { amount: 3 + (typeof gearEffects === 'function' ? (gearEffects(seat).freeSpark || 0) : 0) });
+        dispatch('hero.ember', seat, { amount: h.maxEmber });           // a night's sleep fills the meter: every day starts fresh
         if (typeof Sound !== 'undefined' && Sound.play) Sound.play('sleep');
         if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('sleep');
       }
@@ -205,6 +212,10 @@ const Day = {
     } finally { popLayer('bedtime'); this.running = false; }
   },
 };
+
+/* The numbers behind lunch and badges (docs/review/03-systems-and-balance.md, section 10 item 7). */
+const LUNCH_HEARTS = { kind: 3, ok: 2 };        // the thoughtful reply first try; any accepted reply otherwise
+const THREE_STARS_FOR_BADGE = 10;               // three-star classes before the Three Stars badge
 
 /* What each class actually does with a seat. Returns the list of challenge results. */
 const CLASS_RUNNERS = {

@@ -78,12 +78,12 @@ test('Shop: a collectible sells even when there is only one; the bakery does not
   tap($g('#shop [data-close]')); await sleep(30);
 });
 
-test('Shop: the warm roll costs 2 coins and gives 2 ember', async () => {
+test('Shop: the warm roll costs 2 coins and gives 4 ember', async () => {
   await openWorldS();
   G("dispatch('hero.coins', 'left', { amount: 5 }); dispatch('hero.ember', 'left', { amount: -5 }); Shop.open('left', 'bakery')");
   await until(() => $g('#shop.show .shop-card[data-treat="warm-roll"]'), 3000, 'the roll');
   tap($g('#shop .shop-card[data-treat="warm-roll"]'));
-  await until(() => G('S.heroes.left.ember') === 2, 3000, 'ember from the roll');
+  await until(() => G('S.heroes.left.ember') === 4, 3000, 'ember from the roll');
   expectEqual(G('S.heroes.left.coins'), 3, 'paid 2');
   expect(!G("S.heroes.left.inventory.includes('warm-roll')"), 'a treat is not an item');
   tap($g('#shop [data-close]')); await sleep(30);

@@ -8,7 +8,7 @@
      greeting       what she says when you walk in
      cantAfford     her kind line when coins are short (never a sad no)
      sells          item ids on the shelves (prices come from data/items.js)
-     treats         [{ id, word, price, ember }]  snacks that refill the Ember meter
+     treats         [{ id, word, price, ember, full? }]  snacks that refill the Ember meter (full: true fills it to the top)
      buys           true = she buys duplicates and collectibles at the item's sell price */
 
 const SHOPS = {
@@ -17,7 +17,7 @@ const SHOPS = {
     greeting: 'Welcome, dears! Warm rolls, and a few odds and ends from the attic.',
     cantAfford: 'Not quite enough coins, love. Come back after an adventure, I will keep it warm.',
     sells: ['seed-sun', 'crown-paper', 'wand-twig', 'cape-wool', 'boots-mud'],
-    treats: [{ id: 'warm-roll', word: 'warm roll', price: 2, ember: 2 }],
+    treats: [{ id: 'warm-roll', word: 'warm roll', price: 2, ember: 4 }, { id: 'lantern-pie', word: 'lantern pie', price: 6, ember: 10, full: true }],
     buys: false,
   },
   market: {

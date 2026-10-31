@@ -6,13 +6,19 @@
      the bookshelf -> the Myth Scrolls, to reread
    day.js calls Lair.open(seat, station). The Badges tab of the menu also lives here (Lair.renderBadges).
    Upgrades gate the stations: the gallery needs the gallery wall, inviting needs the guest cushion,
-   scrolls need the bookshelf. A station that is not bought yet says kindly what to buy and offers it. */
+   scrolls need the bookshelf. A station that is not bought yet says kindly what to buy and offers it.
+   Upgrades priced in hearts come from the shared fund; "cozy bits" priced in coins come from the tapping
+   hero's own purse and only change the look.
+
+   lairEffects() sums the `effect` field of every owned upgrade (today: the periscope's { reveal: 1 }, which
+   shows hidden sparkles on every map). Map code adds it to gearEffects(seat) when deciding what to show. */
 
 const LAIR_UI = {
   stations: { upgrades: 'The Lantern', gallery: 'The Gallery Wall', invite: 'The Cushions', scrolls: 'The Bookshelf' },
   fund: 'Lair fund',
-  fundNote: 'Half of every heart you earn goes into the Lair fund. The rest stays yours.',
-  owned: 'Ours!', buy: 'Buy', locked: 'Needs', notEnough: 'more hearts',
+  fundNote: 'Every heart you earn also goes into the Lair fund. Yours stay yours.',
+  cozyTitle: 'Cozy bits, bought with coins',
+  owned: 'Ours!', buy: 'Buy', locked: 'Needs', notEnough: 'more hearts', notEnoughCoins: 'more coins',
   unlocks: { map: 'opens the map wall', gallery: 'hangs paintings', cases: 'holds the case board', visits: 'lets a friend visit', snacks: 'snacks for visitors', stuffies: 'a bed for a stuffie', scrolls: 'keeps the Myth Scrolls', music: 'plays the Lair tune', telescope: 'a peek at the town' },
   needFirst: 'First we need {thing}. It costs {n} hearts from the Lair fund.',
   bought: '{thing}! The Lair is cozier already.',
@@ -83,18 +89,23 @@ const Lair = {
   cardHtml(up) {
     const owned = S.shared.lair.upgrades.includes(up.id);
     const needsOk = !up.needs || S.shared.lair.upgrades.includes(up.needs);
-    const canPay = S.shared.lair.fund >= up.hearts;
+    const coins = up.coins != null;                                    // a cozy bit: the tapping hero pays with her own coins
+    const purse = coins ? (S.heroes[this.seat] ? S.heroes[this.seat].coins : 0) : S.shared.lair.fund;
+    const price = coins ? up.coins : up.hearts;
+    const canPay = purse >= price;
     const state = owned ? 'owned' : (needsOk && canPay) ? 'buyable' : 'locked';
-    const needWord = !needsOk ? LAIR_UI.locked + ' ' + (LAIR.upgrades.find(u => u.id === up.needs) || {}).word : (!canPay ? (up.hearts - S.shared.lair.fund) + ' ' + LAIR_UI.notEnough : '');
-    return `<div class="lair-card ${state}" data-up="${up.id}">
+    const needWord = !needsOk ? LAIR_UI.locked + ' ' + (LAIR.upgrades.find(u => u.id === up.needs) || {}).word : (!canPay ? (price - purse) + ' ' + (coins ? LAIR_UI.notEnoughCoins : LAIR_UI.notEnough) : '');
+    return `<div class="lair-card ${state} ${coins ? 'cozy' : ''}" data-up="${up.id}">
       <div class="lc-word">${esc(up.word)}</div>
-      <div class="lc-cost">${ART.heart}<b>${up.hearts}</b></div>
+      <div class="lc-cost">${coins ? ART.coin : ART.heart}<b>${price}</b></div>
       <div class="lc-about">${esc(up.about)}</div>
       ${up.unlocks ? `<div class="lc-unlocks">${esc(LAIR_UI.unlocks[up.unlocks] || up.unlocks)}</div>` : ''}
       <div class="lc-state">${owned ? esc(LAIR_UI.owned) : state === 'buyable' ? `<span class="bigbtn small" data-buy="${up.id}"><span class="word">${esc(LAIR_UI.buy)}</span></span>` : esc(needWord)}</div></div>`;
   },
   render_upgrades(body) {
-    body.innerHTML = `<div class="lair-note">${esc(LAIR_UI.fundNote)}</div><div class="lair-cards">${LAIR.upgrades.map(u => this.cardHtml(u)).join('')}</div>`;
+    const hearts = LAIR.upgrades.filter(u => u.coins == null), cozy = LAIR.upgrades.filter(u => u.coins != null);
+    body.innerHTML = `<div class="lair-note">${esc(LAIR_UI.fundNote)}</div><div class="lair-cards">${hearts.map(u => this.cardHtml(u)).join('')}</div>
+      ${cozy.length ? `<div class="lair-note cozy-title">${esc(LAIR_UI.cozyTitle)}</div><div class="lair-cards cozy">${cozy.map(u => this.cardHtml(u)).join('')}</div>` : ''}`;
     this.bindCards(body);
   },
   bindCards(body) {
@@ -106,9 +117,16 @@ const Lair = {
     }));
   },
   buy(up) {
-    if (S.shared.lair.upgrades.includes(up.id) || S.shared.lair.fund < up.hearts) return;
+    if (S.shared.lair.upgrades.includes(up.id)) return;
     if (up.needs && !S.shared.lair.upgrades.includes(up.needs)) return;
-    dispatch('lair.upgrade', this.seat, { id: up.id, hearts: up.hearts });
+    if (up.coins != null) {                                            // a cozy bit: her own coins, nothing from the fund
+      if (!S.heroes[this.seat] || S.heroes[this.seat].coins < up.coins) return;
+      dispatch('hero.coins', this.seat, { amount: -up.coins });
+      dispatch('lair.upgrade', this.seat, { id: up.id, hearts: 0 });
+    } else {
+      if (S.shared.lair.fund < up.hearts) return;
+      dispatch('lair.upgrade', this.seat, { id: up.id, hearts: up.hearts });
+    }
     const text = LAIR_UI.bought.replace('{thing}', up.word);
     uiToast(up.word, { icon: 'heart' });
     Speech.say(text);
@@ -196,3 +214,11 @@ const Lair = {
     body.querySelectorAll('.cell.got').forEach(c => c.addEventListener('pointerdown', e => { e.stopPropagation(); const b = BADGES[c.dataset.b]; Speech.say(b.word + '. ' + b.about); }));
   },
 };
+
+/* What the owned Lair upgrades do for everyone, summed like gear: { reveal: 1 } from the periscope. */
+function lairEffects() {
+  const out = { reveal: 0 };
+  const owned = (S.shared.lair && S.shared.lair.upgrades) || [];
+  for (const up of LAIR.upgrades) if (up.effect && owned.includes(up.id)) for (const k of Object.keys(up.effect)) out[k] = (out[k] || 0) + up.effect[k];
+  return out;
+}
