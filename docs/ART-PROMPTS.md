@@ -5,8 +5,11 @@ A prompt pack. Copy a prompt, generate, pick the best, save the file with the na
 
 ## 1. Before you start
 
-**Tool.** Midjourney or ChatGPT (GPT image generation) give the painterly quality we want. Use one tool for
-everything so the scenes match. Microsoft Designer is free but flatter; use it only to test.
+**Tool: ChatGPT Plus.** Start one chat for scenes and one for characters. Paste the Style Lock as the
+first message of each. For every image after the first, attach your favorite earlier image and say
+"same style as this". Ask for the largest size and "landscape 16:9" for scenes, "portrait 2:3" for
+characters. For characters ask for a **transparent background PNG**. If a result drifts flat or
+cartoonish, reply "more painted texture, softer light, picture-book illustration" and regenerate.
 
 **Settings that matter.**
 - Scenes: aspect ratio **16:9**, as large as the tool allows, then upscale. Target 2560 x 1440. Anything from
@@ -204,21 +207,22 @@ Make a **character sheet** first for each girl ("front, side, and back views of 
 use it as the reference for every later image of her.
 
 **fire** · `art/heroes/fire/full.png`
-> Fire Girl, princess of a warm kingdom of lanterns and bakeries: brown skin, bright orange-and-gold hair
-> that curls upward like a flame, a small gold tiara, a red-orange dress with ember-gold trim and a short
-> flickering ember-colored cape, sturdy brown boots, a tiny spark of light floating above her open hand,
-> brave and cheerful.
+> Fire Girl, princess of a warm kingdom of lanterns and bakeries: a girl with warm brown skin and long
+> dark brown hair with ember-gold tips that curl upward a little like a flame, a small gold tiara, a
+> red-orange dress with ember-gold trim and a short flickering ember-colored cape, sturdy brown boots, a
+> tiny spark of light floating above her open hand, brave and cheerful.
 
 **flower** · `art/heroes/flower/full.png`
-> Flower Girl, princess of a kingdom of meadows and orchards: light-tan skin, long chestnut braids with
-> a crown of pink and white blossoms, a soft green dress with petal-shaped hem and a petal cape, brown
-> boots with a leaf on each, a sprouting seedling held gently in her hand, calm and kind.
+> Flower Girl, princess of a kingdom of meadows and orchards: a girl with warm brown skin and long dark
+> brown hair in two braids with a crown of pink and white blossoms, a soft green dress with a petal-shaped
+> hem and a petal cape, brown boots with a leaf on each, a sprouting seedling held gently in her hand,
+> calm and kind. She and Fire Girl are sisters and should look alike, with different hair and dress.
 
 **electric** · `art/heroes/electric/full.png`
-> Electric Girl, princess of a kingdom in the clouds: deep brown skin, black hair that stands up in
-> swept-back spikes with one silver-blue lightning streak, a small silver crown, an indigo dress with
-> silver trim and a fluffy white cloud-shaped cape, silver boots, a small friendly lightning bolt
-> crackling in her hand, quick and funny.
+> Electric Girl, princess of a kingdom in the clouds: a Hispanic girl with light olive-brown skin and
+> long black hair, swept back and lifting a little as if charged, with one silver-blue lightning streak,
+> a small silver crown, an indigo dress with silver trim and a fluffy white cloud-shaped cape, silver
+> boots, a small friendly lightning bolt crackling in her hand, quick and funny.
 
 **Optional expressions** for each hero, same prompt plus "happy and laughing", "surprised", "sleepy with
 closed eyes": save as `art/heroes/<kind>/full-happy.png`, `full-surprised.png`, `full-sleepy.png`.
