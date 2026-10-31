@@ -13,8 +13,10 @@ function expectEqual(actual, wanted, msg) {
 
 const TEST_KEY = 'ember-bloom-test-save';
 const frame = document.getElementById('game');
-let W = null;                                  // the game's window
+const frame2 = document.getElementById('game2');
+let W = null, W2 = null;                       // the game's window (and a second pretend device)
 const G = code => W.eval(code);                // run a bit of code inside the game
+const G2 = code => W2.eval(code);              // ...and inside the second device
 const $g = sel => W.document.querySelector(sel);
 const $$g = sel => [...W.document.querySelectorAll(sel)];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -33,16 +35,30 @@ async function until(check, ms = 8000, what = 'something to happen') {
 function loadFrame(src) {
   return new Promise(resolve => { frame.onload = () => resolve(); frame.src = src; });
 }
-const wipeSave = () => localStorage.removeItem(TEST_KEY);
+const wipeSave = () => { for (const k of Object.keys(localStorage)) if (k.startsWith('ember-bloom-test')) localStorage.removeItem(k); };
 /* Open the game fresh with this save (an object, some text, or nothing for a brand-new game). */
 async function openGame(saveData) {
   await loadFrame('about:blank');              // close the game first (it saves as it closes)
+  await loadFrame2('about:blank');
   wipeSave();
   if (saveData != null) localStorage.setItem(TEST_KEY, typeof saveData === 'string' ? saveData : JSON.stringify(saveData));
   await loadFrame('../index.html?test&t=' + Date.now());
   W = frame.contentWindow;
-  await until(() => G('scene') !== 'boot', 10000, 'the game to open');
+  await until(() => G('scene') !== 'boot', 15000, 'the game to open');
 }
+/* Two pretend devices in one page: "a" is the Surface (host, seats left and right), "b" is the cousin's (seat away). */
+async function openTwoDevices() {
+  await loadFrame('about:blank'); await loadFrame2('about:blank');
+  wipeSave();
+  localStorage.setItem(TEST_KEY + '-b', JSON.stringify({ settings: { localSeats: ['away'] } }));
+  await loadFrame('../index.html?test&world=TEST&dev=a&t=' + Date.now());
+  W = frame.contentWindow;
+  await until(() => G('scene') !== 'boot', 15000, 'device A to open');
+  await loadFrame2('../index.html?test&world=TEST&dev=b&t=' + Date.now());
+  W2 = frame2.contentWindow;
+  await until(() => G2('scene') !== 'boot', 15000, 'device B to open');
+}
+function loadFrame2(src) { return new Promise(resolve => { frame2.onload = () => resolve(); frame2.src = src; }); }
 async function reopenGame() { await openGame(saved()); }
 /* A finger tap: down and up on the middle of the element. */
 function tap(el, { hold = 0, x, y } = {}) {

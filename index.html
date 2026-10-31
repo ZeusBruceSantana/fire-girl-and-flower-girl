@@ -6,46 +6,60 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Ember Bloom">
-<meta name="theme-color" content="#fff6ee">
+<meta name="theme-color" content="#1a1410">
 <meta name="format-detection" content="telephone=no">
 <title>Ember Bloom</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="styles.css?v=0">
+<link rel="stylesheet" href="styles.css?v=1">
 </head>
 <body data-scene="boot">
 <!--
-  Epic 0: this is only a placeholder title screen. It proves that the page installs,
-  works offline, saves, and that the tests run. The game itself starts in Epic 1.
-  Content (names, kingdoms, items, quests) lives in the data/ folder, never here.
+  The world is painted on the canvas. Buttons, speech bubbles and panels are HTML in #ui above it.
+  Content (names, places, items, quests, lessons) lives in the data/ folder, never here.
 -->
-<div id="stage">
-  <div class="half left" id="half-left">
-    <div class="hero-card">
-      <div class="hero-art" id="art-left"></div>
-      <div class="hero-name" id="name-left"></div>
-    </div>
-  </div>
-  <div class="half right" id="half-right">
-    <div class="hero-card">
-      <div class="hero-art" id="art-right"></div>
-      <div class="hero-name" id="name-right"></div>
-    </div>
-  </div>
-  <div id="title">
+<canvas id="world"></canvas>
+<div id="ui">
+  <div id="place"></div>
+  <div id="cloud" data-status="offline"></div>
+</div>
+<div id="title">
+  <div class="card">
     <h1 id="game-title"></h1>
     <p id="game-tagline"></p>
-    <p class="soon">Coming soon</p>
+    <p class="tap">Tap to begin</p>
   </div>
 </div>
 
+<!-- content -->
+<script src="art/overrides.js"></script>
 <script src="data/world.js"></script>
 <script src="data/challenges.js"></script>
+<script src="data/puzzles.js"></script>
 <script src="data/items.js"></script>
 <script src="data/areas.js"></script>
 <script src="data/quests.js"></script>
+<script src="data/adventures.js"></script>
+<script src="data/scenes.js"></script>
+<script src="data/school.js"></script>
+<script src="data/friends.js"></script>
+<script src="data/myths.js"></script>
+<script src="data/cases.js"></script>
+<script src="data/lair.js"></script>
 <script src="data/starter-words.js"></script>
+<!-- the game -->
 <script src="js/core.js"></script>
-<script src="js/title.js"></script>
+<script src="js/state.js"></script>
+<script src="js/save.js"></script>
+<script src="js/dispatch.js"></script>
+<script src="js/net.js"></script>
+<script src="js/presence.js"></script>
+<script src="js/companion.js"></script>
+<script src="js/speech.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/hero.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/boot.js"></script>
 </body>
 </html>

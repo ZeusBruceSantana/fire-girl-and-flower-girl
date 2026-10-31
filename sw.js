@@ -6,6 +6,7 @@
 const CACHE = 'ember-bloom-files';
 
 // Pictures the page only asks for once the game is running (none yet).
+// Scene and character art is fetched as the game runs; list the art folders so the first visit saves them too.
 const EXTRA_FILES = [];
 
 self.addEventListener('install', event => {

@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+<defs><radialGradient id="zap"><stop offset="0" stop-color="#fff9c0" stop-opacity=".9"/><stop offset="1" stop-color="#7b7fe6" stop-opacity="0"/></radialGradient></defs>
+<circle cx="300" cy="300" r="44" fill="url(#zap)"/><path d="M300 250 L278 306 L300 300 L288 352 L324 292 L302 298 L314 250Z" fill="#ffe66d" stroke="#f0b429" stroke-width="3"/>
+</svg>

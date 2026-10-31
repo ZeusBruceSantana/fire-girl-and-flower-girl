@@ -19,6 +19,7 @@
   #results li.fail::before { content: '✗ '; color: #c23b3b; font-weight: 900; }
   #results li.running::before { content: '… '; }
   #results .why { display: block; color: #c23b3b; font-size: 15px; }
+  .frames { display: flex; gap: 12px; flex-wrap: wrap; }
   .frame-box { width: 590px; height: 410px; overflow: hidden; border-radius: 12px; border: 3px solid #e6dccb; }
   #game { width: 1180px; height: 820px; border: 0; transform: scale(.5); transform-origin: 0 0; }
 </style>
@@ -28,7 +29,7 @@
 <p class="note">These open the game in the box below with a pretend save, so the girls' real progress is never touched.</p>
 <button id="run">Run the tests</button><span id="summary"></span>
 <ol id="results"></ol>
-<div class="frame-box"><iframe id="game" title="the game"></iframe></div>
+<div class="frames"><div class="frame-box"><iframe id="game" title="the game"></iframe></div><div class="frame-box"><iframe id="game2" title="a second device"></iframe></div></div>
 <script src="harness.js"></script>
 <script src="tests.js"></script>
 </body>

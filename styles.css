@@ -1,60 +1,103 @@
 /* =====================================================================
-   FIRE GIRL AND FLOWER GIRL: how everything looks
+   EMBER BLOOM: how everything looks
    ---------------------------------------------------------------------
-   Epic 0: only the base look and the placeholder title screen.
-   Rules that every later screen follows:
-     - one screen, split left / right, each player in her own color
+   The world is painted on a canvas (js/scene.js). This file styles what sits on top of it:
+   the title, the place name, speech bubbles, toasts, big buttons, the little cloud.
+   Rules every screen follows:
      - big tap targets (nothing smaller than --btn)
+     - icons paired with words; every word tappable to hear it
      - no scrolling, no zooming, no text selection, no long-press menus
-     - icons always paired with a word
-   The two player colors are filled in by the game (see data/world.js).
+   The three seat colors (--L, --R, --A) are filled in by the game from data/world.js.
    ===================================================================== */
 :root {
-  --L: #c9c3d3; --L-light: #f3f0ec; --L-dark: #6f6880;   /* left player's color */
-  --R: #c9c3d3; --R-light: #f3f0ec; --R-dark: #6f6880;   /* right player's color */
-  --btn: 16vmin;            /* smallest tap target */
+  --L: #ffa14f; --L-light: #fff0e0; --L-dark: #b05a10;    /* left seat */
+  --R: #7fd08a; --R-light: #e8f8ea; --R-dark: #2f7a3d;    /* right seat */
+  --A: #a98be6; --A-light: #efe8ff; --A-dark: #5a3ea8;    /* the away seat (the cousin) */
+  --btn: 16vmin;
   --ink: #3e3a4f;
   --paper: #fff6ee;
   --font: ui-rounded, "SF Pro Rounded", "Century Gothic", "Segoe UI", system-ui, sans-serif;
-  --safe-top: env(safe-area-inset-top, 0px);
 }
-* {
-  box-sizing: border-box;
-  -webkit-user-select: none; user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-}
-html, body {
-  margin: 0; height: 100%; overflow: hidden;
-  overscroll-behavior: none; touch-action: none;
-  background: var(--paper); color: var(--ink); font-family: var(--font);
-}
+* { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; touch-action: none; background: #1a1410; color: var(--ink); font-family: var(--font); }
 body { position: fixed; inset: 0; }
 svg { display: block; }
 
-#stage { position: fixed; inset: 0; overflow: hidden; display: flex; }
+#world { position: fixed; inset: 0; display: block; }
 
-/* ---------- the two halves ---------- */
-.half { flex: 1; display: flex; align-items: flex-end; justify-content: center; position: relative; padding-bottom: 8vmin; }
-.half.left  { background: linear-gradient(160deg, var(--L-light), var(--paper)); }
-.half.right { background: linear-gradient(200deg, var(--R-light), var(--paper)); }
-.hero-card { text-align: center; }
-.hero-art { width: 40vmin; height: 40vmin; margin: 0 auto 2vmin; }
-.hero-art svg { width: 100%; height: 100%; }
-.hero-name { font-size: 5vmin; font-weight: 900; }
-.half.left .hero-name  { color: var(--L-dark); }
-.half.right .hero-name { color: var(--R-dark); }
+/* ---------- the HTML layer ---------- */
+#ui { position: fixed; inset: 0; pointer-events: none; }
+#ui > * { pointer-events: auto; }
 
-/* ---------- title (placeholder) ---------- */
-#title {
-  position: absolute; left: 50%; top: 6vmin; transform: translateX(-50%);
-  text-align: center; background: rgba(255,255,255,.85); padding: 3vmin 5vmin; border-radius: 4vmin;
-  box-shadow: 0 1vmin 3vmin rgba(0,0,0,.08); max-width: 70vw;
+#place {
+  position: absolute; left: 50%; top: 4vmin; transform: translate(-50%, -2vmin); pointer-events: none;
+  font-size: 4.6vmin; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.45);
+  background: rgba(40,25,10,.45); padding: 1.2vmin 3.4vmin; border-radius: 4vmin; opacity: 0; transition: opacity .4s, transform .4s;
 }
-#title h1 { margin: 0 0 1vmin; font-size: 7vmin; line-height: 1.1; }
+#place.show { opacity: 1; transform: translate(-50%, 0); }
+body[data-scene="title"] #place { opacity: 0; }
+
+/* the little cloud: offline / connecting / live. Never an error. */
+#cloud { position: absolute; right: 2vmin; top: 2vmin; width: 6vmin; height: 4.2vmin; border-radius: 3vmin; background: rgba(255,255,255,.35); opacity: .6; }
+#cloud::after { content: ''; position: absolute; left: 1.2vmin; top: -1.6vmin; width: 3vmin; height: 3vmin; border-radius: 50%; background: inherit; }
+#cloud[data-status="live"] { background: #9ad0ff; opacity: 1; }
+#cloud[data-status="connecting"] { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+
+/* ---------- title ---------- */
+#title {
+  position: fixed; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 8vmin;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,240,210,.18), rgba(20,10,0,.35) 70%);
+  opacity: 0; pointer-events: none; transition: opacity .5s;
+}
+#title.show { opacity: 1; pointer-events: auto; }
+#title .card {
+  text-align: center; background: rgba(255,250,240,.92); padding: 3.5vmin 6vmin 3vmin; border-radius: 5vmin;
+  box-shadow: 0 2vmin 6vmin rgba(0,0,0,.25); max-width: 80vw; border: .6vmin solid #f0c27a;
+}
+#title h1 { margin: 0 0 1vmin; font-size: 9vmin; line-height: 1; letter-spacing: .02em; color: #b05a10;
+  background: linear-gradient(90deg, #ff7a3d, #e0609c 50%, #5a3ea8); -webkit-background-clip: text; background-clip: text; color: transparent; }
 #title p { margin: 0; font-size: 3.2vmin; }
-#title .soon { margin-top: 2vmin; font-weight: 800; opacity: .6; }
+#title .tap { margin-top: 2vmin; font-weight: 900; color: #2f7a3d; animation: pulse 1.6s ease-in-out infinite; }
+
+/* ---------- speech bubbles: every word can be tapped to hear it ---------- */
+.bubble {
+  position: absolute; left: 50%; bottom: 6vmin; transform: translateX(-50%); max-width: 72vw;
+  background: #fff; color: var(--ink); border-radius: 4vmin; padding: 2.6vmin 7vmin 2.6vmin 3.6vmin;
+  font-size: 4.2vmin; line-height: 1.35; box-shadow: 0 1vmin 4vmin rgba(0,0,0,.25); border: .6vmin solid #f0c27a;
+  animation: pop .25s ease-out;
+}
+.bubble.seat-left  { left: 4vmin; transform: none; max-width: 46vw; border-color: var(--L); }
+.bubble.seat-right { left: auto; right: 4vmin; transform: none; max-width: 46vw; border-color: var(--R); }
+.bubble.seat-away  { border-color: var(--A); }
+.bubble .who { font-size: 2.8vmin; font-weight: 900; opacity: .6; margin-bottom: .6vmin; }
+.bubble .w { display: inline-block; padding: 0 .3vmin; border-radius: 1vmin; }
+.bubble .w:active, .bubble .w.said { background: #fff0c2; }
+.bubble .close { position: absolute; right: 1.6vmin; top: 1.6vmin; width: 4.4vmin; height: 4.4vmin; border-radius: 50%; background: #f3e9db; }
+.bubble .close::before, .bubble .close::after { content: ''; position: absolute; left: 50%; top: 50%; width: 55%; height: .6vmin; background: #9b8a74; transform: translate(-50%, -50%) rotate(45deg); }
+.bubble .close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+@keyframes pop { from { opacity: 0; } }
+
+/* ---------- toasts ---------- */
+.toast {
+  position: absolute; left: 50%; top: 12vmin; transform: translate(-50%, -2vmin); display: flex; align-items: center; gap: 1.5vmin;
+  background: #fff; border-radius: 3vmin; padding: 1.4vmin 3vmin; font-size: 3.6vmin; font-weight: 900; box-shadow: 0 1vmin 3vmin rgba(0,0,0,.2);
+  opacity: 0; transition: opacity .3s, transform .3s; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast .icon { width: 5vmin; height: 5vmin; }
+.toast .icon svg { width: 100%; height: 100%; }
+
+/* ---------- big buttons: icon + word ---------- */
+.bigbtn {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: .6vmin;
+  width: var(--btn); height: var(--btn); border-radius: 3.5vmin; background: #fff; border: .6vmin solid #f0c27a;
+  box-shadow: 0 .8vmin 0 #e0b070; font-weight: 900; font-size: 2.6vmin;
+}
+.bigbtn:active { transform: translateY(.5vmin); box-shadow: 0 .3vmin 0 #e0b070; }
+.bigbtn .icon { width: 55%; height: 55%; }
+.bigbtn .icon svg { width: 100%; height: 100%; }
 
 @media (orientation: portrait) {
-  #stage { flex-direction: column; }
+  .bubble { max-width: 90vw; font-size: 5vmin; }
 }

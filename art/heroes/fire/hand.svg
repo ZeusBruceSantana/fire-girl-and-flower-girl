@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+<defs><radialGradient id="spark"><stop offset="0" stop-color="#ffe9b8" stop-opacity=".9"/><stop offset="1" stop-color="#ff9d3b" stop-opacity="0"/></radialGradient></defs>
+<circle cx="300" cy="300" r="40" fill="url(#spark)"/><path d="M300 262 L308 290 L336 300 L308 310 L300 338 L292 310 L264 300 L292 290Z" fill="#ffd23f"/>
+</svg>

@@ -1,61 +1,21 @@
 'use strict';
-/* Ember Bloom: the heart of the game.
-   Epic 0: only saving and loading. Heroes, quests, the town and the learning loop arrive in later epics.
+/* Ember Bloom: shared helpers used by every other file.
+   Test mode, the save key, the merge helper, tiny DOM helpers, scene names and side colors.
+   Saving itself is in save.js; the game state and its rules are in state.js. */
 
-   Everything a player does is kept in one object, S (for "save"), and written to this device's
-   local storage. Nothing ever leaves the device. */
-
-/* =====================================================================
-   SAVING (local storage on this device)
-   ===================================================================== */
 // The test page (tests/index.html) runs the game with "?test" and its own save,
 // so running the tests never touches the girls' real progress.
-const TEST_MODE = /[?&]test\b/.test(location.search);
-const SAVE_KEY = TEST_MODE ? 'ember-bloom-test-save' : 'ember-bloom-save-v1';
-const SAVE_VERSION = 1;
+const QUERY = new URLSearchParams(location.search);
+const TEST_MODE = QUERY.has('test');
+const SAVE_KEY = TEST_MODE ? 'ember-bloom-test-save' + (QUERY.get('dev') ? '-' + QUERY.get('dev') : '') : 'ember-bloom-save-v1';
 const TEST_ERRORS = [];   // in test mode, anything that goes wrong is noted for the test page
 if (TEST_MODE) {
   addEventListener('error', e => TEST_ERRORS.push(String(e.message)));
   addEventListener('unhandledrejection', e => TEST_ERRORS.push(String(e.reason && e.reason.message || e.reason)));
 }
 
-/* One hero (one player). "kind" is which princess she plays: see WORLD.heroes in data/world.js. */
-function freshHero() {
-  return {
-    name: '',               // typed by a grown-up in the game; never in the code
-    kind: null,             // 'fire' or 'flower'
-    color: null,            // her side color (see WORLD.colors)
-    level: 1,
-    xp: 0,
-    coins: 0,
-    stats: { brave: 1, kind: 1, clever: 1 },   // grow with levels; shown as pictures, numbers optional
-    inventory: [],          // item ids she carries: ['wand-twig', 'wand-twig', 'cape-ember']
-    equipped: {},           // slot -> item id: { hand: 'wand-twig' }
-    collection: {},         // item id -> times found (the collection book)
-    quests: {},             // quest id -> { step, done }
-    words: [],              // this hero's word list, typed by a grown-up: ['cat', 'ship', ...]
-    wordStats: {},          // word -> { seen, right, wrong, lastSeen, box }  (box 0-3 = how well she knows it)
-    joined: false,          // is she playing right now? (drop-in / drop-out)
-  };
-}
-/* The whole save. "shared" is the world both heroes live in. */
-function freshSave() {
-  return {
-    version: SAVE_VERSION,
-    heroes: { left: freshHero(), right: freshHero() },
-    shared: {
-      unlockedAreas: ['town'],   // area ids open on the map
-      town: {},                   // townspeople state, shop stock
-      flags: {},                  // story flags both heroes share
-    },
-    settings: {
-      sound: { muted: false, volume: 0.7, music: true },
-      readAloud: true,            // menus and instructions are read aloud
-      parentPin: null,            // the grown-up corner PIN (digits as text), or null for tap-and-hold only
-      firstRun: true,
-    },
-  };
-}
+/* Fill in anything missing from "base" using "extra". Objects are merged one level at a time; arrays and
+   plain values are taken whole. Used to load old saves: every new field gets its default. */
 function merge(base, extra) {
   if (!extra || typeof extra !== 'object') return base;
   for (const k of Object.keys(extra)) {
@@ -65,50 +25,35 @@ function merge(base, extra) {
   }
   return base;
 }
-function loadSave() {
-  let raw = null;
-  try { raw = localStorage.getItem(SAVE_KEY); } catch (e) { /* no saving available: play anyway */ }
-  if (!raw) return freshSave();
-  try {
-    return merge(freshSave(), JSON.parse(raw));
-  } catch (e) {
-    // a damaged save is set aside (never thrown away), and the game starts fresh
-    try { localStorage.setItem(SAVE_KEY + '-damaged', raw); } catch (e2) { /* ignore */ }
-    return freshSave();
-  }
-}
-let S = loadSave();
+const clone = o => JSON.parse(JSON.stringify(o));
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const lerp = (a, b, t) => a + (b - a) * t;
 
-// A quick burst of changes is written once, a quarter of a second later.
-// Closing or hiding the game saves right away.
-let saveTimer = 0;
-function save() {
-  if (saveTimer) return;
-  saveTimer = setTimeout(saveNow, 250);
-}
-const flushSave = () => { if (saveTimer) saveNow(); };   // write any change that is waiting
-function saveNow() {
-  clearTimeout(saveTimer);
-  saveTimer = 0;
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); return true; } catch (e) { return false; }
-}
-addEventListener('pagehide', flushSave);
-document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
-
-/* =====================================================================
-   SMALL HELPERS used everywhere
-   ===================================================================== */
+/* Tiny DOM helpers. */
 const $ = sel => document.querySelector(sel);
 const $$ = sel => [...document.querySelectorAll(sel)];
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* Which screen the game is on: 'boot', 'title', 'world', later 'class', 'panel'... Tests read this. */
 let scene = 'boot';
 function setScene(name) { scene = name; document.body.dataset.scene = name; }
 
-/* Paint one player's color onto her side of the screen. */
-function applyColor(side, colorId) {
+/* Paint one seat's color onto its side of the screen. */
+function applyColor(seat, colorId) {
   const c = WORLD.colors[colorId];
   if (!c) return;
-  const r = document.documentElement.style, p = side === 'left' ? '--L' : '--R';
+  const r = document.documentElement.style, p = seat === 'left' ? '--L' : seat === 'right' ? '--R' : '--A';
   r.setProperty(p, c.main); r.setProperty(p + '-light', c.light); r.setProperty(p + '-dark', c.dark);
+}
+
+/* A random id made of letters, for device ids and the family world code. */
+function randomCode(n) {
+  const letters = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let out = '';
+  const bytes = new Uint8Array(n);
+  (crypto.getRandomValues ? crypto.getRandomValues(bytes) : bytes.map(() => Math.random() * 256));
+  for (let i = 0; i < n; i++) out += letters[bytes[i] % letters.length];
+  return out;
 }
 
 /* The offline helper (see sw.js). Skipped on the test page. */
