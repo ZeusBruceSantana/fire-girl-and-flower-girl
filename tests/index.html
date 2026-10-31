@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fire Girl and Flower Girl tests</title>
+<style>
+  body { margin: 0; padding: 24px; font: 18px/1.4 ui-rounded, "Segoe UI", system-ui, sans-serif; color: #3e3a4f; background: #fff6ee; }
+  h1 { margin: 0 0 6px; font-size: 30px; }
+  .note { margin: 0 0 16px; color: #6f6880; max-width: 760px; }
+  #run { font: 800 20px/1 inherit; padding: 14px 26px; border-radius: 16px; border: 4px solid #33935a; background: #5cc77a; color: #fff; }
+  #run:disabled { opacity: .5; }
+  #summary { margin-left: 14px; font-weight: 800; font-size: 22px; }
+  #summary.good { color: #2f8a4f; } #summary.bad { color: #c23b3b; }
+  #results { list-style: none; padding: 0; margin: 18px 0; max-width: 980px; }
+  #results li { padding: 8px 12px; border-radius: 10px; margin: 4px 0; background: #fff; }
+  #results li.pass::before { content: '✓ '; color: #2f8a4f; font-weight: 900; }
+  #results li.fail { background: #fff0f0; }
+  #results li.fail::before { content: '✗ '; color: #c23b3b; font-weight: 900; }
+  #results li.running::before { content: '… '; }
+  #results .why { display: block; color: #c23b3b; font-size: 15px; }
+  .frame-box { width: 590px; height: 410px; overflow: hidden; border-radius: 12px; border: 3px solid #e6dccb; }
+  #game { width: 1180px; height: 820px; border: 0; transform: scale(.5); transform-origin: 0 0; }
+</style>
+</head>
+<body>
+<h1>Fire Girl and Flower Girl tests</h1>
+<p class="note">These open the game in the box below with a pretend save, so the girls' real progress is never touched.</p>
+<button id="run">Run the tests</button><span id="summary"></span>
+<ol id="results"></ol>
+<div class="frame-box"><iframe id="game" title="the game"></iframe></div>
+<script src="harness.js"></script>
+<script src="tests.js"></script>
+</body>
+</html>
