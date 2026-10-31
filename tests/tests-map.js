@@ -88,3 +88,24 @@ test('Walking into a trouble starts a battle (or its stand-in) and the trouble l
   if (G('typeof Battle === "undefined" || !Battle.start')) { await tapNext(); }
   await until(() => (G('S.shared.counters["beat-t-weed-1"]') || 0) >= 1 || G('Battle && Battle.active'), 8000, 'the battle to be on or won');
 });
+
+test('The woods lead to Middlemarket; Cook, the shops and the Constable are on the town map', async () => {
+  await openOnMap('whispering-woods');
+  G('MapStage.troubles = []');
+  G('MapStage.tap("left", 3820, 2700)');
+  await until(() => G('document.body.dataset.place') === 'map:middlemarket', 20000, 'the town');
+  expect(G('MapStage.npcs.length') >= 4, 'townsfolk stand in the square');
+  expect(G('MapStage.npcs.some(n => n.def.shop === "bakery")') && G('MapStage.npcs.some(n => n.def.shop === "market")'), 'two shops');
+  G('MapStage.tap("left", 2950, 1700)');       // Constable Pebble
+  await until(() => $g('.dlg') && $g('.dlg .plate') && $g('.dlg .plate').textContent.includes('Pebble'), 12000, 'the Constable talks');
+});
+
+test('Hidden sparkles only show up with sparkle-finding gear', async () => {
+  await openOnMap('whispering-woods');
+  expect(!G('MapStage.things.some(t => t.id === "sparkle-hidden-1")'), 'hidden without the boots');
+  if (G('typeof gearEffects === "function"')) {
+    G("dispatch('hero.item', 'left', { item: 'boots-mud' }); dispatch('hero.equip', 'left', { slot: 'feet', item: 'boots-mud' }); stageGo('map:whispering-woods')");
+    await sleep(400);
+    await until(() => G('MapStage.things.some(t => t.id === "sparkle-hidden-1")'), 5000, 'the hidden sparkle with mud boots on');
+  }
+});

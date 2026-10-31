@@ -39,6 +39,7 @@ const WORLD = {
         { id: 'blaze',    word: 'Blaze',    level: 7, ember: 5, does: 'a big safe bonfire for the whole town' },
       ],
       // What she can't do on her own: the reason she needs Flower Girl.
+      material: 'charcoal',   // what she brings home from class, for crafting
       weakness: 'Fire burns flowers and dries up gardens. Fire Girl can never help in the garden alone.',
     },
     flower: {
@@ -53,6 +54,7 @@ const WORLD = {
         { id: 'vine',     word: 'Vine',     level: 4, ember: 3, does: 'a vine that lifts, ties or smothers a fire' },
         { id: 'bloom',    word: 'Bloom',    level: 7, ember: 5, does: 'the whole square bursts into flowers' },
       ],
+      material: 'petals',
       weakness: 'Flowers wilt in the cold and the dark. Flower Girl can never help on a cold night alone.',
     },
     electric: {
@@ -67,6 +69,7 @@ const WORLD = {
         { id: 'flash', word: 'Flash', level: 4, ember: 3, does: 'a bright flash that shows a hidden path for a moment' },
         { id: 'storm', word: 'Storm', level: 7, ember: 5, does: 'calls a small friendly rain cloud' },
       ],
+      material: 'spark-dust',
       weakness: 'Lightning never holds still. Electric Girl can never do a careful, quiet job alone.',
     },
   },
@@ -254,6 +257,7 @@ const WORLD = {
     classStart: 'We will do {n} today. Each of you, at your own desk.',
     classDone: 'You have already done this class today. Well done!',
     castWith: 'Cast {spell}!',
+    classMaterial: 'You made some {material} in class. It goes in your bag.',
     classEnd: { 1: 'Good work today. Practice makes magic.', 2: 'Very good! Two stars each way.', 3: 'Three stars! The whole room is glowing!' },
     aPrincess: 'A princess',
     iAm: 'I am {name}.',
@@ -303,13 +307,13 @@ const WORLD = {
        actions  the silly things it does on its turn: 'soot' (a hero's next move costs 1 more ember),
                 'grumble' (nothing), 'tangle' (a hero skips a turn), 'zap' (steals 1 ember), 'shiver' (nothing, but cute) */
   troubles: {
-    'grumpy-weed':   { name: 'Grumpy Weed',   art: 'grumpy-weed',   weakTo: 'fire',     giggle: 6,  xp: 12, coins: [2, 5], loot: [{ item: 'seed-sun', chance: 0.5 }, { item: 'gem-amber', chance: 0.2 }],
+    'grumpy-weed':   { name: 'Grumpy Weed',   art: 'grumpy-weed',   weakTo: 'fire',     giggle: 6,  xp: 12, coins: [2, 5], loot: [{ item: 'petals', chance: 0.7 }, { item: 'seed-sun', chance: 0.4 }, { item: 'gem-amber', chance: 0.2 }],
                        actions: [{ id: 'grumble', word: 'grumbles about the weather' }, { id: 'tangle', word: 'tangles a shoelace' }], about: 'Grows where it should not and complains about it.' },
-    'sneezy-smoke':  { name: 'Sneezy Smoke',  art: 'sneezy-smoke',  weakTo: 'flower',   giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'gem-amber', chance: 0.4 }, { item: 'wand-candle', chance: 0.08 }],
+    'sneezy-smoke':  { name: 'Sneezy Smoke',  art: 'sneezy-smoke',  weakTo: 'flower',   giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'charcoal', chance: 0.7 }, { item: 'gem-amber', chance: 0.3 }, { item: 'wand-candle', chance: 0.08 }],
                        actions: [{ id: 'soot', word: 'sneezes soot everywhere' }, { id: 'grumble', word: 'sniffles' }], about: 'A puff of smoke that cannot stop sneezing soot on things.' },
-    'cold-snap':     { name: 'Cold Snap',     art: 'cold-snap',     weakTo: 'fire',     giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'gem-dewdrop', chance: 0.4 }, { item: 'boots-spark', chance: 0.08 }],
+    'cold-snap':     { name: 'Cold Snap',     art: 'cold-snap',     weakTo: 'fire',     giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'spark-dust', chance: 0.5 }, { item: 'gem-dewdrop', chance: 0.4 }, { item: 'boots-spark', chance: 0.08 }],
                        actions: [{ id: 'shiver', word: 'shivers dramatically' }, { id: 'zap', word: 'freezes a little ember' }], about: 'A tiny frost that turns puddles to ice and makes everyone shiver.' },
-    'static-sprite': { name: 'Static Sprite', art: 'static-sprite', weakTo: 'flower',   giggle: 10, xp: 20, coins: [4, 8], loot: [{ item: 'boots-spark', chance: 0.3 }, { item: 'gem-dewdrop', chance: 0.3 }],
+    'static-sprite': { name: 'Static Sprite', art: 'static-sprite', weakTo: 'flower',   giggle: 10, xp: 20, coins: [4, 8], loot: [{ item: 'spark-dust', chance: 0.7 }, { item: 'boots-spark', chance: 0.3 }, { item: 'gem-dewdrop', chance: 0.3 }],
                        actions: [{ id: 'zap', word: 'zaps a little ember away' }, { id: 'tangle', word: 'makes everyone\'s hair stand up' }], about: 'A fuzzy ball of static that makes everyone\'s hair stand up.' },
   },
 };

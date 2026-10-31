@@ -57,6 +57,7 @@ const MAPS = {
       { id: 'chest-stump', word: 'a mossy chest', kind: 'chest', rect: [760, 1640, 140, 110], inside: [{ item: 'crown-paper', chance: 1 }, { item: 'gem-dewdrop', chance: 0.3 }] },
       { id: 'sparkle-2', word: 'a sparkle', kind: 'sparkle', rect: [2900, 1550, 80, 80], item: 'gem-amber' },
       { id: 'sparkle-3', word: 'a sparkle', kind: 'sparkle', rect: [3300, 2300, 80, 80], item: 'seed-sun' },
+      { id: 'sparkle-hidden-1', word: 'a hidden sparkle', kind: 'sparkle', rect: [1300, 1780, 80, 80], item: 'gem-dewdrop', hidden: true },   // only with sparkle-finding boots
     ],
     npcs: [],
     troubles: [

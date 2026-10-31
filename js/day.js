@@ -80,6 +80,8 @@ const Day = {
       dispatch('hero.xp', seat, { amount: 5 * r.length + 5 * stars });
       dispatch('hero.coins', seat, { amount: stars });
       if (stars === 3) dispatch('hero.badge', seat, { badge: 'three-stars' });
+      const material = WORLD.heroes[S.heroes[seat].kind].material;
+      if (material && ITEMS.some(i => i.id === material)) { dispatch('hero.item', seat, { item: material }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === material).word, { icon: 'gem' }); }
       if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
     }
     const best = Math.max(...players.map(s => S.heroes[s].stars[key] || 1));
@@ -109,7 +111,7 @@ const Day = {
       kind = pick != null && talk.replies[pick].kind;
       if (!kind) { tries++; await Dialogue.say({ who: f.word, art: f.art, text: WORLD.ui.hmmAgain }); }
     }
-    const hearts = tries === 0 ? 2 : 1;
+    const hearts = (tries === 0 ? 2 : 1) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
     dispatch('hero.hearts', seat, { amount: hearts, friend: friendId });
     dispatch('hero.stars', seat, { key: talkedKey, stars: 1 });
     const newLvl = f.levels.filter(l => (S.heroes[seat].friends[friendId] || 0) >= l.hearts).length;
@@ -150,7 +152,7 @@ const Day = {
       const stars = Object.entries(h.stars).filter(([k]) => k.startsWith('day-' + day + '-')).reduce((a, [, v]) => a + v, 0);
       const words = Object.values(h.wordStats).filter(w => w.lastSeen > Date.now() - 6 * 3600 * 1000).length;
       await Dialogue.say({ seat, who: h.name || WORLD.heroes[h.kind].title, text: WORLD.ui.daySummary.replace('{day}', day).replace('{stars}', stars).replace('{words}', words).replace('{coins}', h.coins).replace('{hearts}', h.hearts) });
-      dispatch('hero.ember', seat, { amount: 3 });
+      dispatch('hero.ember', seat, { amount: 3 + (typeof gearEffects === 'function' ? (gearEffects(seat).freeSpark || 0) : 0) });
       if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('sleep');
     }
     if (day % 10 === 0) for (const seat of this.players()) dispatch('hero.badge', seat, { badge: 'ten-days' });

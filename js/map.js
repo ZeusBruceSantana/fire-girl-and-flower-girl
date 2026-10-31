@@ -47,7 +47,8 @@ const MapStage = {
       const d = WORLD.troubles[t.kind]; const sp = new NpcSprite(t.id, t.x); sp.y = t.y; sp.height = t.boss ? 360 : 240; sp.def = t; sp.kind = d;
       sp.wander = { next: 0, tx: t.x, ty: t.y }; sp.load({ body: 'art/troubles/' + (t.boss ? d.art + '-boss' : d.art) }); return sp; });
     this.npcs = def.npcs.map(n => { const who = WORLD.people[n.who] || WORLD.teachers[n.who]; const sp = new NpcSprite(n.id, n.x); sp.y = n.y; sp.height = 300; sp.def = n; sp.facing = -1; sp.setArt(who.art); return sp; });
-    this.things = def.things.filter(th => !S.shared.flags['took-' + th.id]);
+    const reveal = typeof gearEffects === 'function' && this.party.some(s => isPlayerHere(s) && gearEffects(s).reveal);
+    this.things = def.things.filter(th => !S.shared.flags['took-' + th.id] && (!th.hidden || reveal));
     this.scale = Stage.canvas.height / MAP_VIEW_H; this.visW = Stage.canvas.width / this.scale; this.visH = MAP_VIEW_H;
     this.cam.x = at[0]; this.cam.y = at[1]; this.clampCam();
     if (S.settings.localSeats.some(isPlayerHere) && !S.shared.flags['visited-map-' + mapId]) dispatch('flag.set', S.settings.localSeats.find(isPlayerHere), { flag: 'visited-map-' + mapId });
