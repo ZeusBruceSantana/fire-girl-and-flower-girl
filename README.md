@@ -17,9 +17,11 @@ coins and power. Getting it wrong gives a hint and another try, never a loss.
 
 ## Status
 
-**Epic 3 (version 3).** A school day with Spells and Numbers classes, lunch with friends, an overworld
-to explore with the party in a line, roaming troubles and turn-based battles powered by reading and
-math. The art on screen is placeholder until the painted scenes, maps and characters arrive. See
+**Epics 1 to 10 built.** A school day with Spells, Numbers, Myths and Art classes, lunch with friends,
+an overworld of five maps to explore with the party in a line, roaming troubles and turn-based battles
+powered by reading and math, shops, a bag with gear that matters, crafting, the Lair, town cases, a
+collection book, weather, music, Electric Girl's story, and a relay for playing on separate devices.
+The art on screen is placeholder until the painted scenes, maps and characters arrive. See
 [`docs/STATUS.md`](docs/STATUS.md) for what's next, [`docs/GAME-DESIGN.md`](docs/GAME-DESIGN.md)
 for the full design and [`docs/ART-PROMPTS.md`](docs/ART-PROMPTS.md) for how the art is made.
 

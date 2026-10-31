@@ -1,35 +1,46 @@
 # Status
 
-**Updated:** 2026-10-31 · **Epic:** 3, The overworld and battles (version 3) · **State:** built; waiting for art; Epic 4 next
+**Updated:** 2026-10-31 (overnight run) · **Epics 4 to 10 built** · **State:** all 88 tests passing; waiting for the paintings
 **Repo:** https://github.com/ZeusBruceSantana/fire-girl-and-flower-girl
 
-## Done
+## Done overnight
 
-**Epic 3, version 3: a Pokémon-style RPG** (`GAME-DESIGN.md` section 18)
-- Overworld maps: big painted top-down maps (school grounds, Whispering Woods as placeholders). Tap where
-  to go; the game finds a path along the walkable areas; whoever tapped leads and the others follow in a
-  line; the camera scrolls. Doors lead into rooms and other maps; a locked gate; a hidden gap in the wall.
-- Things on the map: chests (Build the word to open), sparkles (a find), signposts (read aloud), people
-  with a "!" to talk to, troubles that roam and respawn the next day.
-- Battles: party vs trouble on a painted backdrop. A move costs ember and is powered by a reading
-  challenge. Effect = power × first-try × elemental match (×2) × combo (×1.5). The trouble has a Giggle
-  meter, not health; on its turn it does something silly (soot, tangle, zap) and never hurts anyone.
-  Bosses have two phases. Wins give xp, coins, loot rolls and level-ups. Absent heroes auto-cast and earn
-  nothing.
-- Numbers class (Mr. Abacus): six math puzzle types (count coins, make change, number line, pattern,
-  add and take away, more or less) with bands by the parent's math level, the same hint ladder, both girls
-  side by side. The rotation now runs Spells and Numbers for real.
-- 43 tests, all passing.
+- **Epic 4, Middlemarket and shops.** The town map with the bakery, the market, Cook's ice cream and
+  Constable Pebble; shops that buy and sell with a make-change math moment; the Bag with tap and drag
+  equip; gear that changes play (more ember, more hearts, finding hidden sparkles, a free spark at
+  bedtime); crafting materials from classes and battles; recipes at the Lair table.
+- **Epic 5, Myths.** Professor Hoot's interactive storybook with tappable words, "what happens next"
+  choices, three question types, Myth Scrolls, and the routes that open after Persephone (the orchard
+  road), Prometheus (the dark cave) and Zeus (the path to Thunder Peak). Petalvale Orchard as a map
+  with Persephone's Gate, a frost boss and apple trees.
+- **Epic 6, Art and friendship.** Art class is one shared easel both girls paint on at once, with crafted
+  paints as extra colors, prompts, and paintings saved to both and giftable at lunch for hearts. The Lair
+  stations: upgrades bought with Hearts, the gallery wall, friend invites, the scroll shelf, the badge wall.
+- **Epic 7, Town cases.** Constable Pebble swears the girls in as Junior Helpers; clues glow on the maps
+  and open with reading, math and logic puzzles; the suspects board never punishes a wrong guess; solving
+  gives hearts, coins, a badge and a new friend. Five cases.
+- **Epic 8, Polish.** Sounds and music made in code (rarity chimes, kind try-again, fanfares, a tune per
+  place); the collection book with silhouettes and sets; weather by day with a boost for the matching
+  princess; the Headmistress's Pure of Heart test the first time they slip back through the wall.
+- **Epic 9, Electric Girl.** Her story in six beats, Thunder Peak with Static Sprites and a boss, and
+  together moves in battle that need two or three girls to each power a word and tap at once.
+- **Epic 10, live co-play (code ready).** The Cloudflare relay room and the game's client are written
+  and tested against a pretend room. Turning it on needs your free Cloudflare account and one deploy
+  command (SETUP.md section 7). Then the twins can play on separate devices and E from her house.
 
-**Earlier:** Epic 2b the school day (clock, classes, lunch, bedtime); Epic 2a the RPG interface (HUD,
-ornate menu, Spellbook and Ember, dialogue, markers); Epic 1 the shell; Epic 0.5 the foundation.
+## What is still placeholder
+
+- All art on screen (scenes, maps, heroes, townsfolk, troubles, myth pictures) until your paintings land.
+  Every picture has a file name waiting in `docs/ART-PROMPTS.md`.
+- Interface frames (menus, dialogue, battle) use a drawn parchment look; section 6 of the prompts makes
+  painted ones.
 
 ## Next
 
-- Art: the nine scene paintings and three heroes, plus the three maps and the troubles
-  (ART-PROMPTS.md sections 3, 4 and 7). Placeholders are in for all of them.
-- Epic 4: Middlemarket as a map, the market and Cook's shop, the Bag with drag-equip and gear effects,
-  crafting v1.
+1. Drop in the paintings as they are made (SETUP.md section 6). I tune walk lines and tap spots.
+2. Turn on GitHub Pages (SETUP.md section 1) and try it on the Surface by touch. Notes from a real
+   play session will set the next round: pacing, class length, what the girls reach for.
+3. The relay, when you want separate devices (SETUP.md section 7).
 
 ## Blockers
 
@@ -37,5 +48,6 @@ ornate menu, Spellbook and Ember, dialogue, markers); Epic 1 the shell; Epic 0.5
 
 ## Decisions needed
 
-1. Go on Epic 4.
-2. Interface art (ART-PROMPTS.md section 6) whenever convenient; the layout takes it as is.
+1. Whether to keep the Spells and Numbers rotation at two classes a day or make it one (class length is
+   already a grown-up setting).
+2. The money name and the kingdom names still stand as defaults.
