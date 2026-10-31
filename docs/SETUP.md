@@ -72,7 +72,34 @@ to each commit on GitHub.
 4. The page updates by itself within a couple of minutes. Tell Claude Code which scenes are in so the
    walk line and tap spots can be tuned to the painting.
 
-## 7. The Drive handoff
+## 7. Playing together over the internet (the relay)
+
+Needed only when the girls play on separate devices, or the cousin joins from her house. One time,
+about 15 minutes, $0 on Cloudflare's free plan.
+
+1. Make a free account at https://dash.cloudflare.com/sign-up (you, not the kids).
+2. On your computer, open a terminal in the repository's `relay` folder and run:
+
+```bash
+npx wrangler login
+```
+
+```bash
+npx wrangler deploy
+```
+
+3. The last line prints an address like `https://ember-bloom-relay.<your-name>.workers.dev`. Copy it.
+4. On the Surface, open the grown-up corner, paste the address into **Family relay address**, make sure
+   there is a **Family world code** (make one if not), press Done. The game reloads and the little cloud
+   in the corner turns blue when connected.
+5. On the other device, open the cousin's link (Copy the link in the grown-up corner) or enter the same
+   relay address and world code. Each device shows one seat.
+
+What the relay holds: the list of game actions for the world code (what was found, cast, bought). It
+never holds names or word lists; those stay on each device. If you ever want to stop, delete the Worker
+in the Cloudflare dashboard and clear the address in the grown-up corner.
+
+## 8. The Drive handoff
 
 - New specs for Claude Code go in Google Drive, **Reading RPG Handoff / to-code**, as plain
   Markdown. A revised spec gets a version suffix (`-v2`, `-v3`); the newest wins.

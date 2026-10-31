@@ -69,6 +69,7 @@ function parentOpen() {
         <div class="row"><code id="p-world">${esc(S.settings.worldCode || WORLD.ui.none)}</code>
         <div class="pbtn small" data-makeworld>${esc(S.settings.worldCode ? WORLD.ui.newCode : WORLD.ui.makeCode)}</div>
         ${S.settings.worldCode ? `<div class="pbtn small" data-copylink>${esc(WORLD.ui.copyLink)}</div>` : ''}</div></label>
+      <label>${esc(WORLD.ui.roomUrl)} <small>${esc(WORLD.ui.roomUrlHelp)}</small> <input data-room placeholder="https://ember-bloom-relay.yourname.workers.dev" autocomplete="off" value="${esc(S.settings.roomUrl || '')}"></label>
       <label>${esc(WORLD.ui.pin)} <small>${esc(WORLD.ui.pinHelp)}</small> <input data-pin inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" value="${esc(S.settings.parentPin || '')}"></label>
       <div class="row danger"><div class="pbtn" data-startover>${esc(WORLD.ui.startOver)}</div></div>
     </section>`;
@@ -110,9 +111,13 @@ function parentSave(panel) {
   if (voice !== S.settings.voice) { patch.voice = voice; Speech.setVoice(voice); }
   const seatsSel = panel.querySelector('[data-seats]').value.split(',');
   if (seatsSel.join(',') !== S.settings.localSeats.join(',')) { patch.localSeats = seatsSel; }
+  const room = panel.querySelector('[data-room]').value.trim() || null;
+  if (room !== S.settings.roomUrl) { patch.roomUrl = room; patch.reloadForRoom = true; }
   const pin = panel.querySelector('[data-pin]').value.replace(/\D/g, '') || null;
   if (pin !== S.settings.parentPin) patch.parentPin = pin;
+  const reload = patch.reloadForRoom; delete patch.reloadForRoom;
   if (Object.keys(patch).length) dispatch('settings.set', null, patch);
+  if (reload && !TEST_MODE) { saveNow(); location.reload(); }
   for (const seat of WORLD.seats) refreshHeroSprite(seat);
   if (patch.localSeats) { renderSeatButtons(); if (needsSetup()) showPick(); }
   else renderSeatButtons();

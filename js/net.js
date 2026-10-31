@@ -52,11 +52,62 @@ class FakeTransport extends LocalAdapter {
   isHost() { return this.dev === this.hostDev; }
 }
 
+/* The family's shared world through the relay (relay/worker.js), once a grown-up has set it up.
+   Reconnects by itself; while offline everything waits in the outbox. The relay picks a "lead" device
+   that runs the companion for seats nobody is playing. */
+class RoomAdapter extends LocalAdapter {
+  constructor(roomUrl, dev) {
+    super();
+    this.name = 'room'; this.roomUrl = roomUrl.replace(/\/$/, ''); this.dev = dev; this.ws = null; this.leadDev = null;
+    this.backoff = 1000; this.lastSeq = Number(localStorage.getItem(SAVE_KEY + '-seq') || 0); this.closed = false; this.lastPresence = {};
+  }
+  connect(world, seat) {
+    this.world = world; this.seat = seat;
+    if (!world) return Promise.resolve();
+    return new Promise(resolve => { this.resolveFirst = resolve; this.open(); setTimeout(resolve, 4000); });   // the game never waits long for the internet
+  }
+  open() {
+    if (this.closed || !this.world) return;
+    this.setStatus('connecting');
+    const url = this.roomUrl.replace(/^http/, 'ws') + '/room/' + this.world;
+    let ws;
+    try { ws = new (RoomAdapter.WebSocket || WebSocket)(url); } catch (e) { return this.retry(); }
+    this.ws = ws;
+    ws.onopen = () => { this.backoff = 1000; ws.send(JSON.stringify({ kind: 'hello', dev: this.dev, seat: this.seat, since: this.lastSeq })); };
+    ws.onmessage = e => { let msg; try { msg = JSON.parse(e.data); } catch (x) { return; } this.receive(msg); };
+    ws.onclose = () => { this.ws = null; this.setStatus('offline'); this.retry(); };
+    ws.onerror = () => { try { ws.close(); } catch (e) { /* ignore */ } };
+  }
+  retry() { if (this.closed) return; clearTimeout(this.timer); this.timer = setTimeout(() => this.open(), this.backoff); this.backoff = Math.min(30000, this.backoff * 2); }
+  setStatus(s) { if (this._status === s) return; this._status = s; for (const cb of this.statusCbs) cb(s); }
+  receive(msg) {
+    if (msg.lead) this.leadDev = msg.lead;
+    if (msg.kind === 'snapshot') {
+      for (const a of msg.actions || []) for (const cb of this.actionCbs) cb(a);
+      if (msg.seq) this.noteSeq(msg.seq);
+      this.setStatus('live');
+      for (const a of outboxAll()) this.ws && this.ws.send(JSON.stringify({ kind: 'action', action: a }));
+      if (this.resolveFirst) { this.resolveFirst(); this.resolveFirst = null; }
+    }
+    if (msg.kind === 'action') { for (const cb of this.actionCbs) cb(msg.action); if (msg.seq) this.noteSeq(msg.seq); }
+    if (msg.kind === 'ack') { outboxAck(msg.ids || []); if (msg.seq) this.noteSeq(msg.seq); }
+    if (msg.kind === 'presence') for (const cb of this.presenceCbs) cb(msg.seat, msg.p, msg.from);
+    if (msg.kind === 'join') for (const cb of this.presenceCbs) cb(msg.seat, { joined: true }, msg.dev);
+    if (msg.kind === 'lead') this.leadDev = msg.lead;
+  }
+  noteSeq(seq) { if (seq > this.lastSeq) { this.lastSeq = seq; try { localStorage.setItem(SAVE_KEY + '-seq', String(seq)); } catch (e) { /* ignore */ } } }
+  send(action) { outboxPush(action); if (this.ws && this._status === 'live') { try { this.ws.send(JSON.stringify({ kind: 'action', action })); } catch (e) { /* the outbox has it */ } } }
+  sendPresence(seat, p) { if (this.ws && this._status === 'live') { try { this.ws.send(JSON.stringify({ kind: 'presence', seat, p })); } catch (e) { /* ignore */ } } }
+  isHost() { return this._status !== 'live' || !this.leadDev || this.leadDev === this.dev; }
+  close() { this.closed = true; clearTimeout(this.timer); if (this.ws) this.ws.close(); }
+}
+
 /* Pick the adapter for this page. */
 function createAdapter() {
   const world = QUERY.get('world') || S.settings.worldCode;
-  if (TEST_MODE && world) return new FakeTransport(world, S.settings.deviceId);
-  return new LocalAdapter();   // RoomAdapter arrives in Epic 10
+  if (TEST_MODE && world && !S.settings.roomUrl) return new FakeTransport(world, S.settings.deviceId);
+  if (world && S.settings.roomUrl && /^(https?|wss?):\/\//.test(S.settings.roomUrl)) return new RoomAdapter(S.settings.roomUrl, S.settings.deviceId);
+  return new LocalAdapter();
 }
 const NET = createAdapter();
 NET.onAction(applyRemote);

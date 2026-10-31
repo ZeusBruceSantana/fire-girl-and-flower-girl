@@ -223,6 +223,7 @@ const WORLD = {
     worldCodeHelp: 'Links another device (a sister\'s tablet, or a cousin\'s) to the same world. Playing together over the internet arrives later; the code is safe to make now.',
     none: 'none yet', makeCode: 'Make a code', newCode: 'New code', newCodeConfirm: 'Make a new code? Devices using the old one will need the new one.',
     copyLink: 'Copy the link', copied: 'Copied!',
+    roomUrl: 'Family relay address', roomUrlHelp: 'Only for playing together over the internet. Set up once by a grown-up (SETUP.md, section 7). Leave empty to play on this device alone.',
     pin: 'Grown-up PIN', pinHelp: 'Digits only. Leave empty for tap-and-hold only.',
     startOver: 'Start over (erases this tablet\'s progress)',
     startOverConfirm: 'Erase all progress on this tablet and start again? A safety copy is kept until the next start over.',
