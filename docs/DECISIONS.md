@@ -3,6 +3,15 @@
 Short log of choices that shape the project, newest first. One line of context, one line of
 decision, so a future session does not reopen them without reason.
 
+## 2026-10-31, version 3
+
+- **Pokémon-style core.** After playing the storybook version the owner found it a point-and-click with
+  quizzes. The core interaction model changed: overworld maps you explore by tapping, roaming troubles,
+  a turn-based battle screen with moves powered by reading and math, the Giggle meter, the elemental
+  triangle. The storybook scenes stay as interiors and battle backdrops, so the paintings are all used.
+- **Parallel lanes.** Independent work (battle screen, Numbers class, art) runs in forked sessions, each
+  in its own files, with the page pre-wired so nothing collides.
+
 ## 2026-10-31, the big version
 
 - **Go big.** A real RPG, not a small word game: school day loop, three heroes, lair, cases, myths,

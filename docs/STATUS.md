@@ -1,71 +1,41 @@
 # Status
 
-**Updated:** 2026-10-31 · **Epic:** 2a, The RPG interface · **State:** built; waiting for art; Epic 2b next
+**Updated:** 2026-10-31 · **Epic:** 3, The overworld and battles (version 3) · **State:** built; waiting for art; Epic 4 next
 **Repo:** https://github.com/ZeusBruceSantana/fire-girl-and-flower-girl
 
 ## Done
 
-**Epic 2a, the RPG interface** (design 2.1, `GAME-DESIGN.md` sections 16 and 17)
-- HUD per hero: portrait with an XP ring, level badge, coins, hearts, the Ember meter, the current
-  objective. Tap the portrait to open her menu.
-- The ornate menu (parchment and gold): Spellbook, Bag, Journal, Map with fog that lifts as places are
-  visited, Badges with silhouettes, Friends with heart levels.
-- Spellbook and the Ember meter: spells cost ember, reading earns it, a level-1 spell always works.
-  Casting = pick a spell, power it with a word, the effect bursts from her hand.
-- The first real reading challenges: Hear it, tap it; Build the word. Hint ladder (first letter, the
-  helper says it, the answer glows), never a failure, a missed word comes back soon.
-- RPG dialogue box: portrait, name plate, text that types out, tappable words, choices.
-- World markers: "!" over people, shimmer on things, arrows on exits, a glimmer on an unfound secret.
-- 25 tests, all passing.
+**Epic 3, version 3: a Pokémon-style RPG** (`GAME-DESIGN.md` section 18)
+- Overworld maps: big painted top-down maps (school grounds, Whispering Woods as placeholders). Tap where
+  to go; the game finds a path along the walkable areas; whoever tapped leads and the others follow in a
+  line; the camera scrolls. Doors lead into rooms and other maps; a locked gate; a hidden gap in the wall.
+- Things on the map: chests (Build the word to open), sparkles (a find), signposts (read aloud), people
+  with a "!" to talk to, troubles that roam and respawn the next day.
+- Battles: party vs trouble on a painted backdrop. A move costs ember and is powered by a reading
+  challenge. Effect = power × first-try × elemental match (×2) × combo (×1.5). The trouble has a Giggle
+  meter, not health; on its turn it does something silly (soot, tangle, zap) and never hurts anyone.
+  Bosses have two phases. Wins give xp, coins, loot rolls and level-ups. Absent heroes auto-cast and earn
+  nothing.
+- Numbers class (Mr. Abacus): six math puzzle types (count coins, make change, number line, pattern,
+  add and take away, more or less) with bands by the parent's math level, the same hint ladder, both girls
+  side by side. The rotation now runs Spells and Numbers for real.
+- 43 tests, all passing.
 
-**Epic 1, the shell**
-- First launch: each girl picks her princess and her color on her own half (the same princess or color
-  as her sister is greyed out), then the school story plays once, page by page, read aloud.
-- Join and leave: a small "Bye for now" on each side; an empty side shows one big Join button. While a
-  girl is away the companion walks her hero along; taps on her side do nothing; her sister's progress is
-  untouched.
-- The grown-up corner (hold the top-left corner three seconds, or a PIN): names, each child's word list,
-  math level, class length, read-to-a-grown-up on/off, read-aloud, sounds, music, voice picker with a
-  test button, which seats this device shows, the family world code and the cousin's link, a PIN, and
-  Start over (keeps a safety copy). Everything stays on the device; settings never leave it.
-- The cousin's link (`?world=CODE&seat=away`) sets a device up as her seat.
-- 19 tests, all passing.
-
-**Epic 0.5, the foundation**
-
-- **The game is Ember Bloom**: three princesses (Fire, Flower, Electric), a royal magic boarding
-  school, a secret tunnel and lair, the woods, the town. Full design in `docs/GAME-DESIGN.md`, story
-  bible in `docs/WORLD.md`, technical design in `docs/ARCHITECTURE.md`.
-- **Engine foundation:** storybook scene renderer (painted scenes, camera, tap-to-walk, particles,
-  time-of-day tint), heroes on the stage with idle / walk / cast / hop animations, two-player touch
-  input (left half, right half, "together" taps), read-aloud with voice picking, speech bubbles
-  where every word can be tapped to hear it.
-- **State built for three devices:** every change is a small action; the shared world merges without
-  ever losing anything; an absent hero is driven by the companion; a second device (a twin's own
-  tablet, or the cousin's) can join later through a family world code. Proven with two pretend
-  devices in the tests.
-- **Content v2** in `data/`: the school day and class rotation, six lunch friends with stories, six
-  Greek myths with questions, twelve math and logic puzzle types, five town cases, the lair
-  upgrades and badges, nine scenes, four woods adventures.
-- **Art pipeline:** placeholder scenes and characters (vector, used only for building and testing);
-  `docs/ART-PROMPTS.md` is the brief the owner is generating real paintings from; a painting drops
-  in as one file per scene listed in `art/overrides.js`.
-- 15 tests, all passing, run on every push.
+**Earlier:** Epic 2b the school day (clock, classes, lunch, bedtime); Epic 2a the RPG interface (HUD,
+ornate menu, Spellbook and Ember, dialogue, markers); Epic 1 the shell; Epic 0.5 the foundation.
 
 ## Next
 
-- Owner generates the first nine scene paintings and the three heroes (ART-PROMPTS.md). As each lands,
-  the walk line and tap spots get tuned to it.
-- Epic 2b, the first school day: the timetable and clock, Spells class as a target range, lunch with two
-  friends and ice cream, bedtime summary. The first playable day.
+- Art: the nine scene paintings and three heroes, plus the three maps and the troubles
+  (ART-PROMPTS.md sections 3, 4 and 7). Placeholders are in for all of them.
+- Epic 4: Middlemarket as a map, the market and Cook's shop, the Bag with drag-equip and gear effects,
+  crafting v1.
 
 ## Blockers
 
-- None. The game runs with placeholders until the paintings arrive.
+- None.
 
 ## Decisions needed
 
-1. Go on Epic 2b (the first school day).
-2. The defaults still stand unless changed: money is "coins", separate wallets, the girls pick who is
-   Fire and who is Flower on first launch, names Emberfall / Petalvale / Stormhaven / Thistledown /
-   Middlemarket.
+1. Go on Epic 4.
+2. Interface art (ART-PROMPTS.md section 6) whenever convenient; the layout takes it as is.
