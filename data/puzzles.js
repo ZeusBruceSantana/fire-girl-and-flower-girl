@@ -108,7 +108,34 @@ const PUZZLES = {
     hints: ['the cards peek for a second', 'a matched card stays face up', 'a wiggle shows where the pair is'],
     reward: [3, 2, 1], fits: ['case clue', 'chest'],
   },
+
+  // ---------- The girls' till (js/till.js) ----------
+  'order-total': {
+    word: 'Add up the order', subject: 'numbers',
+    how: 'A customer wants one or two things. Each price is a coin stack. Tap what they cost all together.',
+    bands: { 1: { max: 10, items: 1, priceMax: 9 }, 2: { max: 20, items: 2, priceMax: 9 }, 3: { max: 100, items: 2, priceMax: 40 } },
+    hints: ['the stacks count themselves', 'Mr. Abacus counts along', 'the right number glows'],
+    reward: [3, 2, 1], fits: ['till'],
+  },
 };
 
 /* Math difficulty by the hero's level when the parent leaves "math level" on automatic. */
 const MATH_BANDS_BY_LEVEL = [ [1, 1], [3, 2], [6, 3] ];   // [from level, band]
+
+/* THE GIRLS' TILL in the Lair (js/till.js). A few customers a day bring a picture order and pay with one coin;
+   one girl adds up the order, the other gives the change (with one girl, she does both). Coins are stacks whose
+   height is their value, as in the Numbers puzzles.
+     customers    WORLD.people ids who come to the till
+     goods        what they order: a picture (MATH_ART id in js/numbers.js)
+     bands        per math band: how many things, the highest price of one, the coin they pay with
+     perDay       customers before the till closes for the day (no grinding)
+     coins        coins each girl at the till earns per customer served
+     lastCustomerHearts   the last customer of the day also gives each girl this many hearts */
+const TILL = {
+  customers: ['baker', 'gardener', 'lamplighter', 'goatherd', 'signpainter', 'librarian'],
+  goods: ['apple', 'pie', 'seedling', 'star'],
+  bands: { 1: { items: 1, priceMax: 9, pays: [10] }, 2: { items: 2, priceMax: 9, pays: [20] }, 3: { items: 2, priceMax: 40, pays: [50, 100] } },
+  perDay: 3,
+  coins: 1,
+  lastCustomerHearts: 1,
+};
