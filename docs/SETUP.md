@@ -62,21 +62,30 @@ node tests/run-in-ci.js
 GitHub runs the same tests on every change. The result shows as a green check or a red cross next
 to each commit on GitHub.
 
-## 6. Adding a painting you generated
+## 6. Making and adding art
 
-1. Follow `docs/ART-PROMPTS.md` to make it. Save it with the exact file name given there.
-2. On GitHub, open the folder (for example `art/scenes/lair`), **Add file → Upload files**, drag it in,
-   **Commit changes**. Or put it in Drive `to-code/art/` and tell Claude Code.
-3. Open `art/overrides.js` on GitHub, click the pencil, add a line like `'art/scenes/lair/full',`
-   inside the list, **Commit changes**.
-4. The page updates by itself within a couple of minutes. Tell Claude Code which scenes are in so the
-   walk line and tap spots can be tuned to the painting.
+1. Pick the prompt file:
+   - characters, troubles and the princesses' poses: `docs/ART-PROMPTS-CHARACTERS.md`
+   - rooms and the painted menu frame: `docs/ART-PROMPTS.md`
+   - the overworld maps: `docs/ART-PROMPTS-MAPS.md`
+2. In your image tool, attach **Fire Girl's painting** (`art/heroes/fire/full.png`) as the style reference
+   for any character. Paste the file's **Style Lock** once, then one prompt at a time.
+3. For characters, ask for a **transparent PNG**. If the tool can't, a plain white background is fine.
+4. Upload to the drop folder, **five pictures at a time** (bigger batches fail on GitHub):
+   https://github.com/ZeusBruceSantana/fire-girl-and-flower-girl/upload/main/art/incoming
+   Leave "Commit directly to the main branch" selected and click **Commit changes**. Any file names.
+5. Tell Claude Code "new art in incoming". It checks each picture, removes backgrounds, sharpens big
+   paintings, puts each one in its place, fits the walk lines and tap spots, updates the offline file list,
+   and shows you screenshots before anything is pushed. You never edit `art/overrides.js` yourself.
 
-## 6b. Keeping the offline file list up to date
+What to paint first, in order: Fire Girl's two walk poses, the four troubles, Madame Cinder, Cook and
+Professor Hoot; then the other teachers, the townsfolk, the six princess friends and the bosses.
 
-The game works without internet because the tablet keeps a copy of every file on a list
-(`sw-manifest.js`). After you add a painting or any new file, the list must be remade, or the tests
-say it is stale:
+## 6b. Keeping the offline file list up to date (only if you add files yourself)
+
+Claude Code does this for every picture from `art/incoming`. The game works without internet because the
+tablet keeps a copy of every file on a list (`sw-manifest.js`). If you ever add a file anywhere else
+yourself, the list must be remade, or the tests say it is stale:
 
 1. In a terminal, inside the repository folder, run:
 
