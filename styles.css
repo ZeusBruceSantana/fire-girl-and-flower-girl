@@ -11,7 +11,7 @@
      - one button family (.btn + primary / confirm / quiet) and one Close control (.btn-close)
    The three seat colors (--L, --R, --A) are filled in by the game from data/world.js.
    Overlay order, low to high (explicit z-indexes, so a word card can never hide under a battle):
-     #range 5 < #dialogue 10 < #menu, #shop, #lair, #cases, #crafting 20 < #storybook, #artclass 25 < #battle 30 < #challenge 40 < #title 50 < #parent 100
+     #dialogue 10 < #menu, #shop, #lair, #cases, #crafting 20 < #storybook, #artclass 25 < #battle 30 < #challenge 40 < #range 41 (the candle row, above the class dimmer) < #title 50 < #parent 100
    ===================================================================== */
 
 /* Baloo 2 (SIL Open Font License, art/fonts/OFL.txt), bundled so it works offline. Variable weight 400 to 800. */
