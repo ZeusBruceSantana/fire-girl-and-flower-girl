@@ -91,7 +91,7 @@ async function stageGo(sceneId, { positions = {}, from = null, at = null } = {})
     if (!h) continue;
     const x = positions[seat] != null ? positions[seat] : def.spawn[seat];
     h.placeOnPath(x);
-    h.target = null; h.anim = 'idle';
+    h.target = null; h.anim = 'idle'; h.pendingHotspot = null; h.arrivalWaiting = false;   // nothing from the old room follows her here
     if (isPlayerHere(seat) && h.visible) setPresence(seat, { scene: sceneId, x: h.x, anim: 'idle', facing: h.facing, driver: 'player' });
     else if (S.settings.localSeats.includes(seat)) { P[seat].scene = null; }   // a local seat nobody is playing: the companion brings her along
   }
@@ -101,6 +101,7 @@ async function stageGo(sceneId, { positions = {}, from = null, at = null } = {})
   if (S.settings.localSeats.some(isPlayerHere) && !S.shared.flags['visited-' + sceneId]) dispatch('flag.set', S.settings.localSeats.find(isPlayerHere), { flag: 'visited-' + sceneId });
   setScene('world');
   document.body.dataset.place = sceneId;
+  rememberPlace(sceneId);
   uiSceneName(def.word);
   if (typeof Sound !== 'undefined' && Sound.music) Sound.music(['tunnel', 'lair'].includes(sceneId) ? 'lair' : sceneId === 'town-square' ? 'town' : sceneId === 'woods-path' ? 'woods' : (S.shared.clock.part === 'bedtime' ? 'night' : 'school'));
   if (typeof Story !== 'undefined' && Story.check) Story.check(sceneId);
@@ -139,6 +140,8 @@ async function loadLayers(id, def) {
   Stage.layers = Object.fromEntries(entries);
 }
 const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+/* The place this device is in is kept in the settings (never sent anywhere), so a reload comes back here. */
+function rememberPlace(place) { if (S.settings.lastPlace !== place) dispatch('settings.set', null, { lastPlace: place }); }
 
 /* ---------- geometry ---------- */
 function pathY(path, x) {
@@ -162,8 +165,11 @@ function screenToScene(px, py) {
 }
 function hotspotAt(x, y) {
   if (!Stage.scene) return null;
-  return Stage.scene.hotspots.find(h => x >= h.rect[0] && x <= h.rect[0] + h.rect[2] && y >= h.rect[1] && y <= h.rect[1] + h.rect[3]) || null;
+  return liveHotspots().find(h => x >= h.rect[0] && x <= h.rect[0] + h.rect[2] && y >= h.rect[1] && y <= h.rect[1] + h.rect[3]) || null;
 }
+/* The hotspots that work right now. One that "needs" a Lair upgrade stays out of sight until it is bought,
+   so nothing on screen says "not yet". */
+function liveHotspots() { return Stage.scene.hotspots.filter(h => !h.needs || (S.shared.lair.upgrades || []).includes(h.needs)); }
 
 /* ---------- update ---------- */
 function stageUpdate(dt, now) {
@@ -183,10 +189,10 @@ function stageUpdate(dt, now) {
     }
     h.update(dt, Stage.scene.path);
     if (mine && (h.anim === 'walk' || h.justStopped)) setPresence(seat, { x: Math.round(h.x), anim: h.anim, facing: h.facing });
-    if (h.justStopped) {
-      h.justStopped = false;
-      if (h.pendingHotspot && Stage.onArrive) { const hs = h.pendingHotspot; h.pendingHotspot = null; Stage.onArrive(seat, hs); }
-    }
+    if (h.justStopped) { h.justStopped = false; if (h.pendingHotspot) h.arrivalWaiting = true; }
+    // An arrival is delivered only when nothing is open over the world. If the other player is in the middle of a
+    // dialogue, the arrival waits (and is forgotten if the room changes meanwhile).
+    if (h.arrivalWaiting && !sceneLayer && Stage.onArrive) { h.arrivalWaiting = false; const hs = h.pendingHotspot; h.pendingHotspot = null; if (hs) Stage.onArrive(seat, hs); }
     if (!mine) { if (!(P[seat].scene === Stage.scene.id)) h.visible = false; else h.visible = true; }
   }
   for (const seat of WORLD.seats) {                 // others arriving into this scene
@@ -303,7 +309,7 @@ function drawParticles(ctx) {
    things you can use, a soft arrow on exits, a faint glimmer on a secret only once it has been found. */
 function drawMarkers(ctx) {
   const t = Stage.time;
-  for (const h of Stage.scene.hotspots) {
+  for (const h of liveHotspots()) {
     const [x, y, w] = h.rect, cx = x + w / 2, top = y - 30 + Math.sin(t * 3 + x) * 10;
     ctx.save();
     if (h.kind === 'npc') {

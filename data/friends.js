@@ -9,8 +9,11 @@
      likes            a gift that gives extra hearts (an item id, a painting subject, or an ice cream id)
      levels           5 steps. Each: hearts needed (total), what she says, and what unlocks:
                         gift (item id), visit (she can be invited to the Lair), hint (her help on adventures)
-     talks            short lunch conversations: what she says, three replies, which reply is kind (hearts)
-                      The unkind replies are never mean, just less thoughtful; they give a gentle "hmm" and a retry. */
+     talks            short lunch conversations: what she says, three replies. Exactly one reply is "kind: true"
+                      (the thoughtful one: two hearts on the first try). A reply marked "ok: true" is an honest or
+                      sensible answer: it is accepted with one heart and never gets a "think again". A reply with
+                      neither is the one that is a little careless; it gets a gentle "hmm" and a retry. An honest
+                      answer ("No", "You always win") is never treated as unkind. */
 
 const FRIENDS = {
   ice: {
@@ -28,7 +31,7 @@ const FRIENDS = {
       { say: 'I dropped my spoon and now everyone is looking.', replies: [
         { word: 'Here, have mine', kind: true }, { word: 'That is funny', kind: false }, { word: 'Oh well', kind: false } ] },
       { say: 'Do you ever miss home?', replies: [
-        { word: 'Sometimes. Do you?', kind: true }, { word: 'No', kind: false }, { word: 'I have ice cream', kind: false } ] },
+        { word: 'Sometimes. Do you?', kind: true }, { word: 'No', ok: true }, { word: 'I have ice cream', kind: false } ] },
     ],
   },
   wind: {
@@ -46,7 +49,7 @@ const FRIENDS = {
       { say: 'I knocked over the whole jug of juice. Again.', replies: [
         { word: 'Let us clean it together', kind: true }, { word: 'Again?!', kind: false }, { word: 'Not my table', kind: false } ] },
       { say: 'Nobody wants to race me any more.', replies: [
-        { word: 'I will race you', kind: true }, { word: 'You always win', kind: false }, { word: 'Racing is silly', kind: false } ] },
+        { word: 'I will race you', kind: true }, { word: 'You always win', ok: true }, { word: 'Racing is silly', kind: false } ] },
     ],
   },
   stone: {
@@ -62,9 +65,9 @@ const FRIENDS = {
     ],
     talks: [
       { say: 'The big girls said my pebbles are silly.', replies: [
-        { word: 'I think Gerald is great', kind: true }, { word: 'They are a bit silly', kind: false }, { word: 'Ignore them', kind: false } ] },
+        { word: 'I think Gerald is great', kind: true }, { word: 'They are a bit silly', kind: false }, { word: 'Ignore them', ok: true } ] },
       { say: 'Would you like to hold Gerald?', replies: [
-        { word: 'Yes, carefully', kind: true }, { word: 'No thanks', kind: false }, { word: 'Is he heavy?', kind: false } ] },
+        { word: 'Yes, carefully', kind: true }, { word: 'No thanks', ok: true }, { word: 'Is he heavy?', ok: true } ] },
     ],
   },
   cloud: {
@@ -80,9 +83,9 @@ const FRIENDS = {
     ],
     talks: [
       { say: 'I forgot my lunch. Again.', replies: [
-        { word: 'Share mine', kind: true }, { word: 'How?', kind: false }, { word: 'Cook has more', kind: false } ] },
+        { word: 'Share mine', kind: true }, { word: 'How?', ok: true }, { word: 'Cook has more', ok: true } ] },
       { say: 'Do you think clouds get lonely?', replies: [
-        { word: 'Not if we wave at them', kind: true }, { word: 'Clouds are just water', kind: false }, { word: 'Maybe', kind: false } ] },
+        { word: 'Not if we wave at them', kind: true }, { word: 'Clouds are just water', ok: true }, { word: 'Maybe', ok: true } ] },
     ],
   },
   shell: {
@@ -98,7 +101,7 @@ const FRIENDS = {
     ],
     talks: [
       { say: 'Everyone told me to stop singing at lunch.', replies: [
-        { word: 'Sing it to us, quietly', kind: true }, { word: 'It is a bit loud', kind: false }, { word: 'Sing louder', kind: false } ] },
+        { word: 'Sing it to us, quietly', kind: true }, { word: 'It is a bit loud', ok: true }, { word: 'Sing louder', kind: false } ] },
     ],
   },
   moss: {
@@ -114,9 +117,9 @@ const FRIENDS = {
     ],
     talks: [
       { say: 'A bee landed on my ice cream and now I cannot eat it.', replies: [
-        { word: 'Wait, it will fly off. Want a bite of mine?', kind: true }, { word: 'Shoo it', kind: false }, { word: 'Eat around it', kind: false } ] },
+        { word: 'Wait, it will fly off. Want a bite of mine?', kind: true }, { word: 'Shoo it', kind: false }, { word: 'Eat around it', ok: true } ] },
       { say: 'Nobody from Emberfall has ever talked to me.', replies: [
-        { word: 'Hi. I am from Emberfall.', kind: true }, { word: 'Really?', kind: false }, { word: 'They are busy', kind: false } ] },
+        { word: 'Hi. I am from Emberfall.', kind: true }, { word: 'Really?', ok: true }, { word: 'They are busy', kind: false } ] },
     ],
   },
 };

@@ -193,7 +193,7 @@ const WORLD = {
     pickPrincess: 'Who will you be? Tap a princess.',
     who: 'Who are you?',
     ready: 'Ready!',
-    sisterHasThat: 'Your sister picked that one. Pick another!',
+    sisterHasThat: 'That one is taken. Pick another!',   // the other player on this screen (the twins are sisters; the princesses are not)
     next: 'Next',
     join: 'Join',
     bye: 'Bye for now',

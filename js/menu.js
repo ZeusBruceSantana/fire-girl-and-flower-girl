@@ -8,13 +8,13 @@ const Menu = {
   init() { this.el = $('#menu'); },
   open(seat, tab) {
     this.seat = seat; this.tab = tab || this.tab;
-    setSceneLayer('menu');
+    pushLayer('menu');
     this.el.classList.add('show');
     this.el.className = 'show seat-' + seat;
     this.render();
     Speech.say(WORLD.ui.tabs[this.tab]);
   },
-  close() { this.el.className = ''; this.el.innerHTML = ''; this.seat = null; setSceneLayer(null); },
+  close() { this.el.className = ''; this.el.innerHTML = ''; this.seat = null; popLayer('menu'); },
   render() {
     const seat = this.seat, h = S.heroes[seat], kind = WORLD.heroes[h.kind];
     const tabs = ['spellbook', 'bag', 'collection', 'journal', 'map', 'badges', 'friends'];

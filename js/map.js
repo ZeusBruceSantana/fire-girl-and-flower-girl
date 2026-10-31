@@ -10,6 +10,7 @@ const MAP_VIEW_H = 1400;          // how many map pixels fit top to bottom on sc
 const FOLLOW_GAP = 150;           // distance between party members in the line
 const MAP_WALK_SPEED = 520;       // map pixels per second
 const BUMP_DISTANCE = 160;        // how close a trouble has to be to start a battle
+const BUMP_REST = 2.5;            // seconds after a battle in which no trouble can start another
 
 const MapStage = {
   map: null, img: null, grid: null,
@@ -56,6 +57,7 @@ const MapStage = {
     Stage.fadeTarget = 0; Stage.ready = true;
     setScene('world');
     document.body.dataset.place = 'map:' + mapId;
+    rememberPlace('map:' + mapId);
     uiSceneName(def.word);
     if (typeof Sound !== 'undefined' && Sound.music) Sound.music({ 'school-grounds': 'school', 'whispering-woods': 'woods', 'middlemarket': 'town', 'petalvale-orchard': 'woods', 'thunder-peak': 'peak' }[mapId] || 'woods');
     if (typeof Heart !== 'undefined' && Heart.maybeTest) await Heart.maybeTest(mapId, from);
@@ -123,7 +125,8 @@ const MapStage = {
       if (now > w.next) { w.tx = r[0] + Math.random() * r[2]; w.ty = r[1] + Math.random() * r[3]; w.next = now + 1500 + Math.random() * 2500; }
       const dx = w.tx - t.x, dy = w.ty - t.y, dist = Math.hypot(dx, dy), step = 90 * dt;
       if (dist > step) { t.x += dx / dist * step; t.y += dy / dist * step; t.facing = dx < 0 ? -1 : 1; t.anim = 'walk'; t.animT += dt; } else t.anim = 'idle';
-      if (lead && !sceneLayer && this.map && this.bumpCooldown <= 0 && Math.hypot(lead.x - t.x, lead.y - t.y) < BUMP_DISTANCE) { this.bump(t); return; }
+      // A battle starts when the party WALKS into a trouble, never when one wanders into a party standing still.
+      if (lead && !sceneLayer && this.map && this.path.length && this.bumpCooldown <= 0 && Math.hypot(lead.x - t.x, lead.y - t.y) < BUMP_DISTANCE) { this.bump(t); return; }
     }
     // camera follows the leader
     if (lead) { this.cam.x = lerp(this.cam.x, lead.x, Math.min(1, dt * 4)); this.cam.y = lerp(this.cam.y, lead.y - 120, Math.min(1, dt * 4)); this.clampCam(); }
@@ -180,7 +183,27 @@ const MapStage = {
       dispatch('counter.max', this.leader, { key: 'beat-' + def.id, value: S.shared.clock.day });
       this.troubles = this.troubles.filter(x => x !== t);
     }
-    this.bumpCooldown = 1.5;
+    this.backOff();
+    this.bumpCooldown = BUMP_REST;
+  },
+  /* After a battle the other troubles back away from the party and mind their own business for a while,
+     so a win is never followed by an ambush. */
+  backOff() {
+    const lead = Stage.heroes[this.leader]; if (!lead || !this.map) return;
+    for (const t of this.troubles) {
+      const d = Math.hypot(lead.x - t.x, lead.y - t.y);
+      if (d > BUMP_DISTANCE * 4) continue;
+      const r = t.def.roam, cx = r[0] + r[2] / 2, cy = r[1] + r[3] / 2;
+      // the corner of its patch farthest from the party
+      const corners = [[r[0], r[1]], [r[0] + r[2], r[1]], [r[0], r[1] + r[3]], [r[0] + r[2], r[1] + r[3]]];
+      const far = corners.sort((a, b) => Math.hypot(lead.x - b[0], lead.y - b[1]) - Math.hypot(lead.x - a[0], lead.y - a[1]))[0];
+      t.x = far[0]; t.y = far[1];
+      if (Math.hypot(lead.x - t.x, lead.y - t.y) < BUMP_DISTANCE * 2) {   // a tiny patch: step straight away from the party instead
+        const ang = Math.atan2(cy - lead.y, cx - lead.x) || 0.7;
+        t.x = lead.x + Math.cos(ang) * BUMP_DISTANCE * 2.5; t.y = lead.y + Math.sin(ang) * BUMP_DISTANCE * 2.5;
+      }
+      t.wander = { next: performance.now() + BUMP_REST * 1000, tx: t.x, ty: t.y };
+    }
   },
 
   /* ---------- drawing ---------- */

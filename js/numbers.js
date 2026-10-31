@@ -76,8 +76,9 @@ const MathChallenge = {
       card.className = 'ch-card math seat-' + seat + ' type-' + type;
       const a = { seat, type, band: bandDef, tries: 0, resolve, card, prompt, answer: null };
       this.active[seat] = a;
-      setSceneLayer('challenge');
+      pushLayer('challenge');
       this.el.appendChild(card);
+      seatGuard(card, seat);
       const both = Object.keys(this.active).length > 1 || (S.settings.localSeats.length > 1 && S.settings.localSeats.every(isPlayerHere));
       this.el.className = 'show' + (both ? ' split' : '');
       this['render_' + type](a);
@@ -220,7 +221,7 @@ const MathChallenge = {
   hint(a) {
     const card = a.card, hintEl = card.querySelector('.ch-hint'), tries = a.tries;
     hintEl.textContent = NUMBERS_UI.tryAgain;
-    Speech.say(NUMBERS_UI.tryAgain, { rate: 0.95 });
+    Speech.say(NUMBERS_UI.tryAgain, { rate: 0.95, interrupt: false });
     if (tries === 1) { card.querySelectorAll('.m-coin:not(.small):not(.tray), .m-pic:not(.tiny), .m-num:not(.blank)').forEach((el, i) => setTimeout(() => el.classList.add('count'), i * 120)); }
     if (tries === 2) {
       Speech.say(NUMBERS_UI.countAlong, { interrupt: false, rate: 0.85 });
@@ -255,7 +256,7 @@ const MathChallenge = {
     delete this.active[seat];
     a.card.remove();
     const others = Object.keys(this.active).length + (typeof Challenge !== 'undefined' ? Object.keys(Challenge.active).length : 0);
-    if (!others) { this.el.className = ''; this.el.innerHTML = ''; setSceneLayer(null); }
+    if (!others) { this.el.className = ''; this.el.innerHTML = ''; popLayer('challenge'); }
     a.resolve(result);
   },
   close() { for (const seat of Object.keys(this.active)) this.finish(seat, null); },

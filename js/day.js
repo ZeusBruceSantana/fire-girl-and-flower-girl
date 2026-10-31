@@ -23,7 +23,7 @@ const Day = {
   objective(seat) {
     const p = this.part, h = S.heroes[seat];
     if (!h.joined) return WORLD.ui.objAway;
-    if (p === 'wake') return WORLD.ui.objWake;
+    if (p === 'wake') return (document.body.dataset.place === 'dorm' || !document.body.dataset.place) ? WORLD.ui.objWake : WORLD.ui.objGoIn;   // no bed at the gate
     if (p === 'period1' || p === 'period2') return WORLD.ui.objClass.replace('{subject}', SCHOOL.subjects[this.subjectFor(p)].word);
     if (p === 'lunch') return WORLD.ui.objLunch;
     if (p === 'free') { const c = typeof Cases !== 'undefined' && Cases.objective ? Cases.objective(seat) : null; if (c) return c; return S.shared.flags['gap-found'] ? WORLD.ui.objFree : WORLD.ui.objFreeMap; }
@@ -36,7 +36,7 @@ const Day = {
     const p = this.part, action = hotspot.action;
     if (action === 'lesson' && (p === 'period1' || p === 'period2')) return this.runClass(this.subjectFor(p));
     if (action === 'lesson') return Dialogue.say({ who: WORLD.teachers.cinder.name, art: 'cinder', text: WORLD.ui.noClassNow });
-    if (action === 'sit' && p === 'lunch') return this.sitAtTable(seat, hotspot);
+    if (action === 'sit' && (p === 'lunch' || p === 'free' || p === 'bedtime')) return this.sitAtTable(seat, hotspot);   // a friend at a table can be talked to after the bell too
     if (action === 'sit') return Dialogue.say({ seat, who: WORLD.teachers.cook.name, art: 'cook', text: WORLD.ui.notLunchYet });
     if (action === 'inventory' && typeof Bag !== 'undefined' && Bag.openCrafting) return Bag.openCrafting(seat);
     if (['upgrades', 'gallery', 'invite', 'scrolls'].includes(action) && typeof Lair !== 'undefined' && Lair.open) return Lair.open(seat, action);
@@ -44,8 +44,22 @@ const Day = {
     if (action === 'map') return Menu.open(seat, 'map');
     if (action === 'sleep' && (p === 'bedtime' || p === 'free')) return this.bedtime();
     if (action === 'sleep' && p === 'wake') return this.wake();
-    if (action === 'sleep') return Dialogue.say({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: WORLD.ui.notSleepy });
-    return null;
+    if (action === 'sleep') return Dialogue.say({ seat, who: this.heroName(seat), text: WORLD.ui.notSleepy });
+    if (action === 'outfits') { await Dialogue.say({ seat, who: this.heroName(seat), text: WORLD.ui.wardrobe }); return Menu.open(seat, 'bag'); }   // the wardrobe is where gear goes on
+    if (action === 'wish') return this.wish(seat, hotspot);
+    // anything else a child can tap says its line (from data), or its name: never "nothing here yet"
+    return Dialogue.say({ seat, who: this.heroName(seat), text: hotspot.say || hotspot.word });
+  },
+  heroName(seat) { const h = S.heroes[seat]; return h.name || WORLD.heroes[h.kind].title; },
+  /* The fountain: one wish a day, a little ember. Small, real, and there on day one. */
+  async wish(seat, hotspot) {
+    const key = 'wish-' + hotspot.id + '-day-' + this.day;
+    if (S.heroes[seat].stars[key]) return Dialogue.say({ seat, who: this.heroName(seat), text: WORLD.ui.wishedToday });
+    dispatch('hero.stars', seat, { key, stars: 1 });
+    dispatch('hero.ember', seat, { amount: 1 });
+    uiToast('+1', { icon: 'ember' });
+    if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
+    return Dialogue.say({ seat, who: this.heroName(seat), text: hotspot.say || WORLD.ui.wish });
   },
   async onNpc(seat, hotspot) {
     const p = this.part;
@@ -58,45 +72,49 @@ const Day = {
   weather() { return SCHOOL.weather[(this.day - 1) % SCHOOL.weather.length]; },
   async wake() {
     if (this.running) return; this.running = true;
-    const subs = this.subjects().map(s => SCHOOL.subjects[s].word);
-    await Dialogue.say({ who: WORLD.school.short, text: WORLD.ui.goodMorning.replace('{day}', this.day).replace('{a}', subs[0]).replace('{b}', subs[1]) });
-    const w = this.weather(), boost = SCHOOL.weatherBoost[w];
-    if (boost) {
-      await Dialogue.say({ who: WORLD.school.short, text: { rain: WORLD.ui.weatherRain, sun: WORLD.ui.weatherSun, storm: WORLD.ui.weatherStorm }[w] });
-      for (const seat of WORLD.seats) if (S.heroes[seat].kind === boost) dispatch('hero.ember', seat, { amount: 2 });
-    }
-    this.advance();
-    this.running = false;
+    try {
+      const subs = this.subjects().map(s => SCHOOL.subjects[s].word);
+      await Dialogue.say({ who: WORLD.school.short, text: WORLD.ui.goodMorning.replace('{day}', this.day).replace('{a}', subs[0]).replace('{b}', subs[1]) });
+      const w = this.weather(), boost = SCHOOL.weatherBoost[w];
+      if (boost) {
+        await Dialogue.say({ who: WORLD.school.short, text: { rain: WORLD.ui.weatherRain, sun: WORLD.ui.weatherSun, storm: WORLD.ui.weatherStorm }[w] });
+        for (const seat of WORLD.seats) if (S.heroes[seat].kind === boost) dispatch('hero.ember', seat, { amount: 2 });
+      }
+      this.advance();
+    } finally { this.running = false; }   // whatever interrupts the morning, the day can go on
   },
 
   /* ---------- a class period: both players at once, each with her own challenges ---------- */
   async runClass(subject) {
     if (this.running) return; this.running = true;
-    const def = SCHOOL.subjects[subject], teacher = WORLD.teachers[def.teacher];
-    const players = this.players();
-    const n = def.perClass[S.settings.classLength] || def.perClass.normal;
-    const key = 'day-' + this.day + '-' + this.part + '-' + subject;   // each period earns its own stars
-    if (players.every(s => S.heroes[s].stars[key])) { await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classDone }); this.running = false; this.advance(); return; }
-    await Dialogue.say({ who: teacher.name, art: teacher.art, text: def.about + ' ' + WORLD.ui.classStart.replace('{n}', n) });
-    ClassRange.open(players, n, subject);
-    const results = await Promise.all(players.map(seat => CLASS_RUNNERS[subject](seat, n, def)));
-    ClassRange.close();
-    for (let i = 0; i < players.length; i++) {
-      const seat = players[i], r = results[i];
-      const ratio = r.length ? r.filter(x => x.firstTry).length / r.length : 1;
-      const stars = ratio >= SCHOOL.stars.three ? 3 : ratio >= SCHOOL.stars.two ? 2 : 1;
-      dispatch('hero.stars', seat, { key, stars });
-      dispatch('hero.xp', seat, { amount: 5 * r.length + 5 * stars });
-      dispatch('hero.coins', seat, { amount: stars });
-      if (stars === 3) dispatch('hero.badge', seat, { badge: 'three-stars' });
-      const material = WORLD.heroes[S.heroes[seat].kind].material;
-      if (material && ITEMS.some(i => i.id === material)) { dispatch('hero.item', seat, { item: material }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === material).word, { icon: 'gem' }); }
-      if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
-    }
-    const best = Math.max(...players.map(s => S.heroes[s].stars[key] || 1));
-    await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classEnd[best] });
-    this.running = false;
-    this.advance();
+    pushLayer('class');                                  // the whole period: no walking out the door between two words
+    try {
+      const def = SCHOOL.subjects[subject], teacher = WORLD.teachers[def.teacher];
+      const players = this.players();
+      const n = def.perClass[S.settings.classLength] || def.perClass.normal;
+      const key = 'day-' + this.day + '-' + this.part + '-' + subject;   // each period earns its own stars
+      if (players.every(s => S.heroes[s].stars[key])) { await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classDone }); this.advance(); return; }
+      await Dialogue.say({ who: teacher.name, art: teacher.art, text: def.about + ' ' + WORLD.ui.classStart.replace('{n}', n) });
+      ClassRange.open(players, n, subject);
+      let results;
+      try { results = await Promise.all(players.map(seat => CLASS_RUNNERS[subject](seat, n, def))); }
+      finally { ClassRange.close(); }
+      for (let i = 0; i < players.length; i++) {
+        const seat = players[i], r = results[i];
+        const ratio = r.length ? r.filter(x => x.firstTry).length / r.length : 1;
+        const stars = ratio >= SCHOOL.stars.three ? 3 : ratio >= SCHOOL.stars.two ? 2 : 1;
+        dispatch('hero.stars', seat, { key, stars });
+        dispatch('hero.xp', seat, { amount: 5 * r.length + 5 * stars });
+        dispatch('hero.coins', seat, { amount: stars });
+        if (stars === 3) dispatch('hero.badge', seat, { badge: 'three-stars' });
+        const material = WORLD.heroes[S.heroes[seat].kind].material;
+        if (material && ITEMS.some(i => i.id === material)) { dispatch('hero.item', seat, { item: material }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === material).word, { icon: 'gem' }); }
+        if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
+      }
+      const best = Math.max(...players.map(s => S.heroes[s].stars[key] || 1));
+      await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classEnd[best] });
+      this.advance();
+    } finally { popLayer('class'); this.running = false; }
   },
 
   /* ---------- lunch ---------- */
@@ -113,14 +131,18 @@ const Day = {
     const lvl = f.levels.filter(l => (h.friends[friendId] || 0) >= l.hearts).length;
     await Dialogue.say({ who: met ? f.word : WORLD.ui.aPrincess, art: f.art, text: met ? f.levels[Math.max(0, lvl - 1)].say : f.levels[0].say + ' ' + WORLD.ui.iAm.replace('{name}', f.word) });
     const talk = f.talks[(this.day + idx) % f.talks.length];
-    let kind = false, tries = 0;
-    while (!kind) {
+    // The thoughtful reply is worth two hearts on the first try; an honest one ("ok") is always fine and worth one.
+    // Only a careless reply gets "think again", and even then the heart icon shows the way.
+    let reply = null, tries = 0;
+    while (!reply) {
       const choices = talk.replies.map((r, i) => ({ word: r.word, value: i, icon: r.kind && tries > 0 ? 'heart' : null }));
       const pick = await Dialogue.choose({ who: f.word, art: f.art, text: talk.say, choices });
-      kind = pick != null && talk.replies[pick].kind;
-      if (!kind) { tries++; await Dialogue.say({ who: f.word, art: f.art, text: WORLD.ui.hmmAgain }); }
+      if (pick == null) return;                          // the box was closed by something else: no harm, try again another time
+      const r = talk.replies[pick];
+      if (r.kind || r.ok) reply = r;
+      else { tries++; await Dialogue.say({ who: f.word, art: f.art, text: WORLD.ui.hmmAgain }); }
     }
-    let hearts = (tries === 0 ? 2 : 1) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
+    let hearts = (reply.kind && tries === 0 ? 2 : 1) + (typeof gearEffects === 'function' ? (gearEffects(seat).hearts || 0) : 0);
     if (typeof ArtClass !== 'undefined' && ArtClass.offerGift) hearts += await ArtClass.offerGift(seat, friendId);   // a painting as a gift, if she has one
     dispatch('hero.hearts', seat, { amount: hearts, friend: friendId });
     dispatch('hero.stars', seat, { key: talkedKey, stars: 1 });
@@ -147,32 +169,40 @@ const Day = {
     if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
     this.checkLunchDone();
   },
+  /* Lunch is over as soon as ANY girl here has done one thing (a talk or an ice cream), or when the bell rings
+     because the party walked out of the cafeteria. Nobody can strand the day by wandering off. */
   checkLunchDone() {
     if (this.part !== 'lunch') return;
-    const done = this.players().every(seat => this.friendsToday().some(f => S.heroes[seat].stars['lunch-' + this.day + '-' + f]) || S.shared.events.some(e => e.hero === seat && e.what === 'ice-cream' && e.day === this.day));
+    const done = this.players().some(seat => this.friendsToday().some(f => S.heroes[seat].stars['lunch-' + this.day + '-' + f]) || S.shared.events.some(e => e.hero === seat && e.what === 'ice-cream' && e.day === this.day));
     if (done) { uiToast(WORLD.ui.lunchOver); this.advance(); }
+  },
+  /* Called when the party leaves a room. Leaving the cafeteria during lunch rings the bell. */
+  leaving(sceneId) {
+    if (this.part === 'lunch' && sceneId === 'cafeteria') { uiToast(WORLD.ui.lunchBell); Speech.say(WORLD.ui.lunchBell, { interrupt: false }); this.advance(); }
   },
 
   /* ---------- bedtime: the day's summary, then a new day ---------- */
   async bedtime() {
     if (this.running) return; this.running = true;
-    const day = this.day;
-    for (const seat of this.players()) {
-      const h = S.heroes[seat];
-      const stars = Object.entries(h.stars).filter(([k]) => k.startsWith('day-' + day + '-')).reduce((a, [, v]) => a + v, 0);
-      const words = Object.values(h.wordStats).filter(w => w.lastSeen > Date.now() - 6 * 3600 * 1000).length;
-      await Dialogue.say({ seat, who: h.name || WORLD.heroes[h.kind].title, text: WORLD.ui.daySummary.replace('{day}', day).replace('{stars}', stars).replace('{words}', words).replace('{coins}', h.coins).replace('{hearts}', h.hearts) });
-      dispatch('hero.ember', seat, { amount: 3 + (typeof gearEffects === 'function' ? (gearEffects(seat).freeSpark || 0) : 0) });
-      if (typeof Sound !== 'undefined' && Sound.play) Sound.play('sleep');
-      if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('sleep');
-    }
-    if (day % 10 === 0) for (const seat of this.players()) dispatch('hero.badge', seat, { badge: 'ten-days' });
-    dispatch('clock.day', S.settings.localSeats[0], { day: day + 1 });
-    await sleepMs(TEST_MODE ? 10 : 1800);
-    for (const seat of this.players()) if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('idle');
-    await Dialogue.say({ who: WORLD.school.short, text: WORLD.ui.newDay.replace('{day}', day + 1) });
-    HUD.render(); applyClockTint();
-    this.running = false;
+    pushLayer('bedtime');
+    try {
+      const day = this.day;
+      for (const seat of this.players()) {
+        const h = S.heroes[seat];
+        const stars = Object.entries(h.stars).filter(([k]) => k.startsWith('day-' + day + '-')).reduce((a, [, v]) => a + v, 0);
+        const words = Object.values(h.wordStats).filter(w => w.lastSeen > Date.now() - 6 * 3600 * 1000).length;
+        await Dialogue.say({ seat, who: h.name || WORLD.heroes[h.kind].title, text: WORLD.ui.daySummary.replace('{day}', day).replace('{stars}', stars).replace('{words}', words).replace('{coins}', h.coins).replace('{hearts}', h.hearts) });
+        dispatch('hero.ember', seat, { amount: 3 + (typeof gearEffects === 'function' ? (gearEffects(seat).freeSpark || 0) : 0) });
+        if (typeof Sound !== 'undefined' && Sound.play) Sound.play('sleep');
+        if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('sleep');
+      }
+      if (day % 10 === 0) for (const seat of this.players()) dispatch('hero.badge', seat, { badge: 'ten-days' });
+      dispatch('clock.day', S.settings.localSeats[0], { day: day + 1 });
+      await sleepMs(TEST_MODE ? 10 : 1800);
+      for (const seat of this.players()) if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('idle');
+      await Dialogue.say({ who: WORLD.school.short, text: WORLD.ui.newDay.replace('{day}', day + 1) });
+      HUD.render(); applyClockTint();
+    } finally { popLayer('bedtime'); this.running = false; }
   },
 };
 
@@ -197,7 +227,9 @@ const CLASS_RUNNERS = {
 
 /* The target range: a row of candles (or seedlings, or bells) over each girl's side that light up as she casts. */
 const ClassRange = {
+  gen: 0,   // which period's row is up; a close that comes late never wipes the next period's row
   open(players, n, subject) {
+    this.gen++;
     const el = $('#range'); el.innerHTML = ''; el.className = 'show ' + subject;
     for (const seat of players) {
       const row = document.createElement('div'); row.className = 'range-row seat-' + seat; row.dataset.seat = seat;
@@ -207,7 +239,7 @@ const ClassRange = {
     }
   },
   light(seat, i, bright) { const t = $(`#range .range-row[data-seat="${seat}"] .target[data-i="${i}"]`); if (t) t.classList.add('lit', bright ? 'bright' : 'soft'); },
-  close() { setTimeout(() => { $('#range').className = ''; $('#range').innerHTML = ''; }, TEST_MODE ? 10 : 1200); },
+  close() { const gen = this.gen; setTimeout(() => { if (gen !== this.gen) return; $('#range').className = ''; $('#range').innerHTML = ''; }, TEST_MODE ? 10 : 1200); },
 };
 
 /* The scene tint follows the clock: morning in first class, day at lunch, evening in free time, night at bedtime. */

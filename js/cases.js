@@ -124,7 +124,8 @@ const Cases = {
     card.innerHTML = `<div class="ch-top"><div class="ch-helper">${ART.hoot || ART.owl}</div><div class="ch-say">${esc(say)}</div><div class="ch-hear">${ART.ear}</div></div>` + inner;
     card.querySelector('.ch-hear').addEventListener('pointerdown', e => { e.stopPropagation(); Speech.say(say); });
     host.appendChild(card); host.classList.add('show');
-    setSceneLayer('challenge');
+    pushLayer('challenge');
+    seatGuard(card, seat);
     Speech.say(say);
     return card;
   },
@@ -137,7 +138,7 @@ const Cases = {
     setTimeout(() => {
       card.remove();
       const host = $('#challenge');
-      if (!host.querySelector('.ch-card')) { host.className = ''; host.innerHTML = ''; setSceneLayer(null); }
+      if (!host.querySelector('.ch-card')) { host.className = ''; host.innerHTML = ''; popLayer('challenge'); }
       resolve({ tries, firstTry: tries === 0, ember: reward });
     }, TEST_MODE ? 10 : 800);
   },
@@ -186,12 +187,12 @@ const Cases = {
   },
   openBoard(seat) {
     this.el.className = 'show';
-    setSceneLayer('menu');
+    pushLayer('cases');
     this.render(seat);
     Speech.say(CASES_UI.boardTitle);
     return new Promise(resolve => { this.resolveClose = resolve; });
   },
-  close() { this.el.className = ''; this.el.innerHTML = ''; setSceneLayer(null); if (this.resolveClose) { const r = this.resolveClose; this.resolveClose = null; r(); } },
+  close() { this.el.className = ''; this.el.innerHTML = ''; popLayer('cases'); if (this.resolveClose) { const r = this.resolveClose; this.resolveClose = null; r(); } },
   render(seat) {
     const c = this.active();
     const others = CASES.filter(x => !c || x.id !== c.id).map(x => `<div class="case-row ${this.isSolved(x.id) ? 'solved' : this.unlocked(x) ? '' : 'locked'}"><span class="mark">${this.isSolved(x.id) ? ART.check : (this.unlocked(x) ? ART.badge : ART.close)}</span><span class="word">${esc(this.unlocked(x) || this.isSolved(x.id) ? x.word : CASES_UI.lockedCase)}</span></div>`).join('');

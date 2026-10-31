@@ -1,6 +1,6 @@
 'use strict';
 /* Ember Bloom: the parent screen (Epic 1).
-   Open it by holding the top-left corner for three seconds (or entering the PIN, if one is set).
+   Open it by holding the top middle of the screen for three seconds (or entering the PIN, if one is set).
    Names, each child's word list, math level, class length, voice, sound, which seats this device shows,
    the family world code, a PIN, and "start over". Everything typed here stays on this device. */
 

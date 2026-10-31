@@ -26,7 +26,7 @@ const Shop = {
     const shop = SHOPS[shopId];
     if (!shop) return Promise.resolve(null);
     this.seat = seat; this.shop = shop; this.tab = 'buy'; this.busy = false;
-    setSceneLayer('shop');
+    pushLayer('shop');
     this.el.className = 'show seat-' + seat;
     this.render();
     Speech.say(shop.greeting);
@@ -34,7 +34,7 @@ const Shop = {
   },
   close() {
     this.el.className = ''; this.el.innerHTML = '';
-    setSceneLayer(null);
+    popLayer('shop');
     const r = this.resolve; this.resolve = null; this.seat = null; this.shop = null;
     if (r) r(true);
   },

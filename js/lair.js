@@ -40,7 +40,7 @@ const Lair = {
   open(seat, station) {
     this.init();
     this.seat = seat; this.station = station;
-    setSceneLayer('menu');
+    pushLayer('lair');
     this.el.className = 'show station-' + station + ' seat-' + seat;
     this.render();
     Speech.say(LAIR_UI.stations[station] || station);
@@ -49,7 +49,7 @@ const Lair = {
   close() {
     if (!this.el) return;
     this.el.className = ''; this.el.innerHTML = ''; this.station = null;
-    setSceneLayer(null);
+    popLayer('lair');
     if (this.resolve) { const r = this.resolve; this.resolve = null; r(); }
   },
   gate(station) {

@@ -38,14 +38,16 @@ const Challenge = {
   run({ seat, type = 'hear-and-pick', reason = null, word = null, prompt = null }) {
     if (!CHALLENGES[type] || !this['render_' + type]) type = 'hear-and-pick';
     word = word || this.pickWord(seat);
+    if (type === 'letter-tiles' && word.length > TILE_WORD_MAX) type = 'hear-and-pick';   // a long word as tiles is an unreadable strip on a phone
     return new Promise(resolve => {
       if (this.active[seat]) this.finish(seat, null);
       const card = document.createElement('div');
       card.className = 'ch-card seat-' + seat + ' type-' + type;
       const a = { seat, type, word, tries: 0, resolve, reason, card, prompt };
       this.active[seat] = a;
-      setSceneLayer('challenge');
+      pushLayer('challenge');
       this.el.appendChild(card);
+      seatGuard(card, seat);
       this.el.className = 'show' + (Object.keys(this.active).length > 1 || S.settings.localSeats.length > 1 && S.settings.localSeats.every(isPlayerHere) ? ' split' : '');
       this['render_' + type](a);
     });
@@ -110,7 +112,7 @@ const Challenge = {
   hint(a) {
     const tries = a.tries, card = a.card, hintEl = card.querySelector('.ch-hint');
     hintEl.textContent = WORLD.ui.tryAgain;
-    Speech.say(WORLD.ui.tryAgain, { rate: 0.95 });
+    Speech.say(WORLD.ui.tryAgain, { rate: 0.95, interrupt: false });   // never cuts off a word being sounded out
     if (typeof Sound !== 'undefined' && Sound.play) Sound.play('tryAgain');
     if (a.type !== 'letter-tiles') {
       const right = card.querySelector(`.ch-opt[data-w="${CSS.escape(a.word)}"]`);
@@ -144,8 +146,23 @@ const Challenge = {
     if (!a) return;
     delete this.active[seat];
     a.card.remove();
-    if (!Object.keys(this.active).length) { this.el.className = ''; this.el.innerHTML = ''; setSceneLayer(null); }
+    if (!Object.keys(this.active).length) { this.el.className = ''; this.el.innerHTML = ''; popLayer('challenge'); }
     a.resolve(result);
   },
   close() { for (const seat of Object.keys(this.active)) this.finish(seat, null); },
 };
+const TILE_WORD_MAX = 8;
+
+/* A card belongs to one seat. When two cards share the screen (one per twin), a finger from the OTHER half
+   of the screen is ignored, so the other player cannot drop your word to box 0 or spoil your stars. A single card
+   in the middle of the screen takes any finger. Also keeps the left seat's card on the left. */
+function seatGuard(card, seat) {
+  const seats = S.settings.localSeats;
+  card.style.order = Math.max(0, seats.indexOf(seat));
+  card.addEventListener('pointerdown', e => {
+    if (seats.length < 2 || !card.parentElement || card.parentElement.querySelectorAll('.ch-card').length < 2) return;
+    if (seatForScreenX(e.clientX) === seat) return;
+    e.stopPropagation(); e.stopImmediatePropagation();
+    card.classList.add('not-yours'); setTimeout(() => card.classList.remove('not-yours'), 400);
+  }, true);
+}

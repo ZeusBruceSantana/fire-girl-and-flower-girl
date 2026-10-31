@@ -27,7 +27,7 @@ For an iPad: open the address in Safari, tap **Share**, then **Add to Home Scree
 
 ## 3. Set up the girls (after Epic 1)
 
-1. In the game, press and hold the top-left corner for three seconds to open the parent screen
+1. In the game, press and hold the top middle of the screen for three seconds to open the parent screen
    (or enter the PIN if you set one).
 2. Type each twin's name on her side. Names stay on the tablet; they are never sent anywhere.
 3. Type this week's school words for each twin, one per line. Different lists are fine.

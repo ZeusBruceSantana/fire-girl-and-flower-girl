@@ -441,7 +441,9 @@ async function tapNext() {   // a tap finishes the typing; another tap closes th
 test('A whole school day: wake, two classes side by side, lunch with a friend and ice cream, bedtime', async () => {
   await openWorld();
   expectEqual(G('Day.part'), 'wake', 'the day starts in the morning');
-  expect($g('.hudcard.seat-left .objective').textContent.includes('bed'), 'the objective says to get up');
+  expect($g('.hudcard.seat-left .objective').textContent.includes('gate'), 'at the gate the objective says to go in (there is no bed here)');
+  G("document.body.dataset.place = 'dorm'; HUD.render()");
+  expect($g('.hudcard.seat-left .objective').textContent.includes('bed'), 'in the dorm it says to get up');
   // wake
   G("Day.onThing('left', { action: 'sleep' })"); await sleep(50); await tapNext();
   await until(() => G('Day.part') === 'period1', 3000, 'first class');
@@ -455,7 +457,7 @@ test('A whole school day: wake, two classes side by side, lunch with a friend an
   const S1 = G('S');
   expect(S1.heroes.left.stars['day-1-period1-spells'] >= 1 && S1.heroes.right.stars['day-1-period1-spells'] >= 1, 'both got stars');
   expect(S1.heroes.left.xp > 0, 'xp for class');
-  expect(Object.keys(S1.heroes.left.wordStats).length >= 3, 'she practiced her words');
+  expect(Object.values(S1.heroes.left.wordStats).reduce((n, w) => n + w.seen, 0) >= 3, 'she practiced her words (a word may come round twice)');
   // second class: Numbers (Mr. Abacus). The math cards are answered by their own tests; here we skip the period.
   G("dispatch('clock.part', 'left', { day: 1, part: 'lunch' })"); await sleep(50);
   await until(() => G('Day.part') === 'lunch', 6000, 'lunch');

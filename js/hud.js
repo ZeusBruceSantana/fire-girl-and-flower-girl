@@ -31,7 +31,7 @@ const HUD = {
           <div class="ember" title="${esc(WORLD.ui.ember)}">${ART.ember}<div class="bar"><div class="in" style="width:${(100 * h.ember / h.maxEmber).toFixed(0)}%"></div></div><b>${h.ember}</b></div>
           <div class="objective">${esc(currentObjective(seat))}</div>
         </div>`;
-      card.querySelector('[data-menu]').addEventListener('pointerdown', e => { e.stopPropagation(); Menu.open(seat); });
+      card.querySelector('[data-menu]').addEventListener('pointerdown', e => { e.stopPropagation(); if (sceneLayer) return; Menu.open(seat); });   // not over a dialogue, a class or a battle
       root.append(card);
     }
   },

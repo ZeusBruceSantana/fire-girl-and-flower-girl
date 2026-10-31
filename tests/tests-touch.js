@@ -61,9 +61,8 @@ test('Touch: the HUD is not reachable while a dialogue is open', async () => {
   const portrait = $g('.hudcard.seat-left .portrait');
   const [px, py] = centerOf(portrait);
   const before = underFinger(px, py);
-  // (Today the grown-up corner, a 14vmin hold target at the top-left, sits over the left portrait's middle; that is a
-  //  separate finding for the main session. Here we only check that a dialogue takes the portrait away and gives it back.)
   const describe = el => el ? (el.id ? '#' + el.id : el.className ? '.' + String(el.className).split(' ')[0] : el.tagName) : 'nothing';
+  expect(before && before.closest('.hudcard') === $g('.hudcard.seat-left'), 'with nothing open, the portrait is what a finger lands on (not the grown-up corner; was ' + describe(before) + ')');
   G("Dialogue.say({ who: 'x', text: 'hello there' })");
   await until(() => $g('.dlg'), 2000, 'the dialogue');
   const during = underFinger(px, py);

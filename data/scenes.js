@@ -14,7 +14,12 @@
      hotspots        things to tap. Each: id, word (read aloud), rect [x, y, w, h], kind, and what it does:
                        kind 'exit'  -> { to: sceneId, at: x }      walk there then travel
                        kind 'npc'   -> { npc: id }                 walk up and talk (Epic 1+)
-                       kind 'thing' -> { action: name }            walk up and do (Epic 1+)
+                       kind 'thing' -> { action: name }            walk up and do (js/day.js, Day.onThing)
+                         actions: sleep, lesson, sit, inventory, cases, map, upgrades, gallery, invite, scrolls,
+                         outfits (the wardrobe opens the Bag), wish (one wish a day: a little ember),
+                         anything else: the hero says the hotspot's "say" line, or its word
+                       say      -> a line the hero says on arrival (used by 'wish' and by any plain thing)
+                       needs    -> a Lair upgrade id; the hotspot stays hidden until that upgrade is bought
      music           track id (procedural, Epic 8) */
 
 const SCENE_SIZE = { w: 2560, h: 1440 };
@@ -76,9 +81,9 @@ const SCENES = {
       { id: 'case-board', word: 'the case board',  rect: [1800, 300, 560, 560], kind: 'thing', action: 'cases' },
       { id: 'map-wall',   word: 'the map',         rect: [200, 300, 560, 560],  kind: 'thing', action: 'map' },
       { id: 'lantern',    word: 'the lantern',     rect: [1180, 120, 200, 260], kind: 'thing', action: 'upgrades' },
-      { id: 'gallery',    word: 'the gallery wall', rect: [760, 300, 420, 420], kind: 'thing', action: 'gallery' },
-      { id: 'cushions',   word: 'the cushions',    rect: [300, 1020, 500, 220], kind: 'thing', action: 'invite' },
-      { id: 'bookshelf',  word: 'the bookshelf',   rect: [1900, 900, 440, 340], kind: 'thing', action: 'scrolls' },
+      { id: 'gallery',    word: 'the gallery wall', rect: [760, 300, 420, 420], kind: 'thing', action: 'gallery', needs: 'gallery' },
+      { id: 'cushions',   word: 'the cushions',    rect: [300, 1020, 500, 220], kind: 'thing', action: 'invite', needs: 'guest-cushion' },
+      { id: 'bookshelf',  word: 'the bookshelf',   rect: [1900, 900, 440, 340], kind: 'thing', action: 'scrolls', needs: 'bookshelf' },
       { id: 'ladder',     word: 'the ladder up',   rect: [40, 300, 240, 1000],  kind: 'exit', to: 'tunnel', at: 2200 },
       { id: 'out',        word: 'the way out',     rect: [2280, 500, 260, 800], kind: 'exit', to: 'map:whispering-woods' },
     ] },
@@ -95,7 +100,7 @@ const SCENES = {
     hotspots: [
       { id: 'pebble',  word: 'Constable Pebble', rect: [1900, 560, 360, 680], kind: 'npc', npc: 'pebble' },
       { id: 'bakery',  word: 'the bakery',       rect: [300, 500, 560, 700],  kind: 'npc', npc: 'baker' },
-      { id: 'fountain', word: 'the fountain',    rect: [1060, 700, 440, 440], kind: 'thing', action: 'look' },
+      { id: 'fountain', word: 'the fountain',    rect: [1060, 700, 440, 440], kind: 'thing', action: 'wish', say: 'Splash! No splashing, says the sign. A wish, then. The water glows a little.' },
       { id: 'back',    word: 'the woods',        rect: [40, 500, 240, 800],   kind: 'exit', to: 'map:whispering-woods' },
     ] },
 };

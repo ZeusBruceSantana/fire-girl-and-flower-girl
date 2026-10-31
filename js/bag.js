@@ -126,7 +126,7 @@ const Bag = {
             <div class="needs">${esc(BAG_UI.needs)}: ${r.needs.map(m => { const it = ITEMS.find(i => i.id === m); return `<span class="need ${counts[m] ? 'have' : 'miss'}">${esc(it.word)} (${counts[m] || 0})</span>`; }).join(' ')}</div></div>
           <div class="bigbtn ${ok ? '' : 'disabled'}" data-craft="${r.id}"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>`; }).join('')}</div>` : `<div class="empty">${esc(BAG_UI.noRecipes)}</div>`}
       </div></div>`;
-    setSceneLayer('menu');
+    pushLayer('crafting');
     Speech.say(BAG_UI.crafting);
     el.querySelector('[data-close]').addEventListener('pointerdown', e => { e.stopPropagation(); this.closeCrafting(); });
     el.querySelectorAll('[data-craft]').forEach(b => b.addEventListener('pointerdown', e => {
@@ -143,5 +143,5 @@ const Bag = {
       this.openCrafting(seat);
     }));
   },
-  closeCrafting() { const el = $('#crafting'); if (el) { el.className = ''; el.innerHTML = ''; } setSceneLayer(null); },
+  closeCrafting() { const el = $('#crafting'); if (el) { el.className = ''; el.innerHTML = ''; } popLayer('crafting'); },
 };

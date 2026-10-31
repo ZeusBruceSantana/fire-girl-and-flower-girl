@@ -119,8 +119,9 @@ body[data-scene="title"] #place { opacity: 0; }
 .byebtn { display: inline-flex; align-items: center; min-height: max(calc(var(--btn) * .5), 48px); min-width: max(14vmin, 48px); background: rgba(255,255,255,.7); color: var(--ink); font-weight: 800; font-size: max(2.4vmin, 12px); padding: 1.4vmin 2.4vmin; border-radius: 3vmin; opacity: .75; }
 .byebtn:active { opacity: 1; }
 
-/* the grown-up corner: an invisible hold target, top-left */
-#corner { position: absolute; left: 0; top: 0; width: 14vmin; height: 14vmin; pointer-events: auto; }
+/* the grown-up corner: an invisible hold target at the top centre (nothing tappable lives there, and it is
+   where no child's palm rests; the top-left would sit on the left twin's portrait) */
+#corner { position: absolute; left: 50%; top: 0; width: 16vmin; height: 10vmin; transform: translateX(-50%); pointer-events: auto; }
 
 /* ---------- picking a princess ---------- */
 #pick { position: fixed; inset: 0; display: none; background: rgba(20,10,0,.35); }
@@ -185,7 +186,7 @@ body[data-scene="title"] #place { opacity: 0; }
 .hudcard { position: absolute; top: 2vmin; display: flex; gap: 1.4vmin; align-items: center; pointer-events: auto; padding: 1vmin 1.6vmin 1vmin 1vmin; }
 .hudcard.seat-left  { left: 2vmin; }
 .hudcard.seat-right { right: 2vmin; flex-direction: row-reverse; text-align: right; }
-.hudcard.seat-away  { left: 50%; transform: translateX(-50%); }
+.hudcard.seat-away  { left: 2vmin; }   /* the cousin's device shows one seat; her card sits left, clear of the grown-up corner */
 .hudcard { background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .4vmin solid var(--gold-dark); border-radius: 6vmin; box-shadow: var(--frame-shadow); color: var(--ink2); }
 .hudcard.away { opacity: .55; }
 .hudcard .portrait { position: relative; width: max(12vmin, 48px); height: max(12vmin, 48px); flex: none; }

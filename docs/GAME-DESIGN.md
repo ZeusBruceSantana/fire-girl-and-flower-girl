@@ -312,7 +312,7 @@ come back sooner (Leitner boxes 0 to 3, picked with odds 40 / 30 / 20 / 10, a mi
 within three challenges). The same adaptive idea now applies per challenge type and per math
 puzzle type, so a twin who struggles with "make change" sees it a little more often, gently.
 
-**Parent screen** (tap-and-hold the top-left corner for three seconds, or a PIN):
+**Parent screen** (tap-and-hold the top middle of the screen for three seconds, or a PIN):
 
 - names for each seat (stored on the device only)
 - this week's word list per twin (one per line); different lists are fine

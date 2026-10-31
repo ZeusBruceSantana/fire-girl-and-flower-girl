@@ -37,7 +37,7 @@ const Storybook = {
       root.appendChild(card);
       root.className = 'show' + (Object.keys(this.open).length ? ' split' : '');
       this.open[seat] = { myth, page: 0, card, resolve };
-      setSceneLayer('storybook');
+      pushLayer('storybook');
       this.renderPage(seat);
     });
   },
@@ -66,7 +66,7 @@ const Storybook = {
     if (b.page >= b.myth.pages.length) {
       delete this.open[seat];
       b.card.remove();
-      if (!Object.keys(this.open).length) { $('#storybook').className = ''; $('#storybook').innerHTML = ''; setSceneLayer(null); }
+      if (!Object.keys(this.open).length) { $('#storybook').className = ''; $('#storybook').innerHTML = ''; popLayer('storybook'); }
       b.resolve(true);
       return;
     }
@@ -107,8 +107,9 @@ const MythChallenge = {
       card.className = 'ch-card myth seat-' + seat + ' type-' + question.type;
       const a = { seat, type: question.type, question, myth, tries: 0, card, resolve, answer: null };
       this.active[seat] = a;
-      setSceneLayer('challenge');
+      pushLayer('challenge');
       el.appendChild(card);
+      seatGuard(card, seat);
       el.className = 'show' + (Object.keys(this.active).length > 1 || (typeof Challenge !== 'undefined' && Object.keys(Challenge.active).length) || S.settings.localSeats.filter(isPlayerHere).length > 1 ? ' split' : '');
       this['render_' + question.type.replace('myth-', '')](a);
     });
@@ -188,7 +189,7 @@ const MythChallenge = {
 
   /* The hint ladder: miss 1 the right one glows faintly, miss 2 Hoot says it, miss 3 it glows for real. */
   hint(a, findRight) {
-    const h = a.card.querySelector('.ch-hint'); h.textContent = MYTHS_UI.tryAgain; Speech.say(MYTHS_UI.tryAgain);
+    const h = a.card.querySelector('.ch-hint'); h.textContent = MYTHS_UI.tryAgain; Speech.say(MYTHS_UI.tryAgain, { interrupt: false });
     const right = findRight();
     if (!right) return;
     if (a.tries === 1) right.classList.add('peek');
@@ -210,7 +211,7 @@ const MythChallenge = {
     delete this.active[seat];
     a.card.remove();
     const others = Object.keys(this.active).length || (typeof Challenge !== 'undefined' && Object.keys(Challenge.active).length);
-    if (!others) { const el = $('#challenge'); el.className = ''; el.innerHTML = ''; setSceneLayer(null); }
+    if (!others) { const el = $('#challenge'); el.className = ''; el.innerHTML = ''; popLayer('challenge'); }
     a.resolve(result);
   },
 };

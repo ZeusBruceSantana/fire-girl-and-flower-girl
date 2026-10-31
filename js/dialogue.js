@@ -23,9 +23,9 @@ const Dialogue = {
     return art ? `<img src="art/npcs/${art}.svg" alt="" onerror="this.outerHTML = ART.person">` : ART.person;
   },
   show({ who, art, seat, text, choices, next = true }) {
-    this.close(true);
+    this.close();                                       // a box that was still up resolves with null: nobody waits forever
     this.open = true;
-    setSceneLayer('dialogue');
+    pushLayer('dialogue');
     const box = document.createElement('div');
     box.className = 'dlg' + (seat ? ' seat-' + seat : '') + (choices ? ' has-choices' : '');
     box.innerHTML = `
@@ -50,14 +50,16 @@ const Dialogue = {
       this.typing = setTimeout(typeNext, TEST_MODE ? 1 : 55);
     };
     typeNext();
-    Speech.say(text);
+    Speech.say(text, { interrupt: false });             // never cuts off the word she just tapped
     box.addEventListener('pointerdown', e => {
+      e.stopPropagation();                              // nothing under the box (HUD, stage) hears the tap
       const w = e.target.closest('.w');
-      if (w) { e.stopPropagation(); Speech.say(w.textContent); w.classList.add('said'); return; }
+      if (w) { Speech.say(w.textContent); w.classList.add('said'); return; }
       if (e.target.closest('.choice')) return;
       if (this.typing) { clearTimeout(this.typing); this.typing = 0; textEl.innerHTML = words.map(t => /\S/.test(t) ? `<span class="w">${esc(t)}</span>` : t).join(''); this.onTyped(box, choices); return; }
-      if (!choices && this.resolve) { const r = this.resolve; this.resolve = null; this.close(); r(null); }
+      if (!choices && this.resolve) { Speech.stop(); const r = this.resolve; this.resolve = null; this.close(); r(null); }
     });
+    this.el.onpointerdown = e => { e.stopPropagation(); };   // the see-through backdrop swallows taps too
     return new Promise(resolve => { this.resolve = resolve; });
   },
   onTyped(box, choices) {
@@ -75,14 +77,25 @@ const Dialogue = {
   },
   say(opts) { return this.show(Object.assign({}, opts, { choices: null })); },
   choose(opts) { return this.show(opts); },
-  close(silent) {
+  /* Close the box. Whoever was waiting for it gets null (a "no answer"), never a promise that hangs. */
+  close() {
     if (this.typing) { clearTimeout(this.typing); this.typing = 0; }
-    this.el.innerHTML = ''; this.el.classList.remove('show'); this.open = false;
-    if (!silent) setSceneLayer(null);
-    if (this.resolve && !silent) { const r = this.resolve; this.resolve = null; r(null); }
+    this.el.innerHTML = ''; this.el.classList.remove('show');
+    if (this.open) { this.open = false; popLayer('dialogue'); }
+    if (this.resolve) { const r = this.resolve; this.resolve = null; r(null); }
   },
 };
 
-/* Overlays (dialogue, menu, challenge) sit over the world. The stage ignores taps while one is open. */
+/* Overlays (dialogue, menu, challenge, battle...) sit over the world. The stage ignores taps while any is open.
+   They are a STACK: a challenge can open over a battle, a dialogue over a class. Each overlay pushes its own
+   name when it opens and pops that same name when it closes, so closing one never clears another.
+     pushLayer('menu') ... popLayer('menu')
+   `sceneLayer` is the top of the stack (or null when nothing is open); `body[data-layer]` mirrors it for CSS. */
 let sceneLayer = null;
-function setSceneLayer(name) { sceneLayer = name; document.body.dataset.layer = name || ''; }
+const sceneLayers = [];
+function syncLayer() { sceneLayer = sceneLayers.length ? sceneLayers[sceneLayers.length - 1] : null; document.body.dataset.layer = sceneLayer || ''; }
+function pushLayer(name) { const i = sceneLayers.lastIndexOf(name); if (i >= 0) sceneLayers.splice(i, 1); sceneLayers.push(name); syncLayer(); }
+function popLayer(name) { const i = sceneLayers.lastIndexOf(name); if (i >= 0) sceneLayers.splice(i, 1); syncLayer(); }
+function hasLayer(name) { return sceneLayers.includes(name); }
+/* Kept for older callers: a name pushes it, null pops the top. New code uses pushLayer / popLayer by name. */
+function setSceneLayer(name) { if (name) pushLayer(name); else if (sceneLayers.length) popLayer(sceneLayers[sceneLayers.length - 1]); }

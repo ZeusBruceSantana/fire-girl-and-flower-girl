@@ -14,7 +14,7 @@ const ART_UI = {
   clear: 'Clear mine',
   stamps: 'Stamps',
   brush: 'Brush',
-  waiting: 'Waiting for your sister...',
+  waiting: 'Waiting for the other painter...',
   saved: 'Painting saved to the gallery!',
   giftAsk: 'Give {friend} your newest painting?',
   giftYes: 'Yes, a gift!',
@@ -88,12 +88,12 @@ const ArtClass = {
     ctx.fillStyle = '#fffaf0'; ctx.fillRect(0, 0, canvas.width, canvas.height);
     ses.ctx = ctx;
     this.bindCanvas(canvas);
-    setSceneLayer('artclass');
+    pushLayer('artclass');
   },
   close() {
     this.session = null;
     if (this.el) { this.el.className = ''; this.el.innerHTML = ''; }
-    setSceneLayer(null);
+    popLayer('artclass');
   },
 
   /* A seat joins the easel: her palette strip appears on her side. */

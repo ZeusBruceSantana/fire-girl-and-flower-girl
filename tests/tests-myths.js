@@ -50,7 +50,7 @@ test('Myths: the storybook opens, pages turn, a right choice gives ember, a wron
   expect(G("Speech.log[Speech.log.length - 1]").length > 0, 'a kind reply is spoken');
   await until(() => $g('.book.seat-left .book-title').textContent.includes('3 /'), 3000, 'the story goes on after a wrong guess');
   expectEqual(G('S.heroes.left.ember'), emberBefore, 'no ember for a wrong guess, nothing lost either');
-  G('Storybook.open.left.resolve(true); delete Storybook.open.left; document.querySelector("#storybook").className = ""; setSceneLayer(null)');
+  G('Storybook.open.left.resolve(true); delete Storybook.open.left; document.querySelector("#storybook").className = ""; popLayer("storybook")');
 });
 
 test('Myths: a right choice sparkles and gives one ember', async () => {
@@ -105,5 +105,5 @@ test('Myths: two girls can read side by side', async () => {
   G("CLASS_RUNNERS.myths('left', 3, SCHOOL.subjects.myths); CLASS_RUNNERS.myths('right', 3, SCHOOL.subjects.myths)");
   await until(() => $$g('.book').length === 2, 3000, 'two books');
   expect($g('#storybook.split'), 'split layout');
-  G('Object.keys(Storybook.open).forEach(s => { Storybook.open[s].resolve(true); delete Storybook.open[s]; }); document.querySelector("#storybook").className = ""; setSceneLayer(null)');
+  G('Object.keys(Storybook.open).forEach(s => { Storybook.open[s].resolve(true); delete Storybook.open[s]; }); document.querySelector("#storybook").className = ""; popLayer("storybook")');
 });

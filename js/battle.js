@@ -55,7 +55,7 @@ const Battle = {
     this.active = true;
     this.state = { party: seats, players: seats.filter(isPlayerHere), queue, trouble: null, meter: 0, max: 0, phase: 1,
                    round: 0, turnSeat: null, turns: 0, soot: {}, skip: {}, lastMatched: false, xp: 0, coins: 0, loot: [], backdrop, cancelled: false };
-    setSceneLayer('battle');
+    pushLayer('battle');
     return new Promise(resolve => { this._resolve = resolve; this.run().catch(e => { if (TEST_MODE) TEST_ERRORS.push('battle: ' + (e && e.message)); this.end(); }); });
   },
   /* A test aid (and the parent screen's way out): stop now. */
@@ -64,7 +64,7 @@ const Battle = {
     const st = this.state;
     this.active = false;
     if (this.el) { this.el.className = ''; this.el.innerHTML = ''; }
-    setSceneLayer(null);
+    popLayer('battle');
     const r = this._resolve; this._resolve = null;
     if (r) r({ won: !!(st && st.won), xp: st ? st.xp : 0, coins: st ? st.coins : 0, loot: st ? st.loot : [], turns: st ? st.turns : 0 });   // xp and coins are per hero
   },
@@ -133,7 +133,6 @@ const Battle = {
       if (st.cancelled) return null;
       if (isPlayerHere(s)) {
         const r = await Challenge.run({ seat: s, type: 'letter-tiles', prompt: BATTLE_UI.yourPart.replace('{spell}', spell.word) });
-        setSceneLayer('battle');
         if (!r) return null;
         parts[s] = !!r.firstTry;
       } else { parts[s] = true; this.message(BATTLE_UI.autoTurn.replace('{name}', this.heroName(s)).replace('{spell}', spell.word)); await this.wait(500); }
@@ -203,7 +202,6 @@ const Battle = {
         this.clearMoves();
         if (spell.together) { const ok = await this.castTogether(seat, spell); return resolve(ok === null ? null : true); }
         const r = await Challenge.run({ seat, type: spell.ember >= 3 ? 'letter-tiles' : 'hear-and-pick', prompt: BATTLE_UI.cast.replace('{spell}', spell.word) });
-        setSceneLayer('battle');
         if (!r || st.cancelled) return resolve(null);
         await this.applyMove(seat, spell, !!r.firstTry);
         resolve(true);

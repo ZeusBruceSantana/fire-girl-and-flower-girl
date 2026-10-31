@@ -25,8 +25,13 @@ async function boot() {
 
   $('#game-title').textContent = WORLD.title;
   $('#game-tagline').textContent = WORLD.tagline;
-  await stageGo('academy-gate');
-  for (const seat of WORLD.seats) if (!isPlayerHere(seat)) { const h = Stage.heroes[seat]; h.placeOnPath(SCENES['academy-gate'].spawn[seat]); P[seat] = { scene: 'academy-gate', x: h.x, driver: 'npc' }; }
+  // Pick up where the tablet left off (a sleeping tablet or an evicted tab is not a walk back from the gate).
+  // A brand-new game, or a saved place that no longer exists, starts at the Academy gate.
+  const last = S.settings.lastPlace;
+  const known = last && (last.startsWith('map:') ? MAPS[last.slice(4)] : SCENES[last]);
+  const startAt = !needsSetup() && known ? last : 'academy-gate';
+  await stageGo(startAt);
+  if (!Stage.map) for (const seat of WORLD.seats) if (!isPlayerHere(seat)) { const h = Stage.heroes[seat]; h.placeOnPath(Stage.scene.spawn[seat]); P[seat] = { scene: Stage.scene.id, x: h.x, driver: 'npc' }; }
 
   applyClockTint();
   HUD.init();
@@ -50,12 +55,15 @@ function onTap(tap) {
     h.walkTo(tap.x);
   }
 }
+/* A hero reached what she tapped. The stage only delivers this when no overlay is open (scene.js), so one
+   twin's arrival never lands on top of the other twin's dialogue. */
 async function onArrive(seat, hotspot) {
   const h = Stage.heroes[seat];
   if (hotspot.kind === 'exit') {
     // Everyone on this device travels together; the others arrive at the same spot.
     const positions = {}; for (const s of S.settings.localSeats) positions[s] = hotspot.at;
     if (hotspot.secret && !S.shared.flags['tunnel-found']) { dispatch('flag.set', seat, { flag: 'tunnel-found' }); uiToast('A secret way!', { icon: 'heart' }); }
+    Day.leaving(Stage.scene.id);
     await stageGo(hotspot.to, { positions, from: 'scene:' + Stage.scene.id });
   } else if (hotspot.kind === 'npc') {
     h.setAnim('hop');
@@ -63,11 +71,7 @@ async function onArrive(seat, hotspot) {
     const npc = hotspot.npc === 'teacher' ? WORLD.teachers[SCHOOL.subjects[Day.subjectFor(Day.part) || 'spells'].teacher] : (WORLD.teachers[hotspot.npc] || WORLD.people[hotspot.npc]);
     await Dialogue.say({ who: npc ? npc.name : hotspot.word, art: npc ? npc.art : null, text: npc ? npc.about : hotspot.word });
   } else {
-    if (await Day.onThing(seat, hotspot) !== null) return;
-    const pick = await Dialogue.choose({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: hotspot.word + '. ' + WORLD.ui.whatNow,
-      choices: [{ word: WORLD.ui.castSpell, icon: 'ember', value: 'cast' }, { word: WORLD.ui.lookCloser, icon: 'tab-journal', value: 'look' }, { word: WORLD.ui.leaveIt, icon: 'close', value: 'leave' }] });
-    if (pick === 'cast') Menu.open(seat, 'spellbook');
-    else if (pick === 'look') await Dialogue.say({ seat, who: WORLD.helper.name, art: WORLD.helper.art, text: WORLD.ui.comingSoon });
+    await Day.onThing(seat, hotspot);                  // every thing a child can tap does something real (day.js)
   }
 }
 

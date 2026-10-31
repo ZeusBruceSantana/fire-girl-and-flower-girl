@@ -93,11 +93,13 @@ async function playIntro() {
 /* ---------- the title and the world ---------- */
 function showTitle() {
   setScene('title');
+  pushLayer('title');                                   // the world under the title waits (no story beat, no tap) until it is tapped away
   const title = $('#title');
   title.classList.add('show');
   title.addEventListener('pointerdown', () => { title.classList.remove('show'); enterWorld(); }, { once: true });
 }
 function enterWorld() {
+  popLayer('title');
   setScene('world');
   renderSeatButtons();
   Speech.say(WORLD.tagline, { interrupt: false });
