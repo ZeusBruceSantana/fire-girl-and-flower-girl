@@ -55,7 +55,8 @@ const MapStage = {
       sp.word = t.word || null;
       sp.wander = { next: 0, tx: t.x, ty: t.y }; sp.load({ body: 'art/troubles/' + (t.boss ? d.art + '-boss' : d.art) }); return sp; });
     this.npcs = def.npcs.map(n => { const who = WORLD.people[n.who] || WORLD.teachers[n.who]; const sp = new NpcSprite(n.id, n.x); sp.y = n.y; sp.height = 300; sp.def = n; sp.facing = -1; sp.setArt(who.art); return sp; });
-    const reveal = typeof gearEffects === 'function' && this.party.some(s => isPlayerHere(s) && gearEffects(s).reveal);
+    const reveal = (typeof gearEffects === 'function' && this.party.some(s => isPlayerHere(s) && gearEffects(s).reveal))
+      || (typeof lairEffects === 'function' && lairEffects().reveal > 0);   // the Lair's periscope shows hidden sparkles too
     this.things = def.things.filter(th => !S.shared.flags['took-' + th.id] && (!th.hidden || reveal));
     if (typeof Cases !== 'undefined' && Cases.thingsFor) this.things.push(...Cases.thingsFor(mapId));
     this.scale = Stage.canvas.height / MAP_VIEW_H; this.visW = Stage.canvas.width / this.scale; this.visH = MAP_VIEW_H;

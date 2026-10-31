@@ -35,7 +35,8 @@ const Challenge = {
     return pool.sort((a, b) => score(b) - score(a)).slice(0, n);
   },
 
-  run({ seat, type = 'hear-and-pick', reason = null, word = null, prompt = null }) {
+  /* emberReward: false means the word earns no ember (in battle, where the spell was paid for first). */
+  run({ seat, type = 'hear-and-pick', reason = null, word = null, prompt = null, emberReward = true }) {
     if (!CHALLENGES[type] || !this['render_' + type]) type = 'hear-and-pick';
     word = word || this.pickWord(seat);
     if (type === 'letter-tiles' && word.length > TILE_WORD_MAX) type = 'hear-and-pick';   // a long word as tiles is an unreadable strip on a phone
@@ -43,7 +44,7 @@ const Challenge = {
       if (this.active[seat]) this.finish(seat, null);
       const card = document.createElement('div');
       card.className = 'ch-card seat-' + seat + ' type-' + type;
-      const a = { seat, type, word, tries: 0, resolve, reason, card, prompt };
+      const a = { seat, type, word, tries: 0, resolve, reason, card, prompt, emberReward };
       this.active[seat] = a;
       pushLayer('challenge');
       this.el.appendChild(card);
@@ -134,11 +135,16 @@ const Challenge = {
     const reward = CHALLENGES[a.type].reward[Math.min(a.tries, 2)];
     if (el) el.classList.add('right');
     dispatch('hero.word', a.seat, { word: a.word, right: true, firstTry });
-    dispatch('hero.ember', a.seat, { amount: reward });
+    let gained = 0;
+    if (a.emberReward) {
+      const h = S.heroes[a.seat];
+      gained = Math.max(0, Math.min(reward, h.maxEmber - h.ember));   // the toast says what really landed, never "+4" on a full meter
+      dispatch('hero.ember', a.seat, { amount: reward });
+    }
     Speech.say(firstTry ? WORLD.ui.firstTry : WORLD.ui.wellDone, { interrupt: false });
     if (typeof Sound !== 'undefined' && Sound.play) Sound.play(firstTry ? 'firstTry' : 'right');
-    uiToast('+' + reward, { icon: 'ember' });
-    const result = { word: a.word, tries: a.tries, firstTry, ember: reward };
+    if (a.emberReward) uiToast('+' + gained, { icon: 'ember' }); else uiToast(firstTry ? WORLD.ui.firstTry : WORLD.ui.wellDone, { icon: 'check' });
+    const result = { word: a.word, tries: a.tries, firstTry, ember: a.emberReward ? reward : 0 };
     setTimeout(() => this.finish(a.seat, result), TEST_MODE ? 10 : 900);
   },
   finish(seat, result) {

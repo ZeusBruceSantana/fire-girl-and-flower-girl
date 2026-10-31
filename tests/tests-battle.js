@@ -28,7 +28,7 @@ test('A battle: Sprout then a super-effective Spark fills the Giggle meter and p
   startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1 }], backdrop: 'woods-path', party: ['right', 'left'] });
   await until(() => G('Battle.active'), 2000, 'the battle to open');
   expect($g('#battle.show .trouble .giggle'), 'the trouble has a Giggle meter');
-  expectEqual(G('Battle.state.max'), 6, 'giggle 6 for a level-1 weed');
+  expectEqual(G('Battle.state.max'), 9, 'giggle 9 for a level-1 weed: two moves, never one');
   await castMove('right', 'sprout');                       // flower vs weed: no match
   await until(() => G('Battle.state.meter') === 3, 3000, 'meter 3 after Sprout');
   expect(!$g('#battle .message .w').textContent.includes('Super'), 'no super effective for a plain match');
@@ -36,10 +36,11 @@ test('A battle: Sprout then a super-effective Spark fills the Giggle meter and p
   await until(() => G('window.__battle'), 6000, 'the battle to end');
   expect($g('#battle .message') === null || !G('Battle.active'), 'the screen closed');
   const r = G('window.__battle');
-  expectEqual([r.won, r.xp], [true, 12], 'won, 12 xp from a level-1 weed');
+  expectEqual([r.won, r.xp], [true, 6], 'won, 6 xp from a level-1 weed at level 1');
   expect(r.coins > 0, 'coins');
   const S = G('S');
-  expect(S.heroes.left.xp >= 12 && S.heroes.right.xp >= 12, 'both players got xp');
+  expect(S.heroes.left.xp >= 6 && S.heroes.right.xp >= 6, 'both players got xp');
+  expectEqual([S.heroes.left.troubles['grumpy-weed'], S.heroes.right.troubles['grumpy-weed']], [1, 1], 'both remember cheering up a weed');
   expect(S.heroes.left.coins > 0, 'coins landed');
   expect(S.shared.events.some(e => e.what === 'battle' && e.trouble === 'grumpy-weed'), 'the win is in the shared events');
   expectEqual(G('Battle.active'), false, 'battle over');
@@ -56,7 +57,7 @@ test('A battle move from the companion seat is automatic and earns nothing', asy
   await until(() => G('window.__battle'), 6000, 'the battle to end');
   expectEqual(G('S.heroes.away.xp'), 0, 'the companion-driven cousin earned no xp');
   expectEqual(G('S.heroes.away.coins'), 0, 'nor coins');
-  expect(G('S.heroes.left.xp') >= 12, 'the player did');
+  expect(G('S.heroes.left.xp') >= 6, 'the player did');
 });
 
 test('A battle trouble can zap ember away, but never below zero and never anything else', async () => {
@@ -64,9 +65,9 @@ test('A battle trouble can zap ember away, but never below zero and never anythi
   G("dispatch('hero.ember', 'right', { amount: -5 }); Battle.rng = () => 0.99");   // ember 0; rng picks the last action: cold-snap's "zap"
   const before = G('({ coins: S.heroes.right.coins, xp: S.heroes.right.xp, items: S.heroes.right.inventory.length })');
   startBattle({ troubles: [{ kind: 'cold-snap', level: 2 }], backdrop: 'woods-path', party: ['right'] });
-  await castMove('right', 'sprout');                       // +3 of 16: not full, so the trouble gets a turn
+  await castMove('right', 'sprout');                       // +3 of 20: not full, so the trouble gets a turn
   await until(() => G('Battle.state.round') === 2, 4000, 'round 2 after the trouble\'s turn');
-  expectEqual(G('S.heroes.right.ember'), Math.max(0, 3 - 1), 'the challenge gave 3, the zap took 1, never below 0');
+  expectEqual(G('S.heroes.right.ember'), 0, 'a word in battle earns no ember, and the zap cannot go below 0');
   const after = G('({ coins: S.heroes.right.coins, xp: S.heroes.right.xp, items: S.heroes.right.inventory.length })');
   expectEqual(after, before, 'nothing else changed');
   G('Battle.cancel()');
@@ -77,16 +78,21 @@ test('A boss battle has two phases', async () => {
   await openWorldB();
   G('Battle.rng = () => 0.1');
   startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1, boss: true }], backdrop: 'woods-path', party: ['left'] });
-  await until(() => G('Battle.state && Battle.state.max') === 12, 3000, 'a boss meter of 12');
+  await until(() => G('Battle.state && Battle.state.max') === 18, 3000, 'a boss meter of 18');
   await castMove('left', 'spark');                         // 6
   await until(() => G('Battle.state.round') === 2, 4000, 'round 2');
-  await castMove('left', 'spark');                         // 12: phase 2
+  await castMove('left', 'spark');                         // 6 x 1.5 combo (she matched last time too) = 9: 15
+  await until(() => G('Battle.state.round') === 3, 4000, 'round 3');
+  expect($g('#battle .message .w').textContent.includes('Combo') || G('Battle.state.meter') === 15, 'a matched move after a matched move combos');
+  await castMove('left', 'spark');                         // 24 > 18: phase 2
   await until(() => G('Battle.state.phase') === 2, 4000, 'phase 2');
-  expectEqual(G('Battle.state.max'), 6, 'the second phase is half as long');
+  expectEqual(G('Battle.state.max'), 9, 'the second phase is half as long');
+  await until(() => G('Battle.state.round') === 4, 4000, 'the boss took its phase-2 turn');
+  expect(G('Battle.state.soot.left') === 1, 'the big sneeze put soot on her (phase 2 has its own trick)');
   await castMove('left', 'spark');
   await until(() => G('window.__battle'), 8000, 'the boss to be beaten');
   expectEqual(G('window.__battle.won'), true, 'won');
-  expectEqual(G('window.__battle.xp'), 24, 'double xp for a boss');
+  expectEqual(G('window.__battle.xp'), 12, 'double xp for a boss');
 });
 
 test('A battle can always go on: a hero with no ember still casts her level-1 spell', async () => {
@@ -98,7 +104,9 @@ test('A battle can always go on: a hero with no ember still casts her level-1 sp
   const spark = $g('#battle .move[data-spell="spark"]');
   expect(spark && !spark.classList.contains('poor') && !spark.classList.contains('locked'), 'Spark is free and open');
   expect($g('#battle .move[data-spell="spark"] .cost').textContent === 'free', 'and says so');
-  await castMove('left', 'spark');
+  await castMove('left', 'spark');                         // 6 of 9
+  await until(() => G('Battle.state.round') === 2, 4000, 'round 2');
+  await castMove('left', 'spark');                         // 6 x 1.5 combo: done
   await until(() => G('window.__battle'), 6000, 'the battle to end');
   expect(G('S.heroes.left.ember') >= 0, 'ember never went negative');
 });
@@ -126,12 +134,16 @@ test('A together battle move: both girls power their part, tap together, and the
   tap($g('#battle .together-tap .tapbtn[data-seat="left"]'));
   tap($g('#battle .together-tap .tapbtn[data-seat="right"]'));
   await until(() => G('Battle.state.meter') >= 12, 4000, 'the meter to jump');
-  // (1+3)*1.5 + (1+3)*1.5 = 12, ×2 together = 24, ×2 (flower vs smoke) = 48; max is 8*3 = 24 so the meter fills
-  expectEqual(G('Battle.state.meter'), 24, 'the meter filled from one together move');
+  // (1+3)*1.5 + (1+3)*1.5 = 12, ×2 (flower vs smoke) = 24; max is 10*3 = 30: the biggest move, but not a one-shot
+  expectEqual(G('Battle.state.meter'), 24, 'the together move is the biggest move, not the whole fight');
   const emberAfter = G('[S.heroes.left.ember, S.heroes.right.ember]');
-  expectEqual(emberAfter, [emberBefore[0] + 4 - 2, emberBefore[1] + 4 - 2], 'each earned 4 from her part and paid 2');
+  expectEqual(emberAfter, [emberBefore[0] - 4, emberBefore[1] - 4], 'each paid 4 and earned nothing from her part: a finisher, not every turn');
   expect(G("S.heroes.left.badges.includes('together') && S.heroes.right.badges.includes('together')"), 'both got the together badge');
   expect(!G("S.heroes.left.badges.includes('all-three')"), 'all-three needs three');
+  await until(() => G('Battle.state.round') === 2, 4000, 'round 2');
+  expect($g('#battle .move.together[data-spell="lantern-flower"]').classList.contains('poor'), 'with 1 ember left, the together spell is out of reach');
+  await castMove('left', 'spark');                         // 3: 27
+  await castMove('right', 'sprout');                       // flower vs smoke, 6: 33 > 30
   await until(() => G('window.__battle'), 6000, 'the battle to end');
   expectEqual(G('window.__battle.won'), true, 'won');
 });

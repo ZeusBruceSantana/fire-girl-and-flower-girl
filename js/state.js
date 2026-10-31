@@ -89,7 +89,7 @@ const ACTIONS = {
   'hero.name':   (s, a) => { s.heroes[a.hero].name = String(a.payload.name || '').slice(0, 24); },
   'hero.join':   (s, a) => { s.heroes[a.hero].joined = true; },
   'hero.leave':  (s, a) => { s.heroes[a.hero].joined = false; },
-  'hero.xp':     (s, a) => { const h = s.heroes[a.hero]; h.xp += a.payload.amount; while (h.xp >= xpForLevel(h.level + 1)) { h.level++; h.leveledAt = a.t; } },
+  'hero.xp':     (s, a) => { const h = s.heroes[a.hero]; h.xp += a.payload.amount; while (h.level < levelCap() && h.xp >= xpForLevel(h.level + 1)) { h.level++; h.leveledAt = a.t; } h.maxEmber = maxEmberFor(h); h.ember = Math.min(h.ember, h.maxEmber); },
   'hero.coins':  (s, a) => { const h = s.heroes[a.hero]; h.coins = Math.max(0, h.coins + a.payload.amount); },
   'hero.hearts': (s, a) => { const h = s.heroes[a.hero]; h.hearts += a.payload.amount; if (a.payload.friend) h.friends[a.payload.friend] = (h.friends[a.payload.friend] || 0) + a.payload.amount;
                              if (a.payload.amount > 0) s.shared.lair.fund += Math.round(a.payload.amount * LAIR.fundShare); },   // earning feeds the fund; spending never drains it
@@ -97,7 +97,7 @@ const ACTIONS = {
   'hero.ember':  (s, a) => { const h = s.heroes[a.hero]; h.ember = clamp(h.ember + a.payload.amount, 0, h.maxEmber); },
   'hero.item':   (s, a) => { const h = s.heroes[a.hero]; h.inventory.push(a.payload.item); h.collection[a.payload.item] = (h.collection[a.payload.item] || 0) + 1; },
   'hero.sell':   (s, a) => { const h = s.heroes[a.hero], i = h.inventory.indexOf(a.payload.item); if (i >= 0) { h.inventory.splice(i, 1); h.coins += a.payload.coins; } },
-  'hero.equip':  (s, a) => { const h = s.heroes[a.hero]; h.equipped[a.payload.slot] = a.payload.item; h.maxEmber = 10 + gearBonus(h, 'maxEmber'); h.ember = Math.min(h.ember, h.maxEmber); },
+  'hero.equip':  (s, a) => { const h = s.heroes[a.hero]; h.equipped[a.payload.slot] = a.payload.item; h.maxEmber = maxEmberFor(h); h.ember = Math.min(h.ember, h.maxEmber); },
   'hero.craft':  (s, a) => { const h = s.heroes[a.hero], r = RECIPES.find(x => x.id === a.payload.recipe); if (!r) return;
                              const inv = h.inventory.slice(); for (const m of r.needs) { const i = inv.indexOf(m); if (i < 0) return; inv.splice(i, 1); }
                              h.inventory = inv; h.inventory.push(r.makes); h.collection[r.makes] = (h.collection[r.makes] || 0) + 1; },
@@ -194,3 +194,7 @@ function makeAction(state, type, hero, payload, extra) {
 
 /* How much of one effect (maxEmber, hearts, reveal, freeSpark) a hero's worn gear adds up to. */
 function gearBonus(hero, key) { return Object.values(hero.equipped).reduce((n, id) => { const it = ITEMS.find(i => i.id === id); return n + ((it && it.effect && it.effect[key]) || 0); }, 0); }
+/* The Ember meter's size: 10, plus worn gear, plus the perks of late levels (WORLD.balance.levelPerks). */
+function levelPerk(level, key) { const perks = (typeof WORLD !== 'undefined' && WORLD.balance.levelPerks) || {}; let n = 0; for (const [lv, p] of Object.entries(perks)) if (level >= Number(lv)) n += p[key] || 0; return n; }
+function maxEmberFor(hero) { return 10 + gearBonus(hero, 'maxEmber') + levelPerk(hero.level, 'maxEmber'); }
+function levelCap() { return (typeof WORLD !== 'undefined' && WORLD.balance.levelCap) || 99; }

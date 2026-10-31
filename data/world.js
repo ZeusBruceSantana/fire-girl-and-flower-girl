@@ -32,10 +32,15 @@ const WORLD = {
       art: 'fireGirl',
       about: 'Princess of Emberfall. Warm, brave, quick. Her magic is light and heat.',
       // A princess's magic, from weakest to strongest. Spells unlock by level. Casting = reading a word.
+      // In battle (js/battle.js): the level-1 move is always free; the others cost ember BEFORE the word.
+      //   element   what the move counts as against a trouble's weakTo (default: her own kind). A move with
+      //             another element is her "off-element" pick: matching becomes a decision, not a coin toss.
+      //   support   a helper move instead of a big number: 'warm' untangles a friend and makes her next move
+      //             bigger; 'dew' clears soot and tangles and calms the trouble for a turn; 'hum' gives a friend ember.
       spells: [
         { id: 'spark',    word: 'Spark',    level: 1, ember: 1, does: 'lights a candle, a lantern or a path' },
-        { id: 'warm',     word: 'Warm',     level: 2, ember: 2, does: 'warms a cold friend, melts a little ice' },
-        { id: 'glow',     word: 'Glow',     level: 4, ember: 3, does: 'lights up a whole dark room' },
+        { id: 'warm',     word: 'Warm',     level: 2, ember: 2, support: 'warm', does: 'warms a friend: untangles her, and her next move is bigger' },
+        { id: 'glow',     word: 'Glow',     level: 4, ember: 3, element: 'light', does: 'lights up a whole dark room (counts as light)' },
         { id: 'blaze',    word: 'Blaze',    level: 7, ember: 5, does: 'a big safe bonfire for the whole town' },
       ],
       // What she can't do on her own: the reason she needs Flower Girl.
@@ -50,8 +55,8 @@ const WORLD = {
       about: 'Princess of Petalvale. Gentle, patient, clever. Her magic is growing and calming.',
       spells: [
         { id: 'sprout',   word: 'Sprout',   level: 1, ember: 1, does: 'makes a seed grow' },
-        { id: 'dew',      word: 'Dew',      level: 2, ember: 2, does: 'Bloom Breath: cool petals put out a small flame' },
-        { id: 'vine',     word: 'Vine',     level: 4, ember: 3, does: 'a vine that lifts, ties or smothers a fire' },
+        { id: 'dew',      word: 'Dew',      level: 2, ember: 2, support: 'dew', does: 'Bloom Breath: cool petals clear soot and tangles, and the trouble takes a breath' },
+        { id: 'vine',     word: 'Vine',     level: 4, ember: 3, element: 'earth', does: 'a vine that lifts, ties or smothers (counts as earth)' },
         { id: 'bloom',    word: 'Bloom',    level: 7, ember: 5, does: 'the whole square bursts into flowers' },
       ],
       material: 'petals',
@@ -65,8 +70,8 @@ const WORLD = {
       about: 'Princess of Stormhaven, a kingdom in the clouds. Quick, funny, never still. Her magic is sparks and storms.',
       spells: [
         { id: 'zap',   word: 'Zap',   level: 1, ember: 1, does: 'a tiny spark that wakes a sleepy machine or lights a fuse' },
-        { id: 'hum',   word: 'Hum',   level: 2, ember: 2, does: 'makes a lantern or a bell hum with power' },
-        { id: 'flash', word: 'Flash', level: 4, ember: 3, does: 'a bright flash that shows a hidden path for a moment' },
+        { id: 'hum',   word: 'Hum',   level: 2, ember: 2, support: 'hum', does: 'hums power into a friend: she gets 2 ember' },
+        { id: 'flash', word: 'Flash', level: 4, ember: 3, element: 'light', does: 'a bright flash that shows a hidden path (counts as light)' },
         { id: 'storm', word: 'Storm', level: 7, ember: 5, does: 'calls a small friendly rain cloud' },
       ],
       material: 'spark-dust',
@@ -84,6 +89,12 @@ const WORLD = {
     electricNeedsBoth: 'But lightning is wild and never holds still. Only fire\'s warmth to dry the air AND flower\'s roots to ground it can calm her down.',
     together: 'Fire warms a seed so it sprouts. Ash makes the soil rich. A flower cups a flame and keeps it steady like a lantern. '
       + 'A spark in a flower lantern makes it glow all night. Together it is called Ember-Bloom magic.',
+    // Battle numbers (js/battle.js). Together spells are the finisher: the biggest move, but they cost real ember.
+    togetherCost: 4,            // ember from EACH princess who is a real player here
+    levelCap: 10,
+    levelPerks: { 9: { maxEmber: 2 }, 10: { maxEmber: 2 } },   // what a late level gives (the meter grows)
+    // What a boss does in its second phase, on top of its usual tricks.
+    bossActions: [{ id: 'big-sneeze', word: 'does an ENORMOUS sneeze' }],
     // Together spells need two or three players to tap at the same time. They give the biggest rewards.
     togetherSpells: [
       { id: 'lantern-flower', word: 'Lantern Flower', level: 3, needs: ['fire', 'flower'],             does: 'a flower that holds a flame: light that never burns' },
@@ -316,20 +327,23 @@ const WORLD = {
   },
 
   /* Silly, never scary. Each has a small picture word. */
-  /* Troubles: silly, never scary. Battle data (version 3):
-       weakTo   the element that works best against it (a matching spell doubles the effect)
-       giggle   how full its Giggle meter must get before it cheers up (per level: giggle * level)
-       xp, coins, loot   what it leaves behind
-       actions  the silly things it does on its turn: 'soot' (a hero's next move costs 1 more ember),
-                'grumble' (nothing), 'tangle' (a hero skips a turn), 'zap' (steals 1 ember), 'shiver' (nothing, but cute) */
+  /* Troubles: silly, never scary. Battle data (version 3, numbers retuned in the improvement program):
+       weakTo   the elements that work best against it (a matching move doubles the effect). Two per trouble:
+                one princess's own element and one "off-element" move, so either girl can find the match.
+       giggle   how full its Giggle meter must get before it cheers up (per level: giggle * level). A level-1
+                weed takes two moves from a level-1 pair, never one.
+       xp, coins, loot   what it leaves behind (xp is scaled by level difference in js/battle.js)
+       actions  the silly things it does on its turn: 'soot' (a hero's next paid move costs 1 more ember),
+                'grumble' (nothing), 'tangle' (a hero skips a turn; never the same girl twice running),
+                'zap' (steals 1 ember), 'shiver' (nothing, but cute) */
   troubles: {
-    'grumpy-weed':   { name: 'Grumpy Weed',   art: 'grumpy-weed',   weakTo: 'fire',     giggle: 6,  xp: 12, coins: [2, 5], loot: [{ item: 'petals', chance: 0.7 }, { item: 'seed-sun', chance: 0.4 }, { item: 'gem-amber', chance: 0.2 }],
+    'grumpy-weed':   { name: 'Grumpy Weed',   art: 'grumpy-weed',   weakTo: ['fire', 'earth'],    giggle: 9,  xp: 6,  coins: [1, 3], loot: [{ item: 'petals', chance: 0.7 }, { item: 'seed-sun', chance: 0.4 }, { item: 'gem-amber', chance: 0.2 }],
                        actions: [{ id: 'grumble', word: 'grumbles about the weather' }, { id: 'tangle', word: 'tangles a shoelace' }], about: 'Grows where it should not and complains about it.' },
-    'sneezy-smoke':  { name: 'Sneezy Smoke',  art: 'sneezy-smoke',  weakTo: 'flower',   giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'charcoal', chance: 0.7 }, { item: 'gem-amber', chance: 0.3 }, { item: 'wand-candle', chance: 0.08 }],
+    'sneezy-smoke':  { name: 'Sneezy Smoke',  art: 'sneezy-smoke',  weakTo: ['flower', 'light'],  giggle: 10, xp: 8,  coins: [2, 4], loot: [{ item: 'charcoal', chance: 0.7 }, { item: 'gem-amber', chance: 0.3 }, { item: 'wand-candle', chance: 0.08 }],
                        actions: [{ id: 'soot', word: 'sneezes soot everywhere' }, { id: 'grumble', word: 'sniffles' }], about: 'A puff of smoke that cannot stop sneezing soot on things.' },
-    'cold-snap':     { name: 'Cold Snap',     art: 'cold-snap',     weakTo: 'fire',     giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'spark-dust', chance: 0.5 }, { item: 'gem-dewdrop', chance: 0.4 }, { item: 'boots-spark', chance: 0.08 }],
+    'cold-snap':     { name: 'Cold Snap',     art: 'cold-snap',     weakTo: ['fire', 'light'],    giggle: 10, xp: 8,  coins: [2, 4], loot: [{ item: 'spark-dust', chance: 0.5 }, { item: 'gem-dewdrop', chance: 0.4 }, { item: 'boots-spark', chance: 0.08 }],
                        actions: [{ id: 'shiver', word: 'shivers dramatically' }, { id: 'zap', word: 'freezes a little ember' }], about: 'A tiny frost that turns puddles to ice and makes everyone shiver.' },
-    'static-sprite': { name: 'Static Sprite', art: 'static-sprite', weakTo: 'flower',   giggle: 10, xp: 20, coins: [4, 8], loot: [{ item: 'spark-dust', chance: 0.7 }, { item: 'boots-spark', chance: 0.3 }, { item: 'gem-dewdrop', chance: 0.3 }],
+    'static-sprite': { name: 'Static Sprite', art: 'static-sprite', weakTo: ['flower', 'earth'],  giggle: 12, xp: 10, coins: [3, 5], loot: [{ item: 'spark-dust', chance: 0.7 }, { item: 'boots-spark', chance: 0.15 }, { item: 'gem-dewdrop', chance: 0.3 }],
                        actions: [{ id: 'zap', word: 'zaps a little ember away' }, { id: 'tangle', word: 'makes everyone\'s hair stand up' }], about: 'A fuzzy ball of static that makes everyone\'s hair stand up.' },
   },
 };

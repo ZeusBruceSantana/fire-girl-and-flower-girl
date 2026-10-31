@@ -1,9 +1,13 @@
 'use strict';
-/* Ember Bloom: battles (version 3, GAME-DESIGN.md 18.2).
-   The party on the left, a trouble on the right, turn-based. A hero's turn: pick a move (a spell), then power it
-   with a word (Challenge). The trouble has a Giggle meter instead of health: fill it and the trouble cheers up
-   and wanders off. On its turn it does something silly. Nothing ever hurts a hero, and a battle cannot be lost:
-   a level-1 move is always free.
+/* Ember Bloom: battles (version 3, GAME-DESIGN.md 18.2; numbers retuned in the improvement program, Phase B).
+   The party on the left, a trouble on the right, turn-based. A hero's turn: pick a move (a spell), PAY its ember,
+   then power it with a word (Challenge). Words read in battle earn no ember: class, chests and bedtime fill the
+   meter, battles spend it, so "the big move or the free one?" is a real choice. The trouble has a Giggle meter
+   instead of health: fill it and the trouble cheers up and wanders off. On its turn it does something silly.
+   Nothing ever hurts a hero, and a battle cannot be lost: a level-1 move is always free.
+   Effect of a move = (1 + spell ember) × 1.5 first try × 2 if its element is one the trouble is weak to × 1.5 combo
+   (the PREVIOUS hero's move matched too) × 1.5 if a friend warmed her. Support moves (Warm, Dew, Hum) help the
+   party instead of a big number. Together spells cost real ember and are the finisher, not every turn.
 
      const result = await Battle.start({ troubles: [{ kind: 'grumpy-weed', level: 1 }], backdrop: 'woods-path', party: ['left', 'right', 'away'] });
      // result = { won: true, xp, coins, loot: [itemIds], turns }
@@ -38,7 +42,13 @@ const BATTLE_UI = {
   tapTogether: 'Tap!',
   tryTogether: 'Almost! Tap at the same time. Again!',
   togetherMagic: 'Together magic!',
-  togetherCost: '2 each',
+  togetherCost: '{n} each',
+  warmed: '{name} warms {target}. Her next move is bigger!',
+  dewed: 'Cool petals! Everyone is untangled, and the {trouble} takes a deep breath.',
+  hummed: '{name} hums power into {target}: 2 ember!',
+  calm: 'The {name} takes a deep breath and does nothing.',
+  bigSneeze: 'An ENORMOUS sneeze! Soot on everyone.',
+  befriended: 'The {name} is your friend now!',
 };
 
 const Battle = {
@@ -54,7 +64,8 @@ const Battle = {
     if (!seats.length || !queue.length) return Promise.resolve({ won: false, xp: 0, coins: 0, loot: [], turns: 0 });
     this.active = true;
     this.state = { party: seats, players: seats.filter(isPlayerHere), queue, trouble: null, meter: 0, max: 0, phase: 1,
-                   round: 0, turnSeat: null, turns: 0, soot: {}, skip: {}, lastMatched: false, xp: 0, coins: 0, loot: [], backdrop, cancelled: false };
+                   round: 0, turnSeat: null, turns: 0, soot: {}, skip: {}, boost: {}, calm: false, lastTangled: null, firstTries: {},
+                   lastMatched: false, xp: 0, coins: 0, loot: [], backdrop, cancelled: false };
     pushLayer('battle');
     return new Promise(resolve => { this._resolve = resolve; this.run().catch(e => { if (TEST_MODE) TEST_ERRORS.push('battle: ' + (e && e.message)); this.end(); }); });
   },
@@ -75,16 +86,16 @@ const Battle = {
     while (st.queue.length && !st.cancelled) {
       st.trouble = st.queue.shift();
       const def = WORLD.troubles[st.trouble.kind];
-      st.max = def.giggle * st.trouble.level * (st.trouble.boss ? 2 : 1); st.meter = 0; st.phase = 1; st.round = 0; st.lastMatched = false;
+      st.max = def.giggle * st.trouble.level * (st.trouble.boss ? 2 : 1); st.meter = 0; st.phase = 1; st.round = 0; st.lastMatched = false; st.calm = false;
       this.render();
       await this.say((st.trouble.boss ? BATTLE_UI.bossStart : BATTLE_UI.start).replace('{name}', def.name));
       await this.wait(500);
       let beaten = false;
       while (!beaten && !st.cancelled) {
         st.round++;
-        st.lastMatched = false;
         for (const seat of st.party) {
           if (st.cancelled) break;
+          if (st.usedTurn && st.usedTurn[seat] === st.round) continue;   // she already took part in a together spell this round
           if (st.skip[seat]) { st.skip[seat] = false; this.renderParty(); await this.say(BATTLE_UI.skip.replace('{name}', this.heroName(seat))); await this.wait(500); continue; }
           st.turnSeat = seat; this.renderParty();
           const ok = isPlayerHere(seat) ? await this.playerTurn(seat) : await this.autoTurn(seat);
@@ -103,17 +114,20 @@ const Battle = {
   },
 
   /* ---------- turns ---------- */
+  /* What a trouble is weak to, always as a list (old data had one word). */
+  weakTo(def) { return Array.isArray(def.weakTo) ? def.weakTo : [def.weakTo]; },
   spellsFor(seat) {
     const h = S.heroes[seat];
     return WORLD.heroes[h.kind].spells.map(sp => {
-      const cost = sp.level === 1 ? 0 : sp.ember + (this.state.soot[seat] || 0);
-      return { ...sp, cost, locked: h.level < sp.level, affordable: cost <= h.ember };
+      const cost = sp.level === 1 ? 0 : sp.ember + (this.state.soot[seat] || 0);   // the free move stays free, soot or not
+      return { ...sp, element: sp.element || h.kind, cost, locked: h.level < sp.level, affordable: cost <= h.ember };
     });
   },
   /* Together spells this seat could start now: her level is high enough, every needed princess is in the party,
-     and the others are either real players on this device or companion-driven (then their part just works). */
+     and the others are either real players on this device or companion-driven (then their part just works).
+     They cost WORLD.balance.togetherCost ember from every real player taking part. */
   togetherFor(seat) {
-    const st = this.state, h = S.heroes[seat];
+    const st = this.state, h = S.heroes[seat], cost = WORLD.balance.togetherCost || 4;
     return WORLD.balance.togetherSpells.map(sp => {
       const participants = sp.needs.map(k => st.party.find(s => S.heroes[s].kind === k)).filter(Boolean);
       const complete = participants.length === sp.needs.length && new Set(participants).size === participants.length;
@@ -122,31 +136,36 @@ const Battle = {
       const allPlayers = participants.every(isPlayerHere);
       const othersAuto = mine && others.every(s => !isPlayerHere(s));
       const available = complete && mine && h.level >= sp.level && (allPlayers || othersAuto);
-      return { ...sp, together: true, participants, ember: 3, cost: 2, locked: h.level < sp.level, available, affordable: true };
+      const affordable = participants.filter(isPlayerHere).every(s => S.heroes[s].ember >= cost);
+      return { ...sp, together: true, participants, ember: 3, cost, locked: h.level < sp.level, available, affordable };
     }).filter(sp => sp.available || !sp.locked);
   },
   async castTogether(seat, spell) {
     const st = this.state, def = WORLD.troubles[st.trouble.kind];
     const order = [seat, ...spell.participants.filter(s => s !== seat)];
+    // pay first (real players only: the companion never spends for an absent girl)
+    for (const s of order) if (isPlayerHere(s)) { const cost = Math.min(spell.cost, S.heroes[s].ember); if (cost > 0) dispatch('hero.ember', s, { amount: -cost }); }
+    this.renderParty();
     const parts = {};
     for (const s of order) {
       if (st.cancelled) return null;
       if (isPlayerHere(s)) {
-        const r = await Challenge.run({ seat: s, type: 'letter-tiles', prompt: BATTLE_UI.yourPart.replace('{spell}', spell.word) });
+        const r = await Challenge.run({ seat: s, type: 'letter-tiles', prompt: BATTLE_UI.yourPart.replace('{spell}', spell.word), emberReward: false });
         if (!r) return null;
         parts[s] = !!r.firstTry;
-      } else { parts[s] = true; this.message(BATTLE_UI.autoTurn.replace('{name}', this.heroName(s)).replace('{spell}', spell.word)); await this.wait(500); }
+        if (r.firstTry) st.firstTries[s] = (st.firstTries[s] || 0) + 1;
+      } else { parts[s] = false; this.message(BATTLE_UI.autoTurn.replace('{name}', this.heroName(s)).replace('{spell}', spell.word)); await this.wait(500); }   // a companion's part counts plain, not first-try
     }
     const tappers = order.filter(isPlayerHere);
     if (tappers.length > 1) { const ok = await this.togetherTap(tappers); if (ok === null) return null; }
-    const matched = spell.participants.some(s => S.heroes[s].kind === def.weakTo);
+    const matched = spell.participants.some(s => this.weakTo(def).includes(S.heroes[s].kind));
     let effect = 0;
     for (const s of order) effect += (1 + spell.ember) * (parts[s] ? 1.5 : 1);
-    effect = Math.max(1, Math.round(effect * 2 * (matched ? 2 : 1)));
+    effect = Math.max(1, Math.round(effect * (matched ? 2 : 1)));
+    st.usedTurn = st.usedTurn || {};
     for (const s of order) {
-      const cost = Math.min(spell.cost, S.heroes[s].ember);
-      if (cost > 0) dispatch('hero.ember', s, { amount: -cost });
       st.soot[s] = 0;
+      st.usedTurn[s] = st.round;                           // everyone who took part has had her turn this round
       dispatch('hero.badge', s, { badge: 'together' });
       if (order.length >= 3) dispatch('hero.badge', s, { badge: 'all-three' });
     }
@@ -201,30 +220,39 @@ const Battle = {
         if (!spell) return resolve(null);
         this.clearMoves();
         if (spell.together) { const ok = await this.castTogether(seat, spell); return resolve(ok === null ? null : true); }
-        const r = await Challenge.run({ seat, type: spell.ember >= 3 ? 'letter-tiles' : 'hear-and-pick', prompt: BATTLE_UI.cast.replace('{spell}', spell.word) });
+        this.pay(seat, spell);                           // the ember goes first; the word is the casting, not the earning
+        const r = await Challenge.run({ seat, type: spell.ember >= 3 ? 'letter-tiles' : 'hear-and-pick', prompt: BATTLE_UI.cast.replace('{spell}', spell.word), emberReward: false });
         if (!r || st.cancelled) return resolve(null);
+        if (r.firstTry) st.firstTries[seat] = (st.firstTries[seat] || 0) + 1;
         await this.applyMove(seat, spell, !!r.firstTry);
         resolve(true);
       };
     });
   },
+  pay(seat, spell) {
+    const cost = Math.min(spell.cost, S.heroes[seat].ember);
+    if (cost > 0) dispatch('hero.ember', seat, { amount: -cost });
+    this.state.soot[seat] = 0;
+    this.renderParty();
+  },
+  /* The companion (an absent girl's hero) casts her free move: she never spends for a player who is not here. */
   async autoTurn(seat) {
-    const spells = this.spellsFor(seat).filter(sp => !sp.locked && sp.affordable);
-    const spell = spells[spells.length - 1] || this.spellsFor(seat)[0];
+    const spell = this.spellsFor(seat)[0];
     this.message(BATTLE_UI.autoTurn.replace('{name}', this.heroName(seat)).replace('{spell}', spell.word));
     await this.wait(700);
     await this.applyMove(seat, spell, true);
     return true;
   },
+  /* Who a support move helps: the next party member after the caster (skipping nobody), so the pair takes turns. */
+  friendOf(seat) { const p = this.state.party; return p.length > 1 ? p[(p.indexOf(seat) + 1) % p.length] : seat; },
   async applyMove(seat, spell, firstTry) {
     const st = this.state, h = S.heroes[seat], def = WORLD.troubles[st.trouble.kind];
-    const cost = Math.min(spell.cost, h.ember);
-    if (cost > 0) dispatch('hero.ember', seat, { amount: -cost });
-    st.soot[seat] = 0;
-    const matched = h.kind === def.weakTo;
-    let effect = (1 + spell.ember) * (firstTry ? 1.5 : 1) * (matched ? 2 : 1) * (matched && st.lastMatched ? 1.5 : 1);
+    if (spell.support) return this.applySupport(seat, spell);
+    const matched = this.weakTo(def).includes(spell.element || h.kind);
+    const combo = matched && st.lastMatched;                     // the hero before her matched too
+    const boosted = !!st.boost[seat]; st.boost[seat] = 0;
+    let effect = (1 + spell.ember) * (firstTry ? 1.5 : 1) * (matched ? 2 : 1) * (combo ? 1.5 : 1) * (boosted ? 1.5 : 1);
     effect = Math.max(1, Math.round(effect));
-    const combo = matched && st.lastMatched;
     st.lastMatched = matched;
     st.meter = Math.min(st.max, st.meter + effect);
     st.turns++;
@@ -236,16 +264,39 @@ const Battle = {
     if (combo) Speech.say(BATTLE_UI.combo, { interrupt: false });
     await this.wait(700);
   },
+  /* Support moves: a small tickle on the meter (+1) and a real effect on the party or the trouble. */
+  async applySupport(seat, spell) {
+    const st = this.state, def = WORLD.troubles[st.trouble.kind], target = this.friendOf(seat);
+    let text = '';
+    if (spell.support === 'warm') { st.skip[target] = false; st.boost[target] = 1; text = BATTLE_UI.warmed.replace('{name}', this.heroName(seat)).replace('{target}', this.heroName(target)); }
+    else if (spell.support === 'dew') { for (const s of st.party) { st.skip[s] = false; st.soot[s] = 0; } st.calm = true; text = BATTLE_UI.dewed.replace('{trouble}', def.name); }
+    else if (spell.support === 'hum') { dispatch('hero.ember', target, { amount: 2 }); text = BATTLE_UI.hummed.replace('{name}', this.heroName(seat)).replace('{target}', this.heroName(target)); }
+    st.lastMatched = false;
+    st.meter = Math.min(st.max, st.meter + 1);
+    st.turns++;
+    this.renderParty(); this.renderTrouble();
+    this.floatNumber(1, false);
+    this.message(text);
+    await this.wait(700);
+  },
   async troubleTurn() {
     const st = this.state, def = WORLD.troubles[st.trouble.kind];
-    const action = def.actions[Math.floor(this.rng() * def.actions.length)] || { id: 'grumble', word: 'grumbles' };
+    if (st.calm) { st.calm = false; await this.say(BATTLE_UI.calm.replace('{name}', def.name)); await this.wait(300); return; }
+    const targets = st.players.length ? st.players : st.party;
+    let action;
+    if (st.trouble.boss && st.phase === 2 && this.rng() < 0.5) action = (WORLD.balance.bossActions || [])[0] || { id: 'big-sneeze', word: 'sneezes' };   // phase 2 is different, not just more
+    else action = def.actions[Math.floor(this.rng() * def.actions.length)] || { id: 'grumble', word: 'grumbles' };
     this.shakeTrouble('wobble');
     await this.say(BATTLE_UI.troubleTurn.replace('{name}', def.name).replace('{action}', action.word));
-    const targets = st.players.length ? st.players : st.party;
-    const target = targets[Math.floor(this.rng() * targets.length)];
+    let target = targets[Math.floor(this.rng() * targets.length)];
     if (action.id === 'soot') { st.soot[target] = 1; await this.say(BATTLE_UI.soot.replace('{name}', this.heroName(target))); }
-    else if (action.id === 'tangle') { st.skip[target] = true; }
+    else if (action.id === 'big-sneeze') { for (const s of targets) st.soot[s] = 1; await this.say(BATTLE_UI.bigSneeze); }
+    else if (action.id === 'tangle') {
+      const can = targets.filter(s => s !== st.lastTangled);   // never the same girl two turns running
+      if (can.length) { target = can.includes(target) ? target : can[0]; st.skip[target] = true; st.lastTangled = target; }
+    }
     else if (action.id === 'zap') { if (S.heroes[target].ember > 0) dispatch('hero.ember', target, { amount: -1 }); await this.say(BATTLE_UI.zap.replace('{name}', this.heroName(target))); }
+    if (action.id !== 'tangle') st.lastTangled = null;
     this.renderParty();
     await this.wait(500);
   },
@@ -257,14 +308,16 @@ const Battle = {
     this.el.querySelector('.trouble').classList.add('won');
     await this.say(BATTLE_UI.won.replace('{name}', def.name));
     await this.wait(900);
-    const xp = def.xp * t.level * (t.boss ? 2 : 1);
-    let first = true;
+    let first = true, xp = 0;
     for (const seat of st.players) {
       const before = S.heroes[seat].level;
       const coins = def.coins[0] + Math.floor(this.rng() * (def.coins[1] - def.coins[0] + 1));
+      xp = this.xpFor(def, t, S.heroes[seat].level, (st.firstTries[seat] || 0) > 0);
       dispatch('hero.xp', seat, { amount: xp });
       dispatch('hero.coins', seat, { amount: coins });
-      st.xp = xp; st.coins = Math.max(st.coins, coins);
+      dispatch('hero.trouble', seat, { kind: t.kind });
+      if ((S.heroes[seat].troubles || {})[t.kind] === BEFRIEND_AT) { uiToast(BATTLE_UI.befriended.replace('{name}', def.name), { icon: 'heart' }); Speech.say(BATTLE_UI.befriended.replace('{name}', def.name), { interrupt: false }); }
+      st.xp = Math.max(st.xp, xp); st.coins = Math.max(st.coins, coins);
       for (const l of def.loot) if (this.rng() < l.chance) {
         dispatch('hero.item', seat, { item: l.item }); st.loot.push(l.item);
         const item = ITEMS.find(i => i.id === l.item);
@@ -273,8 +326,15 @@ const Battle = {
       if (S.heroes[seat].level > before) { uiToast(BATTLE_UI.levelUp.replace('{level}', S.heroes[seat].level), { icon: 'badge' }); Speech.say(BATTLE_UI.levelUp.replace('{level}', S.heroes[seat].level), { interrupt: false }); }
       if (first) { dispatch('event.add', seat, { what: 'battle', trouble: t.kind, won: true }); first = false; }
     }
-    if (st.players.length) await this.say(BATTLE_UI.rewards.replace('{xp}', xp).replace('{coins}', st.coins));
+    if (st.players.length) await this.say(BATTLE_UI.rewards.replace('{xp}', st.xp).replace('{coins}', st.coins));
     await this.wait(900);
+  },
+  /* XP for a win: the trouble's xp × its level (× 2 for a boss), scaled down the more the hero outlevels it
+     (a level-1 weed is worth a quarter to a level-5 hero), and halved if she never got a word on the first try.
+     Never below 1. */
+  xpFor(def, t, heroLevel, anyFirstTry) {
+    const scale = clamp(1 - 0.25 * (heroLevel - t.level), 0.25, 1);
+    return Math.max(1, Math.round(def.xp * t.level * (t.boss ? 2 : 1) * scale * (anyFirstTry ? 1 : 0.5)));
   },
 
   /* ---------- rendering ---------- */
@@ -327,10 +387,10 @@ const Battle = {
   renderMoves(seat) {
     const root = this.el.querySelector('.moves');
     const together = this.togetherFor(seat).filter(sp => sp.available);
-    root.innerHTML = this.spellsFor(seat).map(sp => `<div class="move ${sp.locked ? 'locked' : ''} ${!sp.locked && !sp.affordable ? 'poor' : ''}" data-spell="${sp.id}">
-        <span class="icon">${ART.ember}</span><span class="word">${esc(sp.word)}</span>
+    root.innerHTML = this.spellsFor(seat).map(sp => `<div class="move ${sp.locked ? 'locked' : ''} ${!sp.locked && !sp.affordable ? 'poor' : ''} ${sp.support ? 'support' : ''}" data-spell="${sp.id}">
+        <span class="icon">${sp.support ? ART.heart : ART.ember}</span><span class="word">${esc(sp.word)}</span>
         <span class="cost">${sp.locked ? esc(BATTLE_UI.locked.replace('{level}', sp.level)) : sp.cost === 0 ? esc(BATTLE_UI.free) : sp.cost}</span></div>`).join('')
-      + together.map(sp => `<div class="move together" data-spell="${sp.id}"><span class="icon">${ART.heart}</span><span class="word">${esc(sp.word)}</span><span class="cost">${esc(BATTLE_UI.togetherCost)}</span></div>`).join('');
+      + together.map(sp => `<div class="move together ${sp.affordable ? '' : 'poor'}" data-spell="${sp.id}"><span class="icon">${ART.heart}</span><span class="word">${esc(sp.word)}</span><span class="cost">${esc(BATTLE_UI.togetherCost.replace('{n}', sp.cost))}</span></div>`).join('');
     root.classList.add('show');
     const spells = [...this.spellsFor(seat), ...together];
     root.querySelectorAll('.move').forEach(el => el.addEventListener('pointerdown', e => {
@@ -352,3 +412,4 @@ const Battle = {
   shakeTrouble(cls = 'shake') { const t = this.el && this.el.querySelector('.trouble .sprite'); if (!t) return; t.classList.remove('shake', 'wobble'); void t.offsetWidth; t.classList.add(cls); },
   wait(ms) { return new Promise(r => setTimeout(r, TEST_MODE ? Math.min(ms, 10) : ms)); },
 };
+const BEFRIEND_AT = 5;   // cheer the same kind of trouble up this many times and it counts as a friend (the Journal lists it)
