@@ -1,4 +1,77 @@
 /* =====================================================================
    EMBER BLOOM: the ceremonies (js/ceremony.js): class end, battle win, level-up, bedtime.
    Tokens, the type scale and the button family live in styles.css.
+   Overlay order: #ceremony sits at 45, above a word card (#challenge 40) and the battle (30), below the title (50)
+   and the grown-up corner (100). It is made by js/ceremony.js the first time one opens.
+   One panel, centred, the world dimmed under it. One ambient motion: the stars and the level medal.
    ===================================================================== */
+#ceremony { position: fixed; inset: 0; z-index: 45; display: none; align-items: center; justify-content: center; background: var(--dim); padding: 3vmin; }
+#ceremony.show { display: flex; }
+#ceremony.cer-bedtime { background: radial-gradient(ellipse at 50% 20%, rgba(40,40,90,.55), rgba(10,8,30,.85)); }
+.cer-panel { position: relative; width: min(92vw, 1200px); max-height: 96vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; gap: 1.6vmin; padding: 2.4vmin 4vmin 3vmin;
+  background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); text-align: center;
+  animation: rise-in var(--dur-in) var(--ease-out); }
+.cer-title { margin: 0; font-size: var(--t-title); line-height: 1.1; color: var(--gold-deep); }
+.cer-body { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1.4vmin; }
+.cer-foot { display: flex; justify-content: center; }
+.cer-foot .btn { min-width: 30vmin; min-height: max(10vmin, 56px); font-size: var(--t-button); }
+
+/* one column per girl */
+.cer-cols { width: 100%; display: flex; justify-content: center; gap: 3vmin; }
+.cer-col { flex: 1; max-width: 56vmin; display: flex; flex-direction: column; align-items: center; gap: 1.2vmin; padding: 1.6vmin 2vmin 2vmin; border-radius: var(--r); background: var(--paper-0); border: .4vmin solid var(--gold); }
+.cer-col.seat-left { border-color: var(--L); } .cer-col.seat-right { border-color: var(--R); } .cer-col.seat-away { border-color: var(--A); }
+.cer-who { display: flex; align-items: center; gap: 1.4vmin; max-width: 100%; }
+.cer-face { width: 10vmin; height: 10vmin; flex: none; border-radius: 50%; overflow: hidden; background: radial-gradient(#fffaf0, var(--paper-2)); border: .5vmin solid var(--gold-deep); box-shadow: inset 0 0 0 .4vmin #fff6e0; }
+.cer-face svg, .cer-face img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.cer-name { font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cer-col.seat-left .cer-name { color: var(--L-dark); } .cer-col.seat-right .cer-name { color: var(--R-dark); } .cer-col.seat-away .cer-name { color: var(--A-dark); }
+
+/* stars appear one by one (each girl's after the other's) */
+.cer-stars { display: flex; gap: 1vmin; }
+.cer-star { width: 8vmin; height: 8vmin; }
+.cer-star svg { width: 100%; height: 100%; fill: var(--paper-2); stroke: var(--gold); stroke-width: 4; }
+.cer-star.on svg { fill: var(--gold-glow); stroke: var(--gold-deep); filter: drop-shadow(0 0 1vmin rgba(255,210,63,.8)); }
+.cer-star.on { animation: star-in calc(var(--dur-in) * 2) var(--ease-out) both; animation-delay: calc(var(--i) * var(--dur-in) * 2 + var(--dur-in)); }
+@keyframes star-in { 0% { opacity: 0; transform: scale(.2) rotate(-40deg); } 70% { opacity: 1; transform: scale(1.2) rotate(6deg); } }
+
+/* what she earned */
+.cer-gains { display: flex; flex-wrap: wrap; justify-content: center; gap: 1vmin 2vmin; }
+.cer-gain { display: inline-flex; align-items: center; gap: .8vmin; font-family: var(--font-display); font-weight: 700; font-size: var(--t-body); }
+.cer-gain .icon { width: 5vmin; height: 5vmin; flex: none; } .cer-gain .icon svg { width: 100%; height: 100%; }
+.cer-gain.found { padding: .4vmin 1.6vmin .4vmin .6vmin; border-radius: var(--r); background: #fff3cf; border: .3vmin solid var(--gold); }
+
+/* the xp bar after a battle: it fills from where she was to where she is */
+.cer-xp { width: 100%; display: flex; align-items: center; gap: 1.2vmin; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); }
+.cer-xp .bar { flex: 1; height: 2.6vmin; border-radius: 1.3vmin; background: rgba(59,47,34,.15); overflow: hidden; }
+.cer-xp .in { height: 100%; border-radius: 1.3vmin; background: linear-gradient(90deg, var(--gold), var(--gold-glow)); transition: width var(--dur-fill) var(--ease-out) calc(var(--dur-in) * 2); }
+.cer-friend { display: flex; align-items: center; gap: .8vmin; font-weight: 700; font-size: var(--t-small); color: #a02c5c; }
+.cer-friend svg { width: 4vmin; height: 4vmin; }
+
+/* the level card: a gold medal with the new number, and what it opens */
+.cer-level { display: flex; align-items: center; gap: 1.6vmin; padding: 1.2vmin 2vmin 1.2vmin 1.2vmin; border-radius: var(--r); background: linear-gradient(#fff6d8, #ffe9a6); border: .4vmin solid var(--gold-deep); box-shadow: 0 0 3vmin rgba(255,210,63,.55); animation: rise-in var(--dur-in) var(--ease-out) both; animation-delay: calc(var(--dur-fill) + var(--dur-in) * 2); }
+.cer-medal { width: 11vmin; height: 11vmin; flex: none; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #fff0bf, var(--gold) 75%); border: .5vmin solid var(--gold-deep); box-shadow: 0 .6vmin 0 var(--gold-deep); color: #3a2506; font-family: var(--font-display); animation: breathe 2.4s ease-in-out infinite; }
+.cer-medal .small { font-size: var(--t-small); font-weight: 700; }
+.cer-medal b { font-size: var(--t-word); font-weight: 800; }
+.cer-level-lines { display: flex; flex-direction: column; align-items: flex-start; gap: .6vmin; text-align: left; }
+.cer-level-lines .line { display: flex; align-items: center; gap: .8vmin; font-size: var(--t-body); }
+.cer-level-lines .line.cer-spell { font-family: var(--font-display); font-weight: 700; color: var(--L-dark); }
+.cer-level-lines .line svg { width: 4vmin; height: 4vmin; }
+#ceremony.cer-level .cer-col { max-width: 80vmin; }
+#ceremony.cer-level .cer-level { animation-delay: 0ms; }
+
+/* the bedtime page: the day's numbers, and tomorrow */
+.cer-numbers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1vmin 2vmin; width: 100%; }
+.cer-num { display: flex; align-items: center; gap: 1vmin; justify-content: flex-start; padding: .6vmin 1vmin; border-radius: var(--r); background: rgba(243,228,198,.6); }
+.cer-num .icon { width: 5vmin; height: 5vmin; flex: none; } .cer-num .icon svg { width: 100%; height: 100%; }
+.cer-num b { font-family: var(--font-display); font-size: var(--t-title); font-weight: 800; line-height: 1; }
+.cer-num small { font-size: var(--t-small); color: var(--ink-soft); }
+.cer-tomorrow { font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); color: var(--A-dark); padding: .8vmin 3vmin; border-radius: var(--r); background: #efe8ff; border: .3vmin solid var(--A); }
+
+.cer-quote { display: flex; flex-direction: column; align-items: center; gap: .3vmin; font-size: var(--t-body); }
+.cer-quote .who { font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); color: var(--ink-soft); }
+
+@media (orientation: portrait) {
+  .cer-cols { flex-direction: column; align-items: center; }
+  .cer-col { max-width: none; width: 100%; }
+}

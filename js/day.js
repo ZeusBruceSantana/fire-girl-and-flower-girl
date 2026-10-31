@@ -10,8 +10,8 @@ const Day = {
   get part() { return S.shared.clock.part; },
   get day() { return S.shared.clock.day; },
   /* Today's two subjects, from the rotation. Subjects whose class is not built yet are swapped for Spells. */
-  subjects() {
-    const row = SCHOOL.rotation[(this.day - 1) % SCHOOL.rotation.length];
+  subjects(day = this.day) {
+    const row = SCHOOL.rotation[(day - 1) % SCHOOL.rotation.length];
     return row.map(s => (CLASS_RUNNERS[s] ? s : 'spells'));
   },
   subjectFor(part) { const i = { period1: 0, period2: 1 }[part]; return i == null ? null : this.subjects()[i]; },
@@ -99,20 +99,26 @@ const Day = {
       let results;
       try { results = await Promise.all(players.map(seat => CLASS_RUNNERS[subject](seat, n, def))); }
       finally { ClassRange.close(); }
+      const rows = [];
       for (let i = 0; i < players.length; i++) {
-        const seat = players[i], r = results[i];
+        const seat = players[i], r = results[i], levelFrom = S.heroes[seat].level;
         const ratio = r.length ? r.filter(x => x.firstTry).length / r.length : 1;
         const stars = ratio >= SCHOOL.stars.three ? 3 : ratio >= SCHOOL.stars.two ? 2 : 1;
+        const xp = 5 * r.length + 5 * stars, coins = stars * 2;      // 2 / 4 / 6 coins by stars: school alone can afford a rare wand in a week
         dispatch('hero.stars', seat, { key, stars });
-        dispatch('hero.xp', seat, { amount: 5 * r.length + 5 * stars });
-        dispatch('hero.coins', seat, { amount: stars * 2 });          // 2 / 4 / 6 coins by stars: school alone can afford a rare wand in a week
+        dispatch('hero.xp', seat, { amount: xp });
+        dispatch('hero.coins', seat, { amount: coins });
         this.checkThreeStars(seat);
         const material = WORLD.heroes[S.heroes[seat].kind].material;
-        if (material && ITEMS.some(i => i.id === material)) { dispatch('hero.item', seat, { item: material }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(i => i.id === material).word, { icon: 'gem' }); }
+        const found = material && ITEMS.some(i => i.id === material) ? material : null;
+        if (found) dispatch('hero.item', seat, { item: found });
         if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('hop');
+        rows.push({ seat, stars, xp, coins, found, levelFrom, levelTo: S.heroes[seat].level });
       }
+      // the class-end ceremony: each girl's stars one by one, what she earned, a level card if she grew (js/ceremony.js)
       const best = Math.max(...players.map(s => S.heroes[s].stars[key] || 1));
-      await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classEnd[best] });
+      if (rows.length) await Ceremony.classEnd({ subject, teacher: teacher.name, line: WORLD.ui.classEnd[best], rows });
+      else await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classEnd[best] });
       this.advance();
     } finally { popLayer('class'); this.running = false; }
   },
@@ -194,11 +200,16 @@ const Day = {
     pushLayer('bedtime');
     try {
       const day = this.day;
-      for (const seat of this.players()) {
+      // the bedtime page: each girl's numbers for the day, and tomorrow's two classes (js/ceremony.js)
+      const rows = this.players().map(seat => {
         const h = S.heroes[seat];
         const stars = Object.entries(h.stars).filter(([k]) => k.startsWith('day-' + day + '-')).reduce((a, [, v]) => a + v, 0);
         const words = Object.values(h.wordStats).filter(w => w.lastSeen > Date.now() - 6 * 3600 * 1000).length;
-        await Dialogue.say({ seat, who: h.name || WORLD.heroes[h.kind].title, text: WORLD.ui.daySummary.replace('{day}', day).replace('{stars}', stars).replace('{words}', words).replace('{coins}', h.coins).replace('{hearts}', h.hearts) });
+        return { seat, stars, words, coins: h.coins, hearts: h.hearts };
+      });
+      if (rows.length) await Ceremony.bedtime({ day, rows, tomorrow: this.subjects(day + 1) });
+      for (const seat of this.players()) {
+        const h = S.heroes[seat];
         dispatch('hero.ember', seat, { amount: h.maxEmber });           // a night's sleep fills the meter: every day starts fresh
         if (typeof Sound !== 'undefined' && Sound.play) Sound.play('sleep');
         if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('sleep');
