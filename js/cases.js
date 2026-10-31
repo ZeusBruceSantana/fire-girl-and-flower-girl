@@ -223,7 +223,7 @@ const Cases = {
   close() { this.el.className = ''; this.el.innerHTML = ''; popLayer('cases'); if (this.resolveClose) { const r = this.resolveClose; this.resolveClose = null; r(); } },
   render(seat) {
     const c = this.active();
-    const others = CASES.filter(x => !c || x.id !== c.id).map(x => `<div class="case-row ${this.isSolved(x.id) ? 'solved' : this.unlocked(x) ? '' : 'locked'}"><span class="mark">${this.isSolved(x.id) ? ART.check : (this.unlocked(x) ? ART.badge : ART.close)}</span><span class="word">${esc(this.unlocked(x) || this.isSolved(x.id) ? x.word : CASES_UI.lockedCase)}</span></div>`).join('');
+    const others = CASES.filter(x => !c || x.id !== c.id).map(x => `<div class="case-row ${this.isSolved(x.id) ? 'solved' : this.unlocked(x) ? '' : 'locked'}"><span class="mark">${this.isSolved(x.id) ? ART.check : (this.unlocked(x) ? ART.badge : ART.lock)}</span><span class="word">${esc(this.unlocked(x) || this.isSolved(x.id) ? x.word : CASES_UI.lockedCase)}</span></div>`).join('');
     let main = `<div class="empty">${esc(CASES_UI.noActive)}</div>`;
     if (c) {
       const found = this.state(c.id).clues;

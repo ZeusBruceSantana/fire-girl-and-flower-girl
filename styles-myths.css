@@ -1,47 +1,47 @@
 /* Ember Bloom: the Myths class. The storybook and the three question cards. */
 #storybook { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; gap: 2vmin; background: var(--dim); z-index: 25; }
 #storybook.show { display: flex; }
-.book { width: min(90vw, 1200px); max-height: 92vh; display: flex; flex-direction: column; padding: 2.4vmin 3vmin 2vmin; background: var(--parchment); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); animation: pop .25s ease-out; }
+.book { width: min(90vw, 1200px); max-height: 92vh; display: flex; flex-direction: column; padding: 2.4vmin 3vmin 2vmin; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); animation: rise-in var(--dur-in) var(--ease-out); }
 #storybook.split .book { width: 47vw; padding: 1.6vmin 2vmin; }
 .book.seat-left { border-color: var(--L-dark); } .book.seat-right { border-color: var(--R-dark); } .book.seat-away { border-color: var(--A-dark); }
-.book-title { font-weight: 800; font-size: 3.2vmin; color: var(--gold-dark); margin-bottom: 1.2vmin; } .book-title small { font-weight: 600; opacity: .6; margin-left: 1vmin; }
+.book-title { font-family: var(--font-display); font-weight: 800; font-size: var(--t-title); line-height: 1.1; color: var(--gold-deep); margin-bottom: 1.2vmin; } .book-title small { font-family: var(--font); font-size: var(--t-small); font-weight: 600; color: var(--ink-soft); margin-left: 1vmin; }
 .book-page { display: flex; gap: 2.4vmin; align-items: center; }
 #storybook.split .book-page { flex-direction: column; }
-.book-pic { flex: 0 0 34vmin; width: 34vmin; height: 34vmin; border-radius: 2.4vmin; overflow: hidden; background: #fff8ea; border: .5vmin solid var(--gold); display: flex; align-items: center; justify-content: center; }
+.book-pic { flex: 0 0 34vmin; width: 34vmin; height: 34vmin; border-radius: var(--r); overflow: hidden; background: var(--paper-0); border: .4vmin solid var(--gold-deep); display: flex; align-items: center; justify-content: center; }
 .book-pic img, .book-pic svg { width: 100%; height: 100%; object-fit: contain; }
 #storybook.split .book-pic { flex: none; width: 24vmin; height: 24vmin; }
-.book-text { flex: 1; font-size: 4vmin; line-height: 1.45; }
-#storybook.split .book-text { font-size: 3vmin; }
-.book-text .w, .book .w { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 .3vmin; border-radius: 1vmin; } .book-text .w.said { background: #ffe9a8; }
+.book-text { flex: 1; font-size: var(--t-body); line-height: 1.5; }
+#storybook.split .book-text { font-size: var(--t-body); }
+.book-text .w, .book .w { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 .3vmin; border-radius: 1vmin; } .book-text .w.said { background: var(--gold-glow); }
 .book-nav { display: flex; justify-content: flex-end; margin-top: 1.6vmin; }
-.book-nav .btn.next { flex-direction: row; width: auto; min-width: calc(var(--btn) * 1.2); padding: 0 3vmin; gap: 1.2vmin; font-size: 3vmin; }
+.book-nav .btn.next { min-width: calc(var(--btn) * 1.2); }
 .book-nav .btn.next .icon { width: 5vmin; height: 5vmin; }
 .book-nav .btn.hidden { visibility: hidden; }
 .book-choice:empty { display: none; }
-.book-choice { margin-top: 1.6vmin; padding-top: 1.2vmin; border-top: .3vmin dashed var(--gold); }
-.book-ask { font-weight: 800; font-size: 3vmin; margin-bottom: 1vmin; }
+.book-choice { margin-top: 1.6vmin; padding-top: 1.2vmin; border-top: .3vmin solid var(--paper-2); }
+.book-ask { font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); margin-bottom: 1vmin; }
 .book-opts { display: flex; flex-direction: column; gap: 1vmin; }
-.book-opt { display: flex; align-items: center; gap: 1.4vmin; padding: 1.2vmin 2vmin; border-radius: 2vmin; background: #fff8ea; border: .4vmin solid var(--gold); font-weight: 800; font-size: 2.8vmin; min-height: max(calc(var(--btn) * .55), 48px); }
-.book-opt .n { width: 4vmin; height: 4vmin; border-radius: 50%; background: var(--gold); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 2.4vmin; flex: none; }
-.book-opt.right { background: #eafbe9; border-color: #5cc77a; } .book-opt.wrong { opacity: .6; }
-.book-reply { margin-top: 1vmin; font-size: 2.8vmin; font-weight: 700; color: #b05a10; min-height: 3vmin; }
+.book-opt { display: flex; align-items: center; gap: 1.4vmin; padding: 1vmin 2vmin; border-radius: var(--r); background: var(--paper-0); border: .4vmin solid var(--gold-deep); box-shadow: 0 .6vmin 0 var(--gold-deep); font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); min-height: max(calc(var(--btn) * .55), 48px); }
+.book-opt .n { width: 4.4vmin; height: 4.4vmin; border-radius: 50%; background: var(--gold); color: #3a2506; display: inline-flex; align-items: center; justify-content: center; font-size: var(--t-small); flex: none; }
+.book-opt.right { background: var(--ok-soft); border-color: var(--ok); } .book-opt.wrong { opacity: .6; box-shadow: none; }
+.book-reply { margin-top: 1vmin; font-size: var(--t-body); font-weight: 700; color: var(--hint); min-height: 3vmin; }
 
 /* question cards (inside #challenge, next to the reading cards) */
 .ch-card.myth .ch-pics { display: flex; gap: 2vmin; justify-content: center; flex-wrap: wrap; }
-.ch-pic { width: max(18vmin, 56px); height: max(18vmin, 56px); border-radius: 2.4vmin; background: #fff; border: .6vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.ch-pic { width: max(18vmin, 56px); height: max(18vmin, 56px); border-radius: var(--r); background: #fff; border: .4vmin solid var(--gold-deep); box-shadow: 0 var(--press) 0 var(--gold-deep); overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .ch-pic img, .ch-pic svg { width: 90%; height: 90%; object-fit: contain; }
 #challenge.split .ch-pic { width: max(13vmin, 52px); height: max(13vmin, 52px); }
-.ch-pic.used { opacity: .25; pointer-events: none; } .ch-pic.locked { border-color: #5cc77a; box-shadow: 0 0 0 .6vmin rgba(92,199,122,.4); opacity: .7; pointer-events: none; }
+.ch-pic.used { opacity: .25; pointer-events: none; } .ch-pic.locked { border-color: var(--ok); box-shadow: 0 0 0 .6vmin rgba(92,199,122,.4); opacity: .7; pointer-events: none; }
 .ch-pic.hop { animation: hop .5s; } .ch-pic.fade { opacity: .4; } .ch-pic.peek { box-shadow: 0 0 2vmin #ffd23f; } .ch-pic.glow { box-shadow: 0 0 0 .8vmin rgba(255,210,63,.6), 0 0 4vmin #ffd23f; animation: breathe 1s infinite; }
 .ch-card.myth .ch-slots { margin-bottom: 2vmin; }
 .ch-card.myth .ch-slot { width: 16vmin; height: 16vmin; } .ch-card.myth .ch-slot .put img, .ch-card.myth .ch-slot .put svg { width: 13vmin; height: 13vmin; }
 #challenge.split .ch-card.myth .ch-slot { width: 11vmin; height: 11vmin; } #challenge.split .ch-card.myth .ch-slot .put img { width: 9vmin; height: 9vmin; }
-.ch-card.myth .ch-slot .ghost { opacity: .35; font-size: 4vmin; color: #c9b58a; }
+.ch-card.myth .ch-slot .ghost { opacity: .35; font-size: var(--t-title); color: #c9b58a; }
 .ch-match { display: flex; gap: 3vmin; justify-content: center; align-items: center; }
 .ch-names { display: flex; flex-direction: column; gap: 1.4vmin; }
-.ch-opt.name { font-size: 3.4vmin; min-width: 20vmin; }
-.ch-opt.name.on { background: #ffe9a8; transform: translateX(.6vmin); } .ch-opt.name.locked { opacity: .6; background: #eafbe9; pointer-events: none; }
+.ch-opt.name { font-size: var(--t-button); min-width: 20vmin; }
+.ch-opt.name.on { background: var(--gold-glow); transform: translateX(.6vmin); } .ch-opt.name.locked { opacity: .6; background: var(--ok-soft); pointer-events: none; }
 .ch-opt.peek { box-shadow: 0 0 2vmin #ffd23f; }
-.ch-sentence { font-size: 4.4vmin; font-weight: 800; margin: 1vmin 0 2.4vmin; line-height: 1.4; }
-.ch-sentence .gap { display: inline-block; min-width: 14vmin; border-bottom: .6vmin solid var(--gold-dark); color: #b05a10; }
-#challenge.split .ch-sentence { font-size: 3.2vmin; }
+.ch-sentence { font-family: var(--font-display); font-size: var(--t-title); font-weight: 700; margin: 1vmin 0 2.4vmin; line-height: 1.4; }
+.ch-sentence .gap { display: inline-block; min-width: 14vmin; border-bottom: .6vmin solid var(--gold-deep); color: var(--hint); }
+#challenge.split .ch-sentence { font-size: var(--t-body); }

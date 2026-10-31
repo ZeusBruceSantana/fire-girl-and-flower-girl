@@ -1,33 +1,47 @@
-/* ---------- shops: parchment and gold, big item cards ---------- */
+/* =====================================================================
+   EMBER BLOOM: shops (js/shop.js). The keeper in her medallion, the purse, Buy / Sell ribbons, item cards whose
+   edge says the rarity. Tokens and the button family live in styles.css; item icons in styles-menu.css (.ico).
+   ===================================================================== */
 #shop { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: var(--dim); }
 #shop.show { display: flex; }
-.shop-frame { position: relative; width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: var(--parchment); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
-#shop.seat-left .shop-frame { position: relative; border-color: var(--L-dark); } #shop.seat-right .shop-frame { position: relative; border-color: var(--R-dark); }
-.shop-top { display: flex; align-items: center; gap: 2vmin; padding: 2vmin 3vmin 1vmin; }
-.shop-portrait { width: 14vmin; height: 14vmin; flex: none; border-radius: 3vmin; overflow: hidden; background: radial-gradient(#fff6e3, var(--parch-dark)); border: .5vmin solid var(--gold-dark); }
+.shop-frame { position: relative; width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); overflow: hidden; animation: rise-in var(--dur-in) var(--ease-out); }
+#shop.seat-left .shop-frame { border-color: var(--L-dark); } #shop.seat-right .shop-frame { border-color: var(--R-dark); }
+.shop-top { display: flex; align-items: center; gap: 2.4vmin; padding: 2.6vmin 15vmin 1.4vmin 3vmin; flex: none; }   /* room for the Close control, top-right */
+/* one portrait shape everywhere: the gold-rimmed medallion */
+.shop-portrait { width: 15vmin; height: 15vmin; flex: none; border-radius: 50%; overflow: hidden; background: radial-gradient(#fffaf0, var(--paper-2)); border: .6vmin solid var(--gold-deep); box-shadow: var(--shadow-float), inset 0 0 0 .5vmin #fff6e0; }
 .shop-portrait svg, .shop-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
-.shop-greet { flex: 1; position: relative; padding: 2.4vmin 2vmin 1.6vmin; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2.4vmin; }
-.shop-greet .plate { position: absolute; left: 2vmin; top: -2.2vmin; background: linear-gradient(#ffe39a, var(--gold)); border: .4vmin solid var(--gold-dark); border-radius: 2vmin; padding: .3vmin 2vmin; font-weight: 800; font-size: 2.6vmin; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
-.shop-say { font-size: 3vmin; line-height: 1.3; } .shop-say.kind { color: #b05a10; }
-.shop-coins { display: flex; align-items: center; gap: 1vmin; font-weight: 800; font-size: 4.4vmin; background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 4vmin; padding: 1vmin 2.4vmin; }
-.shop-coins svg { width: 6vmin; height: 6vmin; }
-.shop-tabs { display: flex; gap: 1vmin; padding: 1vmin 1.6vmin 0; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }
-.shop-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3vmin; padding: 1vmin 0 1.2vmin; border-radius: 2vmin 2vmin 0 0; font-weight: 800; font-size: 2.4vmin; min-height: max(calc(var(--btn) * .7), 48px); background: rgba(255,255,255,.35); border: .3vmin solid transparent; border-bottom: 0; }
-.shop-tab .icon { width: 5.5vmin; height: 5.5vmin; } .shop-tab .icon svg { width: 100%; height: 100%; }
-.shop-tab.on { background: #fff8ea; border-color: var(--gold); transform: translateY(.4vmin); }
-.shop-page { flex: 1; overflow: auto; padding: 2vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
+.shop-greet { flex: 1; position: relative; padding: 2.6vmin 2.4vmin 1.6vmin; background: var(--paper-0); border: .4vmin solid var(--gold-deep); border-radius: var(--r); }
+.shop-greet .plate { position: absolute; left: 2vmin; top: -2.4vmin; max-width: calc(100% - 4vmin); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: linear-gradient(#ffe9a6, var(--gold)); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: .1vmin 2vmin; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); color: #3a2506; }
+.shop-say { font-size: var(--t-body); line-height: 1.35; } .shop-say.kind { color: var(--hint); }
+.shop-coins { display: flex; align-items: center; gap: 1vmin; font-family: var(--font-display); font-weight: 800; font-size: var(--t-title); line-height: 1; background: var(--paper-0); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: .8vmin 2.2vmin; box-shadow: inset 0 0 0 .3vmin #fff6e0; }
+.shop-coins svg { width: 5.6vmin; height: 5.6vmin; }
+
+/* Buy / Sell: ribbons like the menu's, as wide as their word (never stretched across the page) */
+.shop-tabs { display: flex; gap: 1.2vmin; padding: 0 3vmin; flex: none; border-bottom: .3vmin solid var(--paper-2); }
+.shop-tab { flex: 0 0 auto; min-width: max(20vmin, 96px); display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 1vmin; padding: 1vmin 2.6vmin; cursor: pointer;
+  min-height: max(8vmin, 48px); border-radius: var(--r) var(--r) 0 0; background: linear-gradient(var(--paper-0), var(--paper-1)); border: .3vmin solid var(--paper-2); border-bottom: 0;
+  font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); color: var(--ink-soft); }
+.shop-tab .icon { width: 5vmin; height: 5vmin; } .shop-tab .icon svg { width: 100%; height: 100%; }
+.shop-tab.on { background: linear-gradient(#ffe9a6, var(--gold)); border-color: var(--gold-deep); color: #3a2506; }
+
+.shop-page { flex: 1; overflow: auto; padding: 2.4vmin 3vmin 6vmin; overscroll-behavior: contain; touch-action: pan-y;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 5vmin), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 5vmin), transparent); }
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(22vmin, 1fr)); gap: 2vmin; }
-.shop-card { position: relative; background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.4vmin; text-align: center; min-height: var(--btn); box-shadow: 0 .6vmin 0 var(--gold-dark); }
-.shop-card:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
-.shop-card .art { width: 9vmin; height: 9vmin; margin: 0 auto; } .shop-card .art svg { width: 100%; height: 100%; }
-.shop-card .word { font-weight: 800; font-size: 2.6vmin; }
-.shop-card .price { display: inline-flex; align-items: center; gap: .4vmin; font-weight: 800; font-size: 2.6vmin; margin-top: .4vmin; } .shop-card .price svg { width: 3.4vmin; height: 3.4vmin; }
-.shop-card .note { font-size: 2vmin; opacity: .75; margin-top: .4vmin; } .shop-card .note.gift { color: #b8336a; }
-.shop-card .n { position: absolute; right: .8vmin; top: .6vmin; font-weight: 800; font-size: 2.4vmin; color: var(--gold-dark); }
-.shop-card.poor { opacity: .5; filter: grayscale(.6); box-shadow: none; } .shop-card.poor .price { color: #c23b3b; }
-.shop-card.rarity-rare { border-color: #4a9be0; box-shadow: 0 .6vmin 0 #2f6fb0, 0 0 2vmin #7fc4ff; }
-.shop-card.rarity-legendary { border-color: #f0b429; box-shadow: 0 .6vmin 0 #b07d00, 0 0 3vmin #ffd23f; }
-.shop-card.treat { border-color: #ff7a3d; }
-.shop-empty { font-size: 3vmin; opacity: .75; padding: 4vmin; text-align: center; }
+.shop-card { position: relative; background: var(--paper-0); border: .4vmin solid var(--gold); border-radius: var(--r); padding: 1.6vmin 1.4vmin 1.4vmin; text-align: center; min-height: var(--btn); box-shadow: 0 var(--press) 0 var(--gold-deep); cursor: pointer; transition: transform 80ms, box-shadow 80ms; }
+.shop-card:active { transform: translateY(.6vmin); box-shadow: 0 .2vmin 0 var(--gold-deep); }
+.shop-card .art { width: 10vmin; height: 10vmin; margin: 0 auto .4vmin; } .shop-card .art svg { width: 100%; height: 100%; }
+.shop-card .word { font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); line-height: 1.15; }
+.shop-card .price { display: inline-flex; align-items: center; gap: .4vmin; font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); margin-top: .4vmin; } .shop-card .price svg { width: 3.6vmin; height: 3.6vmin; }
+.shop-card .note { font-size: var(--t-small); color: var(--ink-soft); margin-top: .4vmin; line-height: 1.2; } .shop-card .note.gift { color: #b8336a; }
+.shop-card .n { position: absolute; right: .9vmin; top: .6vmin; font-weight: 700; font-size: var(--t-small); color: var(--gold-deep); }
+/* not enough coins yet: the picture and name rest, the price stays readable (in the "not yet" colour) */
+.shop-card.poor { box-shadow: 0 .3vmin 0 var(--paper-2); border-color: var(--paper-2); }
+.shop-card.poor .art { opacity: .5; filter: saturate(.4); } .shop-card.poor .word { color: var(--ink-soft); }
+.shop-card.poor .price { color: var(--hint); }
+.shop-card.rarity-rare { border-color: var(--rarity-rare); box-shadow: 0 var(--press) 0 #2f6fb0; }
+.shop-card.rarity-legendary { border-color: var(--rarity-legendary); box-shadow: 0 var(--press) 0 #b07d00, 0 0 2.4vmin var(--gold-glow); }
+.shop-card.treat { border-color: var(--fire); box-shadow: 0 var(--press) 0 #c45f1a; }
+.shop-card.treat .ico { color: #d98a3a; }
+.shop-card.poor.rarity-rare, .shop-card.poor.rarity-legendary, .shop-card.poor.treat { box-shadow: 0 .3vmin 0 var(--paper-2); }
+.shop-empty { font-size: var(--t-body); color: var(--ink-soft); padding: 4vmin; text-align: center; }
 body[data-layer="shop"] #hud { opacity: .35; }
-.shop-top { padding-right: 14vmin; }   /* room for the Close control, top-right */

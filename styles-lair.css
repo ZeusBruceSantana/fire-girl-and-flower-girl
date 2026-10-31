@@ -1,37 +1,86 @@
-/* The Lair stations: upgrades, gallery, inviting friends, scrolls. Parchment and gold like the menu. */
+/* =====================================================================
+   EMBER BLOOM: the Lair stations (js/lair.js): the Lantern's room of upgrades, the gallery, inviting friends,
+   the bookshelf, and the Badges wall of the menu. Tokens and the button family live in styles.css.
+   ===================================================================== */
 #lair { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: var(--dim); }
 #lair.show { display: flex; }
-.lair-frame { position: relative; width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: var(--parchment); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
-.lair-head { display: flex; align-items: center; gap: 2vmin; padding: 1.6vmin 2.4vmin; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }
-.lair-title { font-size: 3.4vmin; font-weight: 800; color: var(--gold-dark); flex: 1; }
-.lair-fund { display: flex; align-items: center; gap: .8vmin; font-weight: 800; font-size: 3.2vmin; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 3vmin; padding: .6vmin 2vmin; }
-.lair-fund svg { width: 4.4vmin; height: 4.4vmin; } .lair-fund small { font-size: 2vmin; font-weight: 700; opacity: .7; }
-.lair-body { flex: 1; overflow: auto; padding: 2vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
-.lair-note { font-size: 2.4vmin; opacity: .8; margin-bottom: 1.6vmin; } .lair-note.big { font-size: 3.2vmin; font-weight: 800; opacity: 1; }
-.lair-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(28vmin, 1fr)); gap: 2vmin; }
-.lair-card { background: #fff8ea; border: .5vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.6vmin; min-height: var(--btn); box-shadow: 0 .6vmin 0 var(--gold-dark); }
-.lair-card.owned { background: #eafbe9; border-color: #5cc77a; box-shadow: 0 .6vmin 0 #33935a; }
-.lair-card.locked { opacity: .55; }
-.lc-word { font-weight: 800; font-size: 3vmin; } .lc-cost { display: inline-flex; align-items: center; gap: .4vmin; font-weight: 800; font-size: 2.4vmin; } .lc-cost svg { width: 3vmin; height: 3vmin; }
-.lc-about { font-size: 2.1vmin; opacity: .75; margin: .6vmin 0; } .lc-unlocks { font-size: 2.1vmin; font-weight: 800; color: var(--gold-dark); }
-.lc-state { margin-top: 1vmin; font-weight: 800; font-size: 2.2vmin; min-height: 5vmin; display: flex; align-items: center; }
+.lair-frame { position: relative; width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); overflow: hidden; animation: rise-in var(--dur-in) var(--ease-out); }
+.lair-head { display: flex; align-items: center; gap: 2vmin; padding: 1.6vmin 15vmin 1.6vmin 3vmin; min-height: 13vmin; border-bottom: .3vmin solid var(--paper-2); flex: none; }   /* room for the Close control, top-right */
+.lair-title { font-family: var(--font-display); font-size: var(--t-title); font-weight: 800; color: var(--gold-deep); flex: 1; line-height: 1.1; }
+.lair-fund { display: flex; align-items: center; gap: .8vmin; font-family: var(--font-display); font-weight: 800; font-size: var(--t-button); background: var(--paper-0); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: .4vmin 1.8vmin; box-shadow: inset 0 0 0 .3vmin #fff6e0; }
+.lair-fund svg { width: 4.4vmin; height: 4.4vmin; } .lair-fund small { font-family: var(--font); font-size: var(--t-small); font-weight: 600; color: var(--ink-soft); }
+.lair-body { flex: 1; min-height: 0; overflow: auto; padding: 2vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
+.lair-note { font-size: var(--t-small); color: var(--ink-soft); margin-bottom: 1.6vmin; } .lair-note.big { font-family: var(--font-display); font-size: var(--t-body); font-weight: 700; color: var(--ink); }
+
+/* ---------- the Lantern: the room itself, every upgrade a spot in its place ---------- */
+.station-upgrades .lair-body { display: flex; flex-direction: column; align-items: center; overflow: hidden; padding: 1.6vmin 2.4vmin 1.2vmin; }
+.lair-room { position: relative; flex: 1; min-height: 0; aspect-ratio: 16 / 9; max-width: 100%; border-radius: var(--r); overflow: hidden; box-shadow: inset 0 0 0 .4vmin var(--gold-deep), var(--shadow-float); }
+.room-pic { position: absolute; inset: 0; } .room-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.room-pic::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(255,200,110,.18), rgba(20,10,0,.35) 85%); }
+.station-upgrades .lair-note.cozy-title { margin: 1.2vmin 0 0; text-align: center; }
+.lair-spot { position: absolute; transform: translate(-50%, -50%); width: max(9vmin, var(--tap)); display: flex; flex-direction: column; align-items: center; gap: .2vmin; cursor: pointer; z-index: 1; }
+.lair-spot .ico { width: max(8vmin, 40px); height: max(8vmin, 40px); color: var(--c); transition: transform var(--dur-pop); }
+/* not yet: a faint ghost outline of the piece */
+.lair-spot.locked .ico svg * { fill: rgba(255,246,224,.06) !important; stroke: rgba(255,246,224,.55) !important; stroke-width: 3; stroke-dasharray: 5 5; }
+.lair-spot.locked { opacity: .75; }
+/* can buy now: the same outline, glowing */
+.lair-spot.buyable .ico svg * { fill: rgba(255,224,138,.16) !important; stroke: var(--gold-glow) !important; stroke-width: 4; }
+.lair-spot.buyable .ico { filter: drop-shadow(0 0 1.2vmin rgba(255,224,138,.9)); animation: breathe 2.4s ease-in-out infinite; }
+/* ours: drawn bright, in its own colours */
+.lair-spot.owned .ico { filter: drop-shadow(0 .6vmin .6vmin rgba(0,0,0,.45)); }
+.lair-spot.picked .ico { transform: scale(1.18); }
+.lair-spot .tag { display: inline-flex; align-items: center; gap: .3vmin; padding: .1vmin 1vmin; border-radius: var(--r); background: rgba(255,248,236,.92); border: .25vmin solid var(--gold-deep);
+  font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); line-height: 1.2; color: var(--ink); }
+.lair-spot.locked .tag { background: rgba(255,248,236,.6); color: var(--ink-soft); border-color: transparent; }
+.lair-spot .tag svg { width: 2.4vmin; height: 2.4vmin; }
+/* the one card for the tapped spot, on the far side of the room */
+.lair-pop { position: absolute; top: 4%; left: 3%; width: min(42%, 58vmin); z-index: 2; animation: rise-in var(--dur-in) var(--ease-out); }
+.lair-pop.right { left: auto; right: 3%; }
+.lair-pop[hidden] { display: none; }
+.lair-pop .lair-card { position: relative; padding: 2vmin 2.4vmin 2vmin 13vmin; min-height: 14vmin; }
+.lair-pop .lc-ico { position: absolute; left: 2vmin; top: 2vmin; width: 9vmin; height: 9vmin; color: var(--c); } .lair-pop .lc-ico svg { width: 100%; height: 100%; }
+.lair-pop .lair-card.locked .lc-ico { opacity: .5; filter: saturate(.4); }
+
+/* ---------- a card (the room's pop-up, and the "buy this first" card at a station not bought yet) ---------- */
+.lair-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(30vmin, 1fr)); gap: 2vmin; }
+.lair-card { background: var(--paper-0); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: 1.6vmin 2vmin; min-height: var(--btn); box-shadow: var(--shadow-float); }
+.lair-card.owned { border-color: var(--ok-deep); }
+.lair-card.locked { border-color: var(--paper-2); }
+.lc-word { font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); line-height: 1.1; } .lc-cost { display: inline-flex; align-items: center; gap: .4vmin; font-weight: 700; font-size: var(--t-small); } .lc-cost svg { width: 3vmin; height: 3vmin; }
+.lc-about { font-size: var(--t-small); color: var(--ink-soft); margin: .6vmin 0; } .lc-unlocks { font-size: var(--t-small); font-weight: 700; color: var(--gold-deep); }
+.lc-state { margin-top: 1vmin; font-weight: 700; font-size: var(--t-small); min-height: max(6.4vmin, var(--tap)); display: flex; align-items: center; color: var(--ink-soft); }
+.lair-card.owned .lc-state { color: var(--ok-deep); font-family: var(--font-display); }
+
+/* ---------- the gallery wall ---------- */
 .lair-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(26vmin, 1fr)); gap: 2.4vmin; }
-.lair-gallery .frame { position: relative; background: #fff; border: 1.2vmin solid #c98b4a; outline: .4vmin solid var(--gold-dark); border-radius: .6vmin; padding: .6vmin; min-height: var(--btn); box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.25); }
+.lair-gallery .frame { position: relative; background: #fff; border: 1.2vmin solid #c98b4a; outline: .4vmin solid var(--gold-deep); border-radius: .6vmin; padding: .6vmin; min-height: var(--btn); box-shadow: var(--shadow-float); }
 .lair-gallery .frame.seat-left { border-color: var(--L); } .lair-gallery .frame.seat-right { border-color: var(--R); }
-.lair-gallery img, .lair-gallery .blank { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #f3e9db; display: block; border-radius: .4vmin; }
-.lair-gallery .caption { font-size: 2vmin; font-weight: 800; text-align: center; margin-top: .6vmin; }
-.lair-gallery .ribbon { position: absolute; right: -.6vmin; top: -.6vmin; display: flex; align-items: center; gap: .3vmin; background: #ff6f9c; color: #fff; font-size: 1.8vmin; font-weight: 800; padding: .3vmin 1vmin; border-radius: 2vmin; }
+.lair-gallery img, .lair-gallery .blank { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--paper-1); display: block; border-radius: .4vmin; }
+.lair-gallery .caption { font-size: var(--t-small); font-weight: 700; text-align: center; margin-top: .6vmin; }
+.lair-gallery .ribbon { position: absolute; right: -.6vmin; top: -.6vmin; display: flex; align-items: center; gap: .3vmin; background: #e0609c; color: #fff; font-size: var(--t-small); font-weight: 700; padding: .2vmin 1vmin; border-radius: var(--r); }
 .lair-gallery .ribbon svg { width: 2.4vmin; height: 2.4vmin; }
-.lair-big { position: absolute; inset: 0; background: rgba(30,18,6,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vmin; }
+.lair-big { position: absolute; inset: 0; background: rgba(30,18,6,.88); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vmin; }
 .lair-big[hidden] { display: none; } .lair-big img { max-width: 80vw; max-height: 70vh; border: 1.6vmin solid #fff; border-radius: 1vmin; }
+
+/* ---------- the cushions: inviting a friend ---------- */
 .lair-friends { display: grid; grid-template-columns: repeat(auto-fill, minmax(22vmin, 1fr)); gap: 2vmin; }
-.lair-friend { text-align: center; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2vmin; padding: 1.2vmin; min-height: var(--btn); }
-.lair-friend.notyet .lf-art { filter: grayscale(.6) opacity(.6); } .lair-friend.here { background: #ffeaf1; border-color: #ff6f9c; }
+.lair-friend { text-align: center; background: var(--paper-0); border: .4vmin solid var(--gold); border-radius: var(--r); padding: 1.2vmin; min-height: var(--btn); box-shadow: 0 .4vmin 0 rgba(156,111,20,.5); }
+.lair-friend.notyet { background: rgba(255,248,236,.5); border-color: var(--paper-2); box-shadow: none; } .lair-friend.notyet .lf-art { filter: saturate(.3) opacity(.55); }
+.lair-friend.here { border-color: #e0609c; box-shadow: 0 0 0 .4vmin rgba(224,96,156,.3); }
 .lf-art { width: 11vmin; height: 13vmin; margin: 0 auto; } .lf-art img, .lf-art svg { width: 100%; height: 100%; object-fit: contain; }
-.lf-word { font-weight: 800; font-size: 2.4vmin; } .lf-lv { color: #ff6f9c; font-size: 2.6vmin; letter-spacing: .1em; } .lf-state { font-size: 2vmin; font-weight: 800; margin-top: .6vmin; min-height: 4vmin; }
+.lf-word { font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); min-height: 1.3em; } .lf-state { font-size: var(--t-small); font-weight: 700; color: var(--ink-soft); margin-top: .6vmin; min-height: max(6.4vmin, var(--tap)); display: flex; align-items: center; justify-content: center; }
+
+/* ---------- the bookshelf: Myth Scrolls ---------- */
 .lair-scrolls { display: grid; grid-template-columns: repeat(auto-fill, minmax(24vmin, 1fr)); gap: 2vmin; }
-.scroll { text-align: center; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2vmin; padding: 1.4vmin; min-height: var(--btn); }
-.scroll .sc-art { width: 9vmin; height: 9vmin; margin: 0 auto; } .scroll .sc-art svg { width: 100%; height: 100%; }
-.scroll.silhouette .sc-art { filter: brightness(0) opacity(.25); } .sc-word { font-weight: 800; font-size: 2.4vmin; margin: .6vmin 0; }
-.lair-badges .cell .about { font-size: 1.8vmin; opacity: .75; margin-top: .4vmin; }
-.lair-head { padding-right: 14vmin; min-height: 13vmin; }   /* room for the Close control, top-right */
+.scroll { text-align: center; background: var(--paper-0); border: .4vmin solid var(--gold); border-radius: var(--r); padding: 1.4vmin; min-height: var(--btn); box-shadow: 0 .4vmin 0 rgba(156,111,20,.5); }
+.scroll.silhouette { background: rgba(255,248,236,.45); border-color: var(--paper-2); box-shadow: none; }
+.scroll .sc-art { width: 10vmin; height: 10vmin; margin: 0 auto; } .scroll .sc-art svg { width: 100%; height: 100%; }
+.sc-word { font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); margin: .6vmin 0; min-height: 1.3em; }
+
+/* ---------- the Badges wall (a tab of the menu): earned badges shine, the rest wait as dim medals ---------- */
+.badge-wall { padding: 2vmin; border-radius: var(--r); background: linear-gradient(#8a5a3a, #6b4a2b); box-shadow: inset 0 0 0 .4vmin var(--gold-deep), inset 0 1vmin 3vmin rgba(0,0,0,.35); }
+#menu .badge-wall .cell { background: rgba(255,248,236,.94); }
+#menu .badge-wall .cell.silhouette { background: rgba(255,248,236,.12); border-color: rgba(255,246,224,.25); }
+#menu .badge-wall .cell.silhouette .ico.rarity-unknown { color: #fff6e0; opacity: .3; }
+#menu .badge-wall .cell.got .art { filter: drop-shadow(0 0 1vmin var(--gold-glow)); }
+.lair-badges .cell .about { font-size: var(--t-small); color: var(--ink-soft); margin-top: .4vmin; line-height: 1.2; }
