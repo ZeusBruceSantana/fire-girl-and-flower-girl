@@ -38,6 +38,7 @@ const Dialogue = {
       </div>`;
     this.el.append(box);
     this.el.classList.add('show');
+    if (typeof Sound !== 'undefined' && Sound.play) Sound.play('page');
     const textEl = box.querySelector('.text');
     const words = String(text).split(/(\s+)/);
     let i = 0;

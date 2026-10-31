@@ -111,6 +111,7 @@ const Challenge = {
     const tries = a.tries, card = a.card, hintEl = card.querySelector('.ch-hint');
     hintEl.textContent = WORLD.ui.tryAgain;
     Speech.say(WORLD.ui.tryAgain, { rate: 0.95 });
+    if (typeof Sound !== 'undefined' && Sound.play) Sound.play('tryAgain');
     if (a.type !== 'letter-tiles') {
       const right = card.querySelector(`.ch-opt[data-w="${CSS.escape(a.word)}"]`);
       if (!right) return;
@@ -133,6 +134,7 @@ const Challenge = {
     dispatch('hero.word', a.seat, { word: a.word, right: true, firstTry });
     dispatch('hero.ember', a.seat, { amount: reward });
     Speech.say(firstTry ? WORLD.ui.firstTry : WORLD.ui.wellDone, { interrupt: false });
+    if (typeof Sound !== 'undefined' && Sound.play) Sound.play(firstTry ? 'firstTry' : 'right');
     uiToast('+' + reward, { icon: 'ember' });
     const result = { word: a.word, tries: a.tries, firstTry, ember: reward };
     setTimeout(() => this.finish(a.seat, result), TEST_MODE ? 10 : 900);

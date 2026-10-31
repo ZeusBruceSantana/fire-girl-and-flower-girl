@@ -32,6 +32,7 @@ const wordsHtml = text => esc(text).split(/(\s+)/).map(t => /\S/.test(t) ? `<spa
 
 /* A small toast at the top: "+3 coins", "Level up!" */
 function uiToast(text, { icon = null, ms = 1800 } = {}) {
+  if (typeof Sound !== 'undefined' && Sound.play) { const s = { coin: 'coin', heart: 'heart', ember: 'ember', gem: 'found-1', badge: 'levelUp' }[icon]; if (s) Sound.play(s); }
   const t = document.createElement('div');
   t.className = 'toast';
   t.innerHTML = (icon && ART[icon] ? `<span class="icon">${ART[icon]}</span>` : '') + `<span>${esc(text)}</span>`;

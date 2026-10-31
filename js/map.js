@@ -57,6 +57,7 @@ const MapStage = {
     setScene('world');
     document.body.dataset.place = 'map:' + mapId;
     uiSceneName(def.word);
+    if (typeof Sound !== 'undefined' && Sound.music) Sound.music({ 'school-grounds': 'school', 'whispering-woods': 'woods', 'middlemarket': 'town', 'petalvale-orchard': 'woods', 'thunder-peak': 'peak' }[mapId] || 'woods');
     if (typeof Heart !== 'undefined' && Heart.maybeTest) await Heart.maybeTest(mapId, from);
     if (typeof Story !== 'undefined' && Story.check) Story.check('map:' + mapId);
   },
@@ -137,6 +138,7 @@ const MapStage = {
       const d = target.obj;
       if (d.locked && !S.shared.flags[d.locked]) { await Dialogue.say({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: d.lockedSay || WORLD.ui.locked }); return; }
       if (d.secret && !S.shared.flags['gap-found']) { dispatch('flag.set', seat, { flag: 'gap-found' }); uiToast(WORLD.ui.secretWay, { icon: 'heart' }); }
+      if (typeof Sound !== 'undefined' && Sound.play) Sound.play('door');
       await stageGo(d.to, { from: 'map:' + this.map.id, at: d.at });
     } else if (target.kind === 'thing') {
       const th = target.obj;
@@ -147,6 +149,7 @@ const MapStage = {
         await Dialogue.say({ seat, who: WORLD.helper.name, art: WORLD.helper.art, text: WORLD.ui.openChest });
         const r = await Challenge.run({ seat, type: 'letter-tiles', prompt: WORLD.ui.openChest });
         if (!r) return;
+        if (typeof Sound !== 'undefined' && Sound.play) Sound.play('chest');
         this.take(th);
         for (const i of th.inside) if (Math.random() < i.chance) { dispatch('hero.item', seat, { item: i.item }); uiToast(WORLD.ui.found + ' ' + ITEMS.find(x => x.id === i.item).word, { icon: 'gem' }); await sleepMs(TEST_MODE ? 5 : 700); }
         Stage.heroes[seat].setAnim('hop');

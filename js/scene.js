@@ -102,6 +102,7 @@ async function stageGo(sceneId, { positions = {}, from = null, at = null } = {})
   setScene('world');
   document.body.dataset.place = sceneId;
   uiSceneName(def.word);
+  if (typeof Sound !== 'undefined' && Sound.music) Sound.music(['tunnel', 'lair'].includes(sceneId) ? 'lair' : sceneId === 'town-square' ? 'town' : sceneId === 'woods-path' ? 'woods' : (S.shared.clock.part === 'bedtime' ? 'night' : 'school'));
   if (typeof Story !== 'undefined' && Story.check) Story.check(sceneId);
 }
 /* The people in a scene stand at their hotspots: teachers, Cook, the Constable, and today's lunch friends. */

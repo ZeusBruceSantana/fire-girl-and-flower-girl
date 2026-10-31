@@ -163,6 +163,7 @@ const Day = {
       const words = Object.values(h.wordStats).filter(w => w.lastSeen > Date.now() - 6 * 3600 * 1000).length;
       await Dialogue.say({ seat, who: h.name || WORLD.heroes[h.kind].title, text: WORLD.ui.daySummary.replace('{day}', day).replace('{stars}', stars).replace('{words}', words).replace('{coins}', h.coins).replace('{hearts}', h.hearts) });
       dispatch('hero.ember', seat, { amount: 3 + (typeof gearEffects === 'function' ? (gearEffects(seat).freeSpark || 0) : 0) });
+      if (typeof Sound !== 'undefined' && Sound.play) Sound.play('sleep');
       if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('sleep');
     }
     if (day % 10 === 0) for (const seat of this.players()) dispatch('hero.badge', seat, { badge: 'ten-days' });

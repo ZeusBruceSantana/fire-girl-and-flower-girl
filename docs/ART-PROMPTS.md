@@ -316,6 +316,19 @@ Big top-down maps the girls walk across. Same style lock. Add to every map promp
 > town clock tower, cobbled streets wide and clear, a river and a stone bridge at the top edge leading to
 > woods, hills at the bottom, bunting between lanterns, bright daylight.
 
+**petalvale-orchard** · `art/maps/petalvale-orchard/full.png`
+> Same map rules. A sunny apple orchard seen from above: tidy rows of round apple trees with red apples,
+> beehives, a stream along the bottom, a wooden fence along the left with an open gate at the entrance, wide
+> clear dirt paths between the rows, and at the top center an ancient stone gate whose left half is covered
+> in blooming flowers and vines and whose right half is scorched warm stone with faint embers; a patch of
+> frost to its right and spring flowers to its left; a clearing with one huge apple tree on the right.
+
+**thunder-peak** · `art/maps/thunder-peak/full.png`
+> Same map rules. A mountain path seen from above, climbing from the lower left through banks of soft
+> clouds to a rocky summit at the top right; indigo and silver with warm golden highlights, a copper
+> lightning rod and a round standing stone on the summit, a rainbow beginning at the top left, wide clear
+> rock ledges as the path, a cloud shelf as a resting place midway.
+
 **Troubles** · `art/troubles/<id>.png` (1:1, transparent, round and silly, no text): `grumpy-weed` (a
 grumpy tangle of leaves with a frown), `sneezy-smoke` (a puff of grey smoke mid-sneeze), `cold-snap` (a
 tiny shivering snowflake sprite with mittens), `static-sprite` (a fuzzy ball of static with hair standing

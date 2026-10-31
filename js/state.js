@@ -88,7 +88,7 @@ const ACTIONS = {
   'hero.name':   (s, a) => { s.heroes[a.hero].name = String(a.payload.name || '').slice(0, 24); },
   'hero.join':   (s, a) => { s.heroes[a.hero].joined = true; },
   'hero.leave':  (s, a) => { s.heroes[a.hero].joined = false; },
-  'hero.xp':     (s, a) => { const h = s.heroes[a.hero]; h.xp += a.payload.amount; while (h.xp >= xpForLevel(h.level + 1)) h.level++; },
+  'hero.xp':     (s, a) => { const h = s.heroes[a.hero]; h.xp += a.payload.amount; while (h.xp >= xpForLevel(h.level + 1)) { h.level++; h.leveledAt = a.t; } },
   'hero.coins':  (s, a) => { const h = s.heroes[a.hero]; h.coins = Math.max(0, h.coins + a.payload.amount); },
   'hero.hearts': (s, a) => { const h = s.heroes[a.hero]; h.hearts += a.payload.amount; if (a.payload.friend) h.friends[a.payload.friend] = (h.friends[a.payload.friend] || 0) + a.payload.amount;
                              s.shared.lair.fund += Math.round(a.payload.amount * LAIR.fundShare); },
