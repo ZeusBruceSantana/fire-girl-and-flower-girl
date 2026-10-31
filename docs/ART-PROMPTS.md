@@ -241,6 +241,11 @@ closed eyes": save as `art/heroes/<kind>/full-happy.png`, `full-surprised.png`, 
   slightly frazzled but kind.
 - `headmistress`: the Headmistress, tall and graceful, silver hair in a crown braid, a deep green gown,
   a warm knowing smile, holding a small golden key.
+- Townsfolk of Middlemarket (`art/npcs/<id>.png`): `baker` (Mrs. Crumb, round and rosy, flour on her
+  apron, holding a loaf), `goatherd` (Nell, a freckled young woman with a crook and a small goat at her
+  feet), `signpainter` (Mr. Tilt, lanky, paint-spattered overalls, a brush behind his ear, a crooked cap),
+  `gardener` (Old Fern, white beard, straw hat, a watering can), `lamplighter` (Pip, small, a very short
+  ladder under one arm, a lantern on a pole).
 - Friends (older princesses, age about ten): `princess-ice` (pale blue gown, snowflake tiara, quiet),
   `princess-wind` (windswept hair, sky-blue scarf, mid-laugh), `princess-stone` (grey-brown braid, a
   pebble with a painted face in her hand), `princess-cloud` (fluffy white hair, dreamy, one shoe
