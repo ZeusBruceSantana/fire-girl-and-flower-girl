@@ -67,7 +67,7 @@ const Shop = {
     for (const t of shop.treats || []) {
       const can = h.coins >= t.price;
       cards.push(`<div class="shop-card treat ${can ? '' : 'poor'}" data-treat="${t.id}">
-        <div class="art">${ART.ember}</div><div class="word">${esc(t.word)}</div>
+        <div class="art"><span class="ico item-ico cat-treat rarity-common">${ITEM_ICONS.treat}</span></div><div class="word">${esc(t.word)}</div>
         <div class="price">${ART.coin}<b>${t.price}</b></div><div class="note">${esc(t.full ? SHOP_UI.eatFull : SHOP_UI.eat.replace('{n}', t.ember))}</div></div>`);
     }
     for (const id of shop.sells) {
@@ -77,7 +77,7 @@ const Shop = {
       const forOther = item.for !== 'any' && item.for !== h.kind;
       const owned = h.inventory.includes(id);
       cards.push(`<div class="shop-card rarity-${item.rarity} ${can ? '' : 'poor'}" data-item="${id}">
-        <div class="art">${ART[item.art] || ART.gem}</div><div class="word">${esc(item.word)}</div>
+        <div class="art">${itemIconHtml(item)}</div><div class="word">${esc(item.word)}</div>
         <div class="price">${ART.coin}<b>${item.price}</b></div>
         ${forOther ? `<div class="note gift">${esc(SHOP_UI.forHer.replace('{name}', WORLD.heroes[item.for].title))}</div>` : ''}
         ${owned ? `<div class="note">${esc(SHOP_UI.already)}</div>` : ''}</div>`);
@@ -99,7 +99,7 @@ const Shop = {
     dispatch('hero.item', seat, { item: item.id });
     if (bonus) { dispatch('hero.coins', seat, { amount: 1 }); uiToast(SHOP_UI.exactChange, { icon: 'coin' }); Speech.say(SHOP_UI.exactChange, { interrupt: false }); }
     const forOther = item.for !== 'any' && item.for !== h.kind;
-    uiToast(SHOP_UI.bought + ' ' + item.word, { icon: 'gem' });
+    uiToast(SHOP_UI.bought + ' ' + item.word, { icon: itemToastIcon(item) }); if (typeof Sound !== 'undefined' && Sound.play) Sound.play('found-1');
     Speech.say(forOther ? SHOP_UI.gift.replace('{name}', WORLD.heroes[item.for].title) : SHOP_UI.bought, { interrupt: false });
     dispatch('event.add', seat, { what: 'bought', item: item.id, shop: shop.id });
     this.busy = false;
@@ -152,7 +152,7 @@ const Shop = {
     const list = this.sellable();
     if (!list.length) { page.innerHTML = `<div class="shop-empty">${esc(SHOP_UI.nothingToSell)}</div>`; return; }
     page.innerHTML = `<div class="shop-grid">${list.map(({ item, n }) => `<div class="shop-card rarity-${item.rarity}" data-sell="${item.id}">
-      <div class="art">${ART[item.art] || ART.gem}</div><div class="word">${esc(item.word)}</div>
+      <div class="art">${itemIconHtml(item)}</div><div class="word">${esc(item.word)}</div>
       <div class="price">${esc(SHOP_UI.sellFor)} ${ART.coin}<b>${item.sell}</b></div>${n > 1 ? `<div class="n">×${n}</div>` : ''}</div>`).join('')}</div>`;
     page.querySelectorAll('[data-sell]').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); this.sell(el.dataset.sell); }));
   },

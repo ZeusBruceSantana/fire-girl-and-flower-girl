@@ -20,12 +20,19 @@ const BAG_UI = {
   cannot: 'Missing a material.',
 };
 const BAG_SLOTS = ['hand', 'head', 'back', 'feet'];
-const BAG_SLOT_ICONS = {
-  hand: '<svg viewBox="0 0 100 100"><path d="M30 60 C30 40 70 40 70 60 L66 86 H34Z" fill="#ffd9c2"/><path d="M50 14 V50" stroke="#b07f4f" stroke-width="10" stroke-linecap="round"/><circle cx="50" cy="12" r="8" fill="#ffd23f"/></svg>',
-  head: '<svg viewBox="0 0 100 100"><path d="M18 70 L24 36 L40 54 L50 26 L60 54 L76 36 L82 70Z" fill="#ffd23f" stroke="#d9a400" stroke-width="4" stroke-linejoin="round"/></svg>',
-  back: '<svg viewBox="0 0 100 100"><path d="M30 20 H70 L86 86 H14Z" fill="#ff8fb8" stroke="#e0609c" stroke-width="4" stroke-linejoin="round"/></svg>',
-  feet: '<svg viewBox="0 0 100 100"><path d="M30 20 H56 V60 H80 V84 H30Z" fill="#8a5a2a" stroke="#5a3a1a" stroke-width="4" stroke-linejoin="round"/></svg>',
-};
+// an empty slot shows the silhouette of what goes there (data/icons.js), dimmed
+const BAG_SLOT_CATEGORY = { hand: 'wand', head: 'crown', back: 'cape', feet: 'boots' };
+
+/* THE item picture, everywhere an item is shown (menu, Bag, Book, shop, crafting): its category silhouette from
+   data/icons.js, coloured by rarity. `unknown` draws it as a dim silhouette (not found yet). */
+const itemCategory = item => ITEM_CATEGORY[item.id] || (ITEM_ICONS[item.art] ? item.art : 'gem');
+function itemIconHtml(item, { unknown = false } = {}) {
+  const cat = itemCategory(item);
+  return `<span class="ico item-ico cat-${cat} rarity-${unknown ? 'unknown' : item.rarity}">${ITEM_ICONS[cat]}</span>`;
+}
+/* Toasts take an ART name: each category is also ART['item-<category>'] (plain ink, the toast's colour). */
+for (const [cat, svg] of Object.entries(ITEM_ICONS)) ART['item-' + cat] = svg;
+const itemToastIcon = item => 'item-' + itemCategory(item);
 
 /* The sum of every worn item's effects for a seat. */
 function gearEffects(seat) {
@@ -52,16 +59,16 @@ const Bag = {
       <div class="doll">
         <div class="doll-art">${ART[kind.art] || ''}</div>
         ${BAG_SLOTS.map(slot => { const id = h.equipped[slot], it = id && ITEMS.find(i => i.id === id);
-          return `<div class="slot slot-${slot} ${it ? 'worn' : ''}" data-slot="${slot}"><div class="icon">${it ? (ART[it.art] || ART.gem) : BAG_SLOT_ICONS[slot]}</div><div class="word">${esc(it ? it.word : BAG_UI.slots[slot])}</div></div>`; }).join('')}
+          return `<div class="slot slot-${slot} ${it ? 'worn' : ''}" data-slot="${slot}"><div class="icon">${it ? itemIconHtml(it) : `<span class="ico rarity-unknown">${ITEM_ICONS[BAG_SLOT_CATEGORY[slot]]}</span>`}</div><div class="word">${esc(it ? it.word : BAG_UI.slots[slot])}</div></div>`; }).join('')}
       </div>
       <div class="items">
         ${gear.length || rest.length ? '' : `<div class="empty">${esc(BAG_UI.empty)}</div>`}
         <div class="grid">${gear.map(({ item, n }) => {
           const other = item.for !== 'any' && item.for !== h.kind;
           return `<div class="cell rarity-${item.rarity} ${worn(item.id) ? 'worn' : ''} ${other ? 'other' : ''}" data-item="${item.id}" data-slot="${item.slot}">
-            <div class="art">${ART[item.art] || ART.gem}</div><div class="word">${esc(item.word)}</div>
+            <div class="art">${itemIconHtml(item)}</div><div class="word">${esc(item.word)}</div>
             <div class="fx">${esc(other ? BAG_UI.forOther.replace('{name}', WORLD.heroes[item.for].title) : effectWords(item))}</div>${n > 1 ? `<div class="n">×${n}</div>` : ''}</div>`; }).join('')}</div>
-        ${rest.length ? `<div class="mats"><div class="mats-title">${esc(BAG_UI.materials)}</div><div class="grid small">${rest.map(({ item, n }) => `<div class="cell rarity-${item.rarity}" data-mat="${item.id}"><div class="art">${ART[item.art] || ART.gem}</div><div class="word">${esc(item.word)}</div>${n > 1 ? `<div class="n">×${n}</div>` : ''}</div>`).join('')}</div>
+        ${rest.length ? `<div class="mats"><div class="mats-title">${esc(BAG_UI.materials)}</div><div class="grid small">${rest.map(({ item, n }) => `<div class="cell rarity-${item.rarity}" data-mat="${item.id}"><div class="art">${itemIconHtml(item)}</div><div class="word">${esc(item.word)}</div>${n > 1 ? `<div class="n">×${n}</div>` : ''}</div>`).join('')}</div>
           <div class="btn primary craft" data-craft><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>` : ''}
       </div></div>`;
     this.picked = null;
@@ -121,7 +128,7 @@ const Bag = {
       <div class="page"><div class="page-title">${esc(h.name || kind.title)} · ${esc(BAG_UI.crafting)}</div>
       ${recipes.length ? `<div class="recipes">${recipes.map(r => { const makes = ITEMS.find(i => i.id === r.makes), ok = can(r);
         return `<div class="recipe ${ok ? '' : 'cannot'}" data-recipe="${r.id}">
-          <div class="art">${ART[makes.art] || ART.gem}</div>
+          <div class="art">${itemIconHtml(makes)}</div>
           <div class="info"><div class="word">${esc(r.word)}</div><div class="about">${esc(r.about)}</div>
             <div class="needs">${esc(BAG_UI.needs)}: ${r.needs.map(m => { const it = ITEMS.find(i => i.id === m); return `<span class="need ${counts[m] ? 'have' : 'miss'}">${esc(it.word)} (${counts[m] || 0})</span>`; }).join(' ')}</div></div>
           <div class="btn primary ${ok ? '' : 'disabled'}" data-craft="${r.id}"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>`; }).join('')}</div>` : `<div class="empty">${esc(BAG_UI.noRecipes)}</div>`}
@@ -137,7 +144,7 @@ const Bag = {
       dispatch('hero.craft', seat, { recipe: r.id });
       if (S.heroes[seat].inventory.length === before && r.needs.length === 1) { /* one in, one out: lengths match; fine */ }
       const made = ITEMS.find(i => i.id === r.makes);
-      uiToast(BAG_UI.made.replace('{item}', made.word), { icon: 'gem' });
+      uiToast(BAG_UI.made.replace('{item}', made.word), { icon: itemToastIcon(made) }); if (typeof Sound !== 'undefined' && Sound.play) Sound.play('found-1');
       Speech.say(BAG_UI.made.replace('{item}', made.word) + ' ' + made.about);
       if (Stage.heroes[seat]) Stage.heroes[seat].setAnim('cast');
       this.openCrafting(seat);

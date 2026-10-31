@@ -1,50 +1,51 @@
-/* The Bag (js/bag.js): paper doll with slots on the left, item cards on the right, crafting overlay. */
+/* =====================================================================
+   EMBER BLOOM: the Bag (js/bag.js): paper doll with slots on the left, item cards on the right (they share the
+   menu's card look, #menu .cell), and the crafting table. Tokens and the button family live in styles.css.
+   ===================================================================== */
 .bag { display: flex; gap: 3vmin; align-items: flex-start; }
-.bag .doll { position: relative; width: 34vmin; height: 52vmin; flex: none; background: rgba(255,255,255,.45); border: .4vmin dashed var(--gold); border-radius: 3vmin; }
-.bag .doll-art { position: absolute; left: 50%; top: 50%; width: 26vmin; height: 26vmin; transform: translate(-50%, -50%); opacity: .55; }
+.bag .doll { position: relative; width: 34vmin; height: 52vmin; flex: none; border-radius: var(--r);
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,.7), rgba(255,248,236,.25) 70%); box-shadow: inset 0 0 0 .3vmin var(--paper-2); }
+.bag .doll-art { position: absolute; left: 50%; top: 50%; width: 24vmin; height: 24vmin; transform: translate(-50%, -50%); opacity: .5; filter: saturate(.6); }
 .bag .doll-art svg { width: 100%; height: 100%; }
-.bag .slot { position: absolute; width: 12vmin; height: 12vmin; border-radius: 50%; background: #fff8ea; border: .5vmin solid var(--gold); box-shadow: 0 .5vmin 0 var(--gold-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2vmin; font-weight: 800; font-size: 1.9vmin; }
-.bag .slot .icon { width: 5.5vmin; height: 5.5vmin; } .bag .slot .icon svg { width: 100%; height: 100%; }
-.bag .slot.worn { background: #eafbe9; border-color: #5cc77a; box-shadow: 0 .5vmin 0 #33935a; }
-.bag .slot.over { transform: scale(1.12); box-shadow: 0 0 0 .8vmin rgba(255,210,63,.6), 0 .5vmin 0 var(--gold-dark); }
+.bag .slot { position: absolute; width: max(12vmin, 52px); height: max(12vmin, 52px); border-radius: 50%; background: var(--paper-0); border: .4vmin solid var(--gold-deep); box-shadow: 0 .5vmin 0 var(--gold-deep);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .1vmin; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); line-height: 1; cursor: pointer; }
+.bag .slot .icon { width: 5.6vmin; height: 5.6vmin; } .bag .slot .icon svg { width: 100%; height: 100%; }
+.bag .slot .word { max-width: 11vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bag .slot.worn { border-color: var(--gold-deep); box-shadow: 0 0 0 .6vmin var(--gold-glow), 0 .5vmin 0 var(--gold-deep); }
+.bag .slot.over { transform: scale(1.12); box-shadow: 0 0 0 .8vmin var(--gold-glow), 0 .5vmin 0 var(--gold-deep); }
+.bag .slot-head.over, .bag .slot-feet.over { transform: translateX(-50%) scale(1.12); }
 .bag .slot.shake, .bag .cell.shake { animation: shake .4s; }
 .bag .slot-head { left: 50%; top: 1.5vmin; transform: translateX(-50%); }
 .bag .slot-hand { right: .5vmin; top: 20vmin; }
 .bag .slot-back { left: .5vmin; top: 20vmin; }
 .bag .slot-feet { left: 50%; bottom: 1.5vmin; transform: translateX(-50%); }
 .bag .items { flex: 1; min-width: 0; }
-.bag .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17vmin, 1fr)); gap: 1.6vmin; }
-.bag .grid.small { grid-template-columns: repeat(auto-fill, minmax(12vmin, 1fr)); }
-.bag .cell { position: relative; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2vmin; padding: 1vmin; text-align: center; min-height: var(--btn); touch-action: none; }
-.bag .cell .art { width: 8vmin; height: 8vmin; margin: 0 auto; } .bag .cell .art svg { width: 100%; height: 100%; }
-.bag .cell .word { font-weight: 800; font-size: 2vmin; }
-.bag .cell .fx { font-size: 1.7vmin; color: var(--gold-dark); min-height: 2.2vmin; }
-.bag .cell .n { position: absolute; right: .8vmin; top: .6vmin; font-weight: 800; font-size: 2.2vmin; color: var(--gold-dark); }
-.bag .cell.rarity-rare { border-color: #4a9be0; box-shadow: 0 0 2vmin #7fc4ff; } .bag .cell.rarity-legendary { border-color: #f0b429; box-shadow: 0 0 3vmin #ffd23f; }
-.bag .cell.worn::after { content: '✓'; position: absolute; left: .8vmin; top: .4vmin; color: #2f8a4f; font-weight: 800; font-size: 2.6vmin; }
-.bag .cell.picked { transform: translateY(-.6vmin); box-shadow: 0 0 0 .8vmin rgba(255,210,63,.6); }
-.bag .cell.other { opacity: .55; } .bag .cell.other .fx { color: #b05a10; }
-.bag .empty { font-size: 3vmin; opacity: .7; padding: 3vmin; text-align: center; }
-.bag .mats { margin-top: 2vmin; padding-top: 1.6vmin; border-top: .3vmin dashed var(--gold); }
-.bag .mats-title { font-weight: 800; font-size: 2.6vmin; margin-bottom: 1vmin; color: var(--gold-dark); }
-.bag .btn.craft { margin-top: 1.6vmin; width: calc(var(--btn) * 1.3); height: calc(var(--btn) * .8); flex-direction: row; gap: 1vmin; }
-.cell.ghost { position: fixed; z-index: 50; width: 17vmin; transform: translate(-50%, -60%) rotate(-4deg); pointer-events: none; opacity: .9; box-shadow: 0 2vmin 4vmin rgba(0,0,0,.35); }
+.bag .grid.small { grid-template-columns: repeat(auto-fill, minmax(14vmin, 1fr)); }
+.bag .cell { touch-action: none; cursor: pointer; }
+.bag .cell .fx { font-size: var(--t-small); color: var(--gold-deep); min-height: 1.2em; line-height: 1.2; }
+.bag .cell.picked { transform: translateY(-.6vmin); box-shadow: 0 0 0 .8vmin var(--gold-glow); }
+.bag .cell.other { opacity: .7; } .bag .cell.other .fx { color: var(--hint); }
+.bag .empty { font-size: var(--t-body); color: var(--ink-soft); padding: 3vmin; text-align: center; }
+.bag .mats { margin-top: 2vmin; padding-top: 1.6vmin; border-top: .3vmin solid var(--paper-2); }
+.bag .mats-title { font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); margin-bottom: 1vmin; color: var(--gold-deep); }
+.bag .btn.craft { margin-top: 1.6vmin; }
+.cell.ghost { position: fixed; z-index: 50; width: 17vmin; transform: translate(-50%, -60%) rotate(-4deg); pointer-events: none; opacity: .9; box-shadow: var(--shadow-float); background: var(--paper-0); border: .4vmin solid var(--gold); border-radius: var(--r); padding: 1vmin; text-align: center; }
+.cell.ghost .art { width: 9vmin; height: 9vmin; margin: 0 auto; }
 
-/* ---------- crafting overlay (same frame as the menu) ---------- */
+/* ---------- crafting table (same frame as the menu) ---------- */
 #crafting { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: var(--dim); }
 #crafting.show { display: flex; }
-#crafting .frame { position: relative; width: min(94vw, 1300px); max-height: 90vh; display: flex; flex-direction: column; background: var(--parchment); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
-#crafting .tabs { display: flex; gap: 1vmin; padding: 1.6vmin 1.6vmin 0; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }
-#crafting .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3vmin; padding: 1vmin 0 1.2vmin; border-radius: 2vmin 2vmin 0 0; font-weight: 800; font-size: 2.2vmin; min-height: max(calc(var(--btn) * .7), 48px); background: #fff8ea; border: .3vmin solid var(--gold); border-bottom: 0; }
-#crafting .tab .icon { width: 5.5vmin; height: 5.5vmin; } #crafting .tab .icon svg { width: 100%; height: 100%; }
-#crafting .page { flex: 1; overflow: auto; padding: 2vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
-#crafting .page-title { font-size: 3.2vmin; font-weight: 800; margin-bottom: 1.6vmin; color: var(--gold-dark); }
-#crafting .recipe { display: flex; align-items: center; gap: 2vmin; background: #fff8ea; border: .4vmin solid var(--gold); border-radius: 2.4vmin; padding: 1.4vmin 2vmin; margin-bottom: 1.4vmin; }
+#crafting .frame { position: relative; width: min(94vw, 1300px); max-height: 90vh; display: flex; flex-direction: column; background: var(--parchment); border: .5vmin solid var(--gold-deep); border-radius: var(--r); box-shadow: var(--frame-shadow); color: var(--ink); overflow: hidden; animation: rise-in var(--dur-in) var(--ease-out); }
+#crafting .tabs { display: flex; gap: 1.2vmin; align-items: flex-start; padding: 0 15vmin 0 3vmin; flex: none; filter: drop-shadow(0 .5vmin .5vmin rgba(40,20,0,.22)); }   /* room for the Close control, top-right */
+#crafting .tab { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: .2vmin; min-width: 20vmin; min-height: max(11vmin, 48px); padding: 1.2vmin 2vmin 4.4vmin;
+  background: linear-gradient(#ffe9a6, var(--gold)); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 1.6vmin), 0 100%); font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); color: #3a2506; }
+#crafting .tab .icon { width: 6vmin; height: 6vmin; } #crafting .tab .icon svg { width: 100%; height: 100%; }
+#crafting .page { flex: 1; overflow: auto; padding: 1.6vmin 3vmin 3vmin; overscroll-behavior: contain; touch-action: pan-y; }
+#crafting .page-title { font-family: var(--font-display); font-size: var(--t-title); font-weight: 800; margin-bottom: 1.6vmin; color: var(--gold-deep); }
+#crafting .recipe { display: flex; align-items: center; gap: 2vmin; background: var(--paper-0); border: .4vmin solid var(--gold); border-radius: var(--r); padding: 1.4vmin 2vmin; margin-bottom: 1.4vmin; }
 #crafting .recipe .art { width: 10vmin; height: 10vmin; flex: none; } #crafting .recipe .art svg { width: 100%; height: 100%; }
-#crafting .recipe .info { flex: 1; } #crafting .recipe .word { font-weight: 800; font-size: 3vmin; } #crafting .recipe .about { font-size: 2.2vmin; opacity: .8; }
-#crafting .recipe .needs { font-size: 2.2vmin; margin-top: .6vmin; font-weight: 700; } #crafting .need.have { color: #2f8a4f; } #crafting .need.miss { color: #c23b3b; opacity: .8; }
-#crafting .recipe.cannot { opacity: .6; }
-#crafting .btn { flex-direction: row; gap: 1vmin; width: calc(var(--btn) * 1.2); height: calc(var(--btn) * .75); }
-#crafting .btn.disabled { opacity: .4; filter: grayscale(.8); }
-#crafting .empty { font-size: 3vmin; opacity: .7; padding: 4vmin; text-align: center; }
-#crafting .tabs { padding-right: 14vmin; }   /* room for the Close control, top-right */
+#crafting .recipe .info { flex: 1; } #crafting .recipe .word { font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); } #crafting .recipe .about { font-size: var(--t-small); color: var(--ink-soft); }
+#crafting .recipe .needs { font-size: var(--t-small); margin-top: .6vmin; font-weight: 700; } #crafting .need.have { color: var(--ok-deep); } #crafting .need.miss { color: var(--hint); }
+#crafting .recipe.cannot { border-color: var(--paper-2); }
+#crafting .btn { flex: none; }
+#crafting .empty { font-size: var(--t-body); color: var(--ink-soft); padding: 4vmin; text-align: center; }
