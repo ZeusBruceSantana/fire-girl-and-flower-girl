@@ -1,36 +1,45 @@
 # Status
 
-**Updated:** 2026-10-31 · **Epic:** 0, Discovery · **State:** waiting for the owner's approval
+**Updated:** 2026-10-31 · **Epic:** 0.5, Redesign foundation · **State:** built; waiting for art and for the owner's go on Epic 1
+**Repo:** https://github.com/ZeusBruceSantana/fire-girl-and-flower-girl
 
 ## Done
 
-- Repo created and scaffolded. Plain HTML/CSS/JS, no build step, same approach as Twin Pets.
-- `docs/DISCOVERY.md`: stack, save system, data formats, learning loop, fire/flower balance, the
-  ordered plan with effort, risks and questions.
-- `docs/WORLD.md`: the story bible.
-- Content data files in `data/`: world, items with rarity, areas, quests, challenge types,
-  starter words. Six areas and seven quests described; Epic 2 ships a subset.
-- Placeholder title screen (`index.html`): shows both princesses from the data files, installs
-  as an app, works offline, saves. No gameplay.
-- Tests (5) and the GitHub Actions check. All passing.
-- `docs/SETUP.md` with the owner's steps. `CLAUDE.md` with the working agreement.
+- **The game is Ember Bloom**: three princesses (Fire, Flower, Electric), a royal magic boarding
+  school, a secret tunnel and lair, the woods, the town. Full design in `docs/GAME-DESIGN.md`, story
+  bible in `docs/WORLD.md`, technical design in `docs/ARCHITECTURE.md`.
+- **Engine foundation:** storybook scene renderer (painted scenes, camera, tap-to-walk, particles,
+  time-of-day tint), heroes on the stage with idle / walk / cast / hop animations, two-player touch
+  input (left half, right half, "together" taps), read-aloud with voice picking, speech bubbles
+  where every word can be tapped to hear it.
+- **State built for three devices:** every change is a small action; the shared world merges without
+  ever losing anything; an absent hero is driven by the companion; a second device (a twin's own
+  tablet, or the cousin's) can join later through a family world code. Proven with two pretend
+  devices in the tests.
+- **Content v2** in `data/`: the school day and class rotation, six lunch friends with stories, six
+  Greek myths with questions, twelve math and logic puzzle types, five town cases, the lair
+  upgrades and badges, nine scenes, four woods adventures.
+- **Art pipeline:** placeholder scenes and characters (vector, used only for building and testing);
+  `docs/ART-PROMPTS.md` is the brief the owner is generating real paintings from; a painting drops
+  in as one file per scene listed in `art/overrides.js`.
+- 15 tests, all passing, run on every push.
 
 ## Next
 
-- Owner reviews DISCOVERY.md §8 (questions) and approves Epic 1.
-- Owner turns on GitHub Pages (SETUP.md step 1) so the page has a web address.
-- Epic 1, the shell: start screen, pick your princess and color, names (grown-up), join / leave,
-  read-aloud helper, parent screen with per-twin word entry.
+- Owner generates the first nine scene paintings and the three heroes (ART-PROMPTS.md). As each lands,
+  the walk line and tap spots get tuned to it.
+- Engine polish that makes painted art read as a game: vignette, color grading by time of day, soft
+  depth, light shafts, smoother walking.
+- Epic 1, the shell: pick your princess and color, names (grown-up), join / leave, parent screen with
+  per-twin word lists and the voice picker.
 
 ## Blockers
 
-- None.
+- None. The game runs with placeholders until the paintings arrive.
 
 ## Decisions needed
 
-See `docs/DISCOVERY.md` §8. The game works with the defaults; nothing blocks Epic 1.
-
-1. Which twin is Fire Girl, which is Flower Girl (default: they choose on first launch).
-2. Name of the money (default: coins).
-3. Shared or separate wallets (default: separate).
-4. Keep the proposed names: Emberfall, Petalvale, Thistledown School, Middlemarket.
+1. Go on Epic 1 (the shell).
+2. The defaults still stand unless changed: money is "coins", separate wallets, the girls pick who is
+   Fire and who is Flower on first launch, names Emberfall / Petalvale / Stormhaven / Thistledown /
+   Middlemarket.

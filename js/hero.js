@@ -21,7 +21,9 @@ class Doll {
   update(dt, path) {
     this.animT += dt;
     if (this.target != null) {
-      const d = this.target - this.x, step = WALK_SPEED * dt;
+      const d = this.target - this.x;
+      const ease = Math.min(1, Math.abs(d) / 160) * 0.7 + 0.3;          // slow down into the stop
+      const step = WALK_SPEED * ease * dt;
       this.facing = d < 0 ? -1 : 1;
       if (Math.abs(d) <= step) { this.x = this.target; this.target = null; this.anim = 'idle'; this.justStopped = true; }
       else { this.x += Math.sign(d) * step; this.anim = 'walk'; }

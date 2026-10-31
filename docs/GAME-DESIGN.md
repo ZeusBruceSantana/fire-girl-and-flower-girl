@@ -331,13 +331,14 @@ Everything typed here stays on the device. Nothing is ever committed to the repo
 
 ## 12. Storybook scenes (how the world looks)
 
-Every place is a painted scene in four layers (sky, far, mid, near) with gentle parallax, a walk
-path, hotspots (doors, people, things) and a time-of-day tint. Heroes are paper-doll cut-outs
-whose gear changes the look. Tap a hotspot and the hero walks there along the path; there is no
+Every place is a painted scene (one painting per scene, generated from `docs/ART-PROMPTS.md`;
+four parallax layers are optional) with a walk path, hotspots (doors, people, things), a
+time-of-day tint, soft light shafts and a vignette. Heroes are painted cut-outs (one per princess,
+optional expressions; paper-doll layers are optional) whose gear changes the look. Tap a hotspot and the hero walks there along the path; there is no
 free movement and nothing fast. Particles (embers, petals, sparks, fireflies) make it alive.
 Scene definitions are data in `data/scenes.js`; art files follow the contract in
-`docs/ART-STYLE.md`; the list of scenes to buy is `docs/ART-SHOTLIST.md`. Until art is bought,
-every scene is a built-in cut-paper placeholder that still looks like a game.
+`docs/ART-STYLE.md`; the list of scenes to buy is `docs/ART-SHOTLIST.md`. Until the paintings
+arrive, every scene is a vector placeholder used only for building and testing.
 
 ---
 

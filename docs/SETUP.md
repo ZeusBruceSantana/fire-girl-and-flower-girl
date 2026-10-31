@@ -62,8 +62,18 @@ node tests/run-in-ci.js
 GitHub runs the same tests on every change. The result shows as a green check or a red cross next
 to each commit on GitHub.
 
-## 6. The Drive handoff
+## 6. Adding a painting you generated
+
+1. Follow `docs/ART-PROMPTS.md` to make it. Save it with the exact file name given there.
+2. On GitHub, open the folder (for example `art/scenes/lair`), **Add file → Upload files**, drag it in,
+   **Commit changes**. Or put it in Drive `to-code/art/` and tell Claude Code.
+3. Open `art/overrides.js` on GitHub, click the pencil, add a line like `'art/scenes/lair/full',`
+   inside the list, **Commit changes**.
+4. The page updates by itself within a couple of minutes. Tell Claude Code which scenes are in so the
+   walk line and tap spots can be tuned to the painting.
+
+## 7. The Drive handoff
 
 - New specs for Claude Code go in Google Drive, **Reading RPG Handoff / to-code**, as plain
   Markdown. A revised spec gets a version suffix (`-v2`, `-v3`); the newest wins.
-- Reports from Claude Code (STATUS.md, DISCOVERY.md) appear in **from-code**.
+- Reports from Claude Code (STATUS.md, GAME-DESIGN.md, ART-PROMPTS.md) appear in **from-code**.

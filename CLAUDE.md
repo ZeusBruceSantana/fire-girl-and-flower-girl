@@ -1,13 +1,14 @@
 # Working agreement for Claude Code sessions in this repo
 
-Read `docs/STATUS.md` first, then `docs/DISCOVERY.md` for the design. The owner is an experienced
+Read `docs/STATUS.md` first, then `docs/GAME-DESIGN.md` for the design and `docs/ARCHITECTURE.md` for how the code is shaped. The owner is an experienced
 project manager who is new to coding: PM language is fine, explain technical terms in a line.
 
 ## The game
 
-Ember Bloom: a two-player, touch-first reading RPG for 7-year-old twins on one shared screen (left / right halves,
-each player in her own color). Fire Girl and Flower Girl, princesses of Emberfall and Petalvale,
-best friends from magic school, help the town of Middlemarket. Reading is the magic.
+Ember Bloom: a touch-first educational RPG for 7-year-old twins (and later their cousin), three princesses
+at a royal magic boarding school who sneak out through a secret tunnel to help the town. A play session
+is one school day: two classes (reading, math, myths, art), lunch with friends, then an adventure.
+Three seats (left, right, away); the Surface shows two side by side, another device shows one.
 
 ## Hard rules
 
@@ -25,11 +26,15 @@ best friends from magic school, help the town of Middlemarket. Reading is the ma
    aloud before the player's first try.
 8. **Works solo and with two.** Drop-in / drop-out. The absent hero never loses anything.
 9. **Save ids are forever.** Never rename or remove an `id` once it could be in a saved game.
+10. **Never write into `S` directly.** Every change goes through `dispatch(type, hero, payload)` (see
+    `js/dispatch.js` and the ACTIONS table in `js/state.js`). Shared-world fields only turn on, go up or grow.
+11. **Art:** placeholders are vector SVG for building only. Real art is painted, one `full.png` per scene
+    and per hero, listed in `art/overrides.js`. Never polish placeholders instead of integrating real art.
 
 ## How we work
 
 - Plan before building. One epic at a time. Stop for the owner's approval after each epic and
-  before each phase (see `docs/DISCOVERY.md`, "Ordered plan").
+  before each phase (the roadmap is in `docs/GAME-DESIGN.md`).
 - Small, clearly described commits in plain language.
 - No build step, no framework, no bundler. Plain HTML, CSS and JS that runs from GitHub Pages and
   offline. Follow the patterns already in `js/core.js` and `tests/`.

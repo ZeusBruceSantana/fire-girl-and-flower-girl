@@ -91,3 +91,16 @@ const QUESTS = [
     repeat: false,
     done: 'Hoo-ray! The two kingdoms are friends again. Because you were first.' },
 ];
+
+/* Electric Girl's quests (Epic 9 fills these out). */
+QUESTS.push(
+  { id: 'sleepy-clock', word: 'The Sleepy Clock', giver: 'signpainter', area: 'town', who: 'electric',
+    steps: [
+      { say: 'The town clock stopped. Mr. Tilt painted over the winding key by mistake.', challenge: null },
+      { say: 'A little spark will wake it. Read the word on the clock face.', challenge: 'hear-and-pick', spell: 'zap' },
+      { say: 'Now make it hum along. Build the word.', challenge: 'letter-tiles', spell: 'hum' },
+    ],
+    reward: { xp: 10, coins: 5, item: 'gem-amber', chance: 0.3 },
+    repeat: true,
+    done: 'Tick, tock, tick. Everyone is on time again. Mostly.' },
+);

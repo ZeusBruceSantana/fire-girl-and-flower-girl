@@ -217,8 +217,10 @@ function stageDraw() {
   drawParticles(ctx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   drawLayer(ctx, 'near', panX, panY, s);
+  drawLightShafts(ctx, c, panX, s);
   const tint = TINTS[Stage.scene.tint];
   if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); }
+  drawVignette(ctx, c);
   if (QUERY.has('debug')) drawDebug(ctx, panX, panY, s);
   drawFade(ctx, c);
 }
@@ -250,6 +252,30 @@ function drawParticles(ctx) {
     ctx.shadowBlur = 0;
   }
   ctx.globalAlpha = 1;
+}
+/* Soft light shafts for sunny and lantern-lit places: slow, wide, barely there. */
+const SHAFT_SCENES = { day: 'rgba(255,245,210,', morning: 'rgba(255,230,190,', lantern: 'rgba(255,200,120,', evening: 'rgba(255,200,150,' };
+function drawLightShafts(ctx, c, panX, s) {
+  const col = SHAFT_SCENES[Stage.scene.tint];
+  if (!col) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 4; i++) {
+    const t = Stage.time * 0.08 + i * 1.7;
+    const x = ((i * 0.27 + 0.1 + Math.sin(t) * 0.04) * SCENE_SIZE.w - panX * 0.4) * s;
+    const w = c.height * 0.35, a = 0.035 + Math.sin(t * 1.3) * 0.015;
+    const g = ctx.createLinearGradient(x, 0, x + w * 0.5, c.height);
+    g.addColorStop(0, col + a + ')'); g.addColorStop(1, col + '0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + w * 0.6, 0); ctx.lineTo(x + w * 1.4, c.height); ctx.lineTo(x + w * 0.2, c.height); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+/* A gentle darkening at the edges pulls the eye to the middle and makes any painting feel finished. */
+function drawVignette(ctx, c) {
+  const g = ctx.createRadialGradient(c.width / 2, c.height / 2, Math.min(c.width, c.height) * 0.45, c.width / 2, c.height / 2, Math.max(c.width, c.height) * 0.75);
+  g.addColorStop(0, 'rgba(20,10,0,0)'); g.addColorStop(1, 'rgba(20,10,0,0.28)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height);
 }
 function drawFade(ctx, c) {
   if (Stage.fade < 0.01) return;
