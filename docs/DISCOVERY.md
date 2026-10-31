@@ -1,6 +1,6 @@
 # Discovery (Epic 0)
 
-**Project:** Fire Girl and Flower Girl, a two-player reading RPG for the twins
+**Project:** Ember Bloom (Fire Girl and Flower Girl), a two-player reading RPG for the twins
 **Date:** 2026-10-31 · **Status:** ready for the owner's review, no game code written
 
 This answers the brief's Epic 0 checklist (§8). Terms that may be new are explained in a line
@@ -47,7 +47,7 @@ for a legendary-item particle burst, if ever.
 
 ## 3. Save system and two heroes on one screen
 
-**One save object, one key** (`fgfg-save-v1` in local storage). Shape, already in `js/core.js`:
+**One save object, one key** (`ember-bloom-save-v1` in local storage). Shape, already in `js/core.js`:
 
 ```
 version

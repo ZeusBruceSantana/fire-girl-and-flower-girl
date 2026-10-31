@@ -5,6 +5,8 @@ decision, so a future session does not reopen them without reason.
 
 ## 2026-10-31
 
+- **The game is called Ember Bloom.** Owner's choice, named after the together magic. The repo keeps
+  its original name; the save key is `ember-bloom-save-v1`.
 - **New repo, not the "existing" one.** The brief referred to an existing reading RPG repo; none
   existed. Started fresh at `ZeusBruceSantana/fire-girl-and-flower-girl`, public so GitHub Pages
   is free.

@@ -1,6 +1,6 @@
 'use strict';
 /* A tiny test runner. The game runs in the frame below with "?test", so it uses its own save
-   ("fgfg-test-save") instead of the girls' real one. Same approach as Twin Pets. */
+   ("ember-bloom-test-save") instead of the girls' real one. Same approach as Twin Pets. */
 
 const TESTS = [];
 const test = (name, fn) => TESTS.push({ name, fn });
@@ -11,7 +11,7 @@ function expectEqual(actual, wanted, msg) {
   if (a !== w) throw new Fail(`${msg}: wanted ${w}, got ${a}`);
 }
 
-const TEST_KEY = 'fgfg-test-save';
+const TEST_KEY = 'ember-bloom-test-save';
 const frame = document.getElementById('game');
 let W = null;                                  // the game's window
 const G = code => W.eval(code);                // run a bit of code inside the game

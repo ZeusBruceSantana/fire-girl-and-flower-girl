@@ -6,8 +6,8 @@
    NO real names here. The girls' own names are typed by a grown-up inside the game. */
 
 const WORLD = {
-  title: 'Fire Girl and Flower Girl',
-  tagline: 'Two princesses. One magic school. A town that needs help.',
+  title: 'Ember Bloom',
+  tagline: 'Fire Girl and Flower Girl. Two princesses, one magic school, a town that needs help.',
 
   /* Side colors a player can pick. "main" fills buttons, "light" tints her half, "dark" is her text. */
   colors: {

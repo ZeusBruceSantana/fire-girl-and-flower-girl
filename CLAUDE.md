@@ -5,7 +5,7 @@ project manager who is new to coding: PM language is fine, explain technical ter
 
 ## The game
 
-Two-player, touch-first reading RPG for 7-year-old twins on one shared screen (left / right halves,
+Ember Bloom: a two-player, touch-first reading RPG for 7-year-old twins on one shared screen (left / right halves,
 each player in her own color). Fire Girl and Flower Girl, princesses of Emberfall and Petalvale,
 best friends from magic school, help the town of Middlemarket. Reading is the magic.
 

@@ -1,5 +1,5 @@
 'use strict';
-/* Fire Girl and Flower Girl: the placeholder title screen (Epic 0).
+/* Ember Bloom: the placeholder title screen (Epic 0).
    Shows the game name and both heroes from data/world.js. Epic 1 replaces this with the real start screen
    (pick your princess, pick your color, join / leave). */
 

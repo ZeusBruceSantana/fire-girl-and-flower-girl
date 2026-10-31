@@ -13,11 +13,11 @@ test('The title screen opens and shows both princesses', async () => {
 
 test('In test mode the game uses its own save, never the real one', async () => {
   await openGame(null);
-  expectEqual(G('SAVE_KEY'), 'fgfg-test-save', 'the save key is the test one');
+  expectEqual(G('SAVE_KEY'), 'ember-bloom-test-save', 'the save key is the test one');
   G('S.heroes.left.coins = 7; save();');
   await sleep(400);
   expectEqual(saved().heroes.left.coins, 7, 'a change was written to the test save');
-  expect(localStorage.getItem('fgfg-save-v1') === null, 'the real save was not touched');
+  expect(localStorage.getItem('ember-bloom-save-v1') === null, 'the real save was not touched');
 });
 
 test('Progress is still there after closing and opening the game', async () => {
@@ -34,7 +34,7 @@ test('Progress is still there after closing and opening the game', async () => {
 test('A damaged save does not break the game', async () => {
   await openGame('{ this is not a save');
   expectEqual(G('scene'), 'title', 'the game still opens (as a new game)');
-  expect(localStorage.getItem('fgfg-test-save-damaged'), 'the damaged save was set aside, not thrown away');
+  expect(localStorage.getItem('ember-bloom-test-save-damaged'), 'the damaged save was set aside, not thrown away');
 });
 
 test('Every quest, area and item points at things that exist', async () => {

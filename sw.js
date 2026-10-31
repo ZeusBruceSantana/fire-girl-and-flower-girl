@@ -1,9 +1,9 @@
-/* Fire Girl and Flower Girl offline helper (a "service worker").
+/* Ember Bloom offline helper (a "service worker").
    After the game has been opened once with internet, the tablet keeps a copy of every
    file, so the game works without internet. When there is internet, it always gets the
    newest files first, so updates arrive by themselves. Nothing here needs changing
    when the game is updated. (Same approach as Twin Pets.) */
-const CACHE = 'fgfg-files';
+const CACHE = 'ember-bloom-files';
 
 // Pictures the page only asks for once the game is running (none yet).
 const EXTRA_FILES = [];

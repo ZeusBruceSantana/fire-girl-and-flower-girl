@@ -1,6 +1,6 @@
-# Fire Girl and Flower Girl
+# Ember Bloom
 
-A two-player reading adventure for two 7-year-old sisters, played side by side on one touch
+The adventures of Fire Girl and Flower Girl. A two-player reading adventure for two 7-year-old sisters, played side by side on one touch
 screen (a Microsoft Surface or an iPad). Two princesses from kingdoms that never mix, one magic
 school, and a town that always needs a little help.
 

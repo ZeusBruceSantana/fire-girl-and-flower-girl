@@ -1,4 +1,4 @@
-# Runs the Fire Girl and Flower Girl tests (tests/index.html) on every pull request and every change to main.
+# Runs the Ember Bloom tests (tests/index.html) on every pull request and every change to main.
 name: Tests
 on:
   pull_request:

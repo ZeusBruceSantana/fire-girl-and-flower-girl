@@ -1,4 +1,4 @@
-# The world of Fire Girl and Flower Girl
+# The world of Ember Bloom
 
 The story bible. Everything here is also in `data/world.js`, which is what the game actually
 reads. Change the words there; this page is the version to read aloud at bedtime.

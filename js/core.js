@@ -1,5 +1,5 @@
 'use strict';
-/* Fire Girl and Flower Girl: the heart of the game.
+/* Ember Bloom: the heart of the game.
    Epic 0: only saving and loading. Heroes, quests, the town and the learning loop arrive in later epics.
 
    Everything a player does is kept in one object, S (for "save"), and written to this device's
@@ -11,7 +11,7 @@
 // The test page (tests/index.html) runs the game with "?test" and its own save,
 // so running the tests never touches the girls' real progress.
 const TEST_MODE = /[?&]test\b/.test(location.search);
-const SAVE_KEY = TEST_MODE ? 'fgfg-test-save' : 'fgfg-save-v1';
+const SAVE_KEY = TEST_MODE ? 'ember-bloom-test-save' : 'ember-bloom-save-v1';
 const SAVE_VERSION = 1;
 const TEST_ERRORS = [];   // in test mode, anything that goes wrong is noted for the test page
 if (TEST_MODE) {
