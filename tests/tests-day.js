@@ -73,7 +73,7 @@ test('Day: lunch ends when any girl has done one thing, and an honest answer is 
   expect(!$g('.dlg .text').textContent.includes('Think again'), 'an honest answer does not get "think again"');
   await dismissDialogues();
   await until(() => (G('S.heroes.left.friends.ice') || 0) >= 1, 3000, 'one heart with Wren');
-  expectEqual(G('S.heroes.left.friends.ice'), 1, 'one heart for honest, two would be for the thoughtful one');
+  expectEqual(G('S.heroes.left.friends.ice'), 2, 'two hearts for honest, three would be for the thoughtful one');
   expectEqual(G('Day.part'), 'free', 'lunch is over for the day once one girl has done one thing; the other player never strands it');
 });
 

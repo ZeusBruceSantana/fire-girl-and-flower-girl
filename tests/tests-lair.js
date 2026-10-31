@@ -10,18 +10,18 @@ async function openWorldL() {
 
 test('Lair upgrades: the lantern lists cards and buying with the fund works', async () => {
   await openWorldL();
-  G("dispatch('hero.hearts', 'left', { amount: 10 })");           // half goes to the fund
-  expectEqual(G('S.shared.lair.fund'), 5, 'ten hearts earned, five in the fund');
+  G("dispatch('hero.hearts', 'left', { amount: 10 })");           // a copy goes to the fund
+  expectEqual(G('S.shared.lair.fund'), 10, 'ten hearts earned, ten in the fund');
   G("Lair.open('left', 'upgrades')");
   await until(() => $$g('#lair .lair-card').length > 0, 2000, 'upgrade cards');
   expectEqual($$g('#lair .lair-card').length, G('LAIR.upgrades.length'), 'one card per upgrade');
   expect($g('#lair .lair-card[data-up="cushions"].owned'), 'the cushions are ours from the start');
-  expect($g('#lair .lair-card[data-up="lantern"].buyable [data-buy]'), 'the lantern (3 hearts) can be bought with 5');
+  expect($g('#lair .lair-card[data-up="lantern"].buyable [data-buy]'), 'the lantern (3 hearts) can be bought with 10');
   expect($g('#lair .lair-card[data-up="case-board"].locked'), 'the case board needs the lantern first');
   tap($g('#lair [data-buy="lantern"]'));
   await sleep(50);
   expect(G('S.shared.lair.upgrades.includes("lantern")'), 'the lantern is ours');
-  expectEqual(G('S.shared.lair.fund'), 2, 'the fund dropped by 3');
+  expectEqual(G('S.shared.lair.fund'), 7, 'the fund dropped by 3');
   expect($g('#lair .lair-card[data-up="lantern"].owned'), 'the card shows owned');
   tap($g('#lair [data-close]')); await sleep(30);
   expect(!$g('#lair.show'), 'closed');

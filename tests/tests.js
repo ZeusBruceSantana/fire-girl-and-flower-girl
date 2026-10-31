@@ -323,7 +323,7 @@ test('Every exit, hotspot, teacher, case, adventure and friend points at things 
       for (const [k, v] of Object.entries(m.spawn)) if (!Array.isArray(v)) out.push('map ' + id + ' bad spawn ' + k);
     }
     for (const t of Object.values(WORLD.troubles)) { for (const l of t.loot) if (!itemIds.has(l.item)) out.push('trouble ' + t.name + ' loot missing item ' + l.item); if (!['fire', 'flower', 'electric'].includes(t.weakTo)) out.push('trouble ' + t.name + ' bad weakTo'); }
-    for (const u of LAIR.upgrades) if (u.needs && !LAIR.upgrades.some(x => x.id === u.needs)) out.push('lair upgrade ' + u.id + ' needs unknown ' + u.needs);
+    for (const u of LAIR.upgrades) { if (u.needs && !LAIR.upgrades.some(x => x.id === u.needs)) out.push('lair upgrade ' + u.id + ' needs unknown ' + u.needs); if ((u.hearts != null) === (u.coins != null)) out.push('lair upgrade ' + u.id + ' must have exactly one of hearts or coins'); }
     for (const s of Object.values(ITEM_SETS)) for (const i of s.items) if (!itemIds.has(i)) out.push('set lists missing item ' + i);
     const odds = Object.values(WORD_BOXES.pickOdds).reduce((a, b) => a + b, 0);
     if (Math.abs(odds - 1) > 0.001) out.push('WORD_BOXES.pickOdds add up to ' + odds + ', not 1');
