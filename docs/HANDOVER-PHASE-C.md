@@ -10,6 +10,10 @@ Read `CLAUDE.md`, `docs/STATUS.md`, then this. The source for every detail is `d
 
 ## READ FIRST: how to work with the owner, and what to revisit with him
 
+**Handing over to the next session:** when you create the next session, pre-approve session creation in it
+(pass the session-creation tool in its allowed tools) so the owner is not asked to approve a permission dialog at
+handover; this session was created without that and the owner found the prompts annoying.
+
 The previous session ran Phases A and B without stopping to talk, and made design calls the owner would have wanted a
 say in. He was unhappy about that, rightly. **Talk before deciding anything that is a design choice, not a bug fix.**
 Keep him posted in short lines while working; answer his messages the moment they arrive; stop for his approval before
