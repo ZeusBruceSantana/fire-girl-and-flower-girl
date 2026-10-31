@@ -8,6 +8,8 @@
      - icons paired with words; every word tappable to hear it
      - no scrolling, no zooming, no text selection, no long-press menus
    The three seat colors (--L, --R, --A) are filled in by the game from data/world.js.
+   Overlay order, low to high (explicit z-indexes, so a word card can never hide under a battle):
+     #range 5 < #dialogue 10 < #menu, #shop, #lair, #cases, #crafting 20 < #storybook, #artclass 25 < #battle 30 < #challenge 40 < #title 50 < #parent 100
    ===================================================================== */
 :root {
   --L: #ffa14f; --L-light: #fff0e0; --L-dark: #b05a10;    /* left seat */
@@ -46,7 +48,7 @@ body[data-scene="title"] #place { opacity: 0; }
 
 /* ---------- title ---------- */
 #title {
-  position: fixed; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 8vmin;
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding-top: 8vmin;
   background: radial-gradient(ellipse at 50% 30%, rgba(255,240,210,.18), rgba(20,10,0,.35) 70%);
   opacity: 0; pointer-events: none; transition: opacity .5s;
 }
@@ -144,7 +146,7 @@ body[data-scene="title"] #place { opacity: 0; }
 .bubble .bigbtn.next { margin: 1.5vmin auto 0; display: flex; width: calc(var(--btn) * .8); height: calc(var(--btn) * .8); }
 
 /* ---------- the grown-up corner (parent screen) ---------- */
-#parent { position: fixed; inset: 0; display: none; background: rgba(40,25,10,.6); overflow: hidden; }
+#parent { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(40,25,10,.6); overflow: hidden; }
 #parent.show { display: flex; align-items: flex-start; justify-content: center; padding: 3vmin; }
 #parent * { -webkit-user-select: text; user-select: text; }
 #parent .panel { background: var(--paper); border-radius: 3vmin; padding: 3vmin 4vmin; width: min(1100px, 100%); max-height: 100%; overflow: auto; overscroll-behavior: contain; touch-action: pan-y; font-size: 18px; line-height: 1.4; }
@@ -207,7 +209,7 @@ body[data-scene="title"] #place { opacity: 0; }
 body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="intro"] #hud, body[data-scene="parent"] #hud { display: none; }
 
 /* ---------- dialogue ---------- */
-#dialogue { position: fixed; inset: 0; display: none; pointer-events: none; }
+#dialogue { position: fixed; inset: 0; z-index: 10; display: none; pointer-events: none; }
 #dialogue.show { display: block; }
 .dlg { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); width: min(92vw, 1400px); display: flex; gap: 2vmin; align-items: flex-end; pointer-events: auto; animation: rise .25s ease-out; }
 @keyframes rise { from { transform: translate(-50%, 4vmin); opacity: 0; } }
@@ -227,7 +229,7 @@ body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="in
 .dlg.seat-left .body { border-color: var(--L-dark); } .dlg.seat-right .body { border-color: var(--R-dark); }
 
 /* ---------- challenges ---------- */
-#challenge { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.45); }
+#challenge { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.45); }
 #challenge.show { display: flex; }
 .ch-card { width: min(90vw, 1200px); padding: 3vmin 4vmin 4vmin; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .5vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); text-align: center; animation: pop .25s ease-out; }
 #challenge.seat-left .ch-card { border-color: var(--L-dark); } #challenge.seat-right .ch-card { border-color: var(--R-dark); }
@@ -254,7 +256,7 @@ body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="in
 .ch-hint { margin-top: 2vmin; min-height: 4vmin; font-size: 3vmin; font-weight: 900; color: #b05a10; }
 
 /* ---------- the ornate menu ---------- */
-#menu { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
+#menu { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
 #menu.show { display: flex; }
 #menu .frame { width: min(94vw, 1500px); height: min(90vh, 900px); display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
 #menu .tabs { display: flex; gap: 1vmin; padding: 1.6vmin 1.6vmin 0; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }

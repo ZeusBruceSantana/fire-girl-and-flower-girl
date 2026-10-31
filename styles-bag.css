@@ -31,7 +31,7 @@
 .cell.ghost { position: fixed; z-index: 50; width: 17vmin; transform: translate(-50%, -60%) rotate(-4deg); pointer-events: none; opacity: .9; box-shadow: 0 2vmin 4vmin rgba(0,0,0,.35); }
 
 /* ---------- crafting overlay (same frame as the menu) ---------- */
-#crafting { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
+#crafting { position: fixed; inset: 0; z-index: 20; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.5); }
 #crafting.show { display: flex; }
 #crafting .frame { width: min(94vw, 1300px); max-height: 90vh; display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .6vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); overflow: hidden; animation: pop .25s ease-out; }
 #crafting .tabs { display: flex; gap: 1vmin; padding: 1.6vmin 1.6vmin 0; border-bottom: .4vmin solid var(--gold); background: rgba(0,0,0,.04); }

@@ -1,7 +1,7 @@
 /* =====================================================================
    EMBER BLOOM: the battle screen (js/battle.js). Parchment and gold over a painted backdrop.
    ===================================================================== */
-#battle { position: fixed; inset: 0; display: none; overflow: hidden; color: var(--ink2); }
+#battle { position: fixed; inset: 0; z-index: 30; display: none; overflow: hidden; color: var(--ink2); }
 #battle.show { display: block; }
 #battle .backdrop { position: absolute; inset: 0; background: #1a1410; }
 #battle .backdrop .bd { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

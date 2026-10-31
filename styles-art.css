@@ -1,5 +1,5 @@
 /* Art class: the shared easel with a palette strip on each girl's side. */
-#artclass { position: fixed; inset: 0; display: none; background: rgba(30,18,6,.5); z-index: 6; }
+#artclass { position: fixed; inset: 0; display: none; background: rgba(30,18,6,.5); z-index: 25; }
 #artclass.show { display: block; }
 #artclass .easel-wrap { position: absolute; inset: 2vmin; display: flex; gap: 1.5vmin; }
 #artclass .easel-side { width: 18vmin; flex: none; display: flex; flex-direction: column; align-items: center; gap: 1.2vmin; padding: 1.2vmin; overflow: auto; overscroll-behavior: contain;
