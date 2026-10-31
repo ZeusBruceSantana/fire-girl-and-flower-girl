@@ -24,8 +24,8 @@ let companionRng = Math.random;
 function companionTick(now) {
   if (!NET.isHost()) return;
   for (const seat of WORLD.seats) {
-    if (S.settings.localSeats.includes(seat)) continue;
-    if (P[seat].driver === 'player') continue;
+    if (isPlayerHere(seat)) continue;
+    if (P[seat].driver === 'player' && !S.settings.localSeats.includes(seat)) continue;   // a real player on another device
     P[seat].driver = 'npc';
     const d = decide(seat, S, P, companionRng, now);
     if (d.presence) setPresence(seat, d.presence);

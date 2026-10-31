@@ -30,6 +30,8 @@ const Speech = {
   /* The target word of a challenge: only after the player has tried once. */
   sayWord(word, { tried }) { if (!tried) return false; this.say(word, { rate: 0.75 }); return true; },
   stop() { if ('speechSynthesis' in window) speechSynthesis.cancel(); },
+  /* A grown-up picked a voice in the parent screen (or "" for automatic). */
+  setVoice(uri) { if (!('speechSynthesis' in window)) return; const vs = speechSynthesis.getVoices(); this.voice = (uri && vs.find(v => v.voiceURI === uri)) || pickVoice(vs); },
 };
 function pickVoice(voices, { localOnly = false } = {}) {
   const good = voices.filter(v => v.lang && /^en/i.test(v.lang) && !/undefined/.test(v.name || ''));

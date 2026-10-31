@@ -85,7 +85,8 @@ async function stageGo(sceneId, { positions = {} } = {}) {
     const x = positions[seat] != null ? positions[seat] : def.spawn[seat];
     h.placeOnPath(x);
     h.target = null; h.anim = 'idle';
-    if (S.settings.localSeats.includes(seat) && h.visible) setPresence(seat, { scene: sceneId, x: h.x, anim: 'idle', facing: h.facing, driver: 'player' });
+    if (isPlayerHere(seat) && h.visible) setPresence(seat, { scene: sceneId, x: h.x, anim: 'idle', facing: h.facing, driver: 'player' });
+    else if (S.settings.localSeats.includes(seat)) { P[seat].scene = null; }   // a local seat nobody is playing: the companion brings her along
   }
   Stage.cam.x = cameraTargetX();
   Stage.fadeTarget = 0;
@@ -117,7 +118,7 @@ function pathY(path, x) {
 }
 function pathBounds(path) { return [path[0][0], path[path.length - 1][0]]; }
 function cameraTargetX() {
-  const local = S.settings.localSeats.map(s => Stage.heroes[s]).filter(h => h && h.visible);
+  const local = S.settings.localSeats.filter(isPlayerHere).map(s => Stage.heroes[s]).filter(h => h && h.visible);
   const xs = local.length ? local.map(h => h.x) : [SCENE_SIZE.w / 2];
   const mid = xs.reduce((a, b) => a + b, 0) / xs.length;
   return clamp(mid, Stage.visW / 2, SCENE_SIZE.w - Stage.visW / 2);
@@ -140,8 +141,8 @@ function stageUpdate(dt, now) {
   for (const seat of WORLD.seats) {
     const h = Stage.heroes[seat];
     if (!h || !h.visible) continue;
-    const mine = S.settings.localSeats.includes(seat);
-    if (!mine) {                                   // driven elsewhere: follow presence
+    const mine = isPlayerHere(seat);
+    if (!mine) {                                   // driven elsewhere (another device, or the companion): follow presence
       const p = P[seat];
       if (p.scene !== Stage.scene.id) { h.visible = false; continue; }
       if (p.target != null && h.target == null) { h.target = p.target; P[seat].target = null; }
@@ -157,7 +158,7 @@ function stageUpdate(dt, now) {
   }
   for (const seat of WORLD.seats) {                 // others arriving into this scene
     const h = Stage.heroes[seat];
-    if (h && !S.settings.localSeats.includes(seat) && !h.visible && P[seat].scene === Stage.scene.id && (S.heroes[seat].kind || WORLD.defaultSides[seat])) {
+    if (h && !isPlayerHere(seat) && !h.visible && P[seat].scene === Stage.scene.id && (S.heroes[seat].kind || WORLD.defaultSides[seat])) {
       h.visible = true; h.placeOnPath(P[seat].x || Stage.scene.spawn[seat]);
     }
   }

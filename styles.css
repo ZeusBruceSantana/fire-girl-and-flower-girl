@@ -101,3 +101,69 @@ body[data-scene="title"] #place { opacity: 0; }
 @media (orientation: portrait) {
   .bubble { max-width: 90vw; font-size: 5vmin; }
 }
+
+/* ---------- join / leave ---------- */
+#seats { position: absolute; inset: 0; pointer-events: none; }
+.seatbtn { position: absolute; bottom: 4vmin; pointer-events: auto; }
+.seatbtn.seat-left  { left: 4vmin; }
+.seatbtn.seat-right { right: 4vmin; }
+.seatbtn.seat-away  { left: 50%; transform: translateX(-50%); }
+.seatbtn.empty .bigbtn.join { width: calc(var(--btn) * 1.4); height: calc(var(--btn) * 1.4); font-size: 3.4vmin; animation: breathe 2s ease-in-out infinite; }
+.seatbtn.seat-left .bigbtn  { border-color: var(--L); box-shadow: 0 .8vmin 0 var(--L-dark); }
+.seatbtn.seat-right .bigbtn { border-color: var(--R); box-shadow: 0 .8vmin 0 var(--R-dark); }
+.seatbtn.seat-away .bigbtn  { border-color: var(--A); box-shadow: 0 .8vmin 0 var(--A-dark); }
+@keyframes breathe { 50% { transform: scale(1.05); } }
+.byebtn { background: rgba(255,255,255,.7); color: var(--ink); font-weight: 800; font-size: 2.4vmin; padding: 1.4vmin 2.4vmin; border-radius: 3vmin; opacity: .75; }
+.byebtn:active { opacity: 1; }
+
+/* the grown-up corner: an invisible hold target, top-left */
+#corner { position: absolute; left: 0; top: 0; width: 14vmin; height: 14vmin; pointer-events: auto; }
+
+/* ---------- picking a princess ---------- */
+#pick { position: fixed; inset: 0; display: none; background: rgba(20,10,0,.35); }
+#pick.show { display: flex; }
+.pick-half { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vmin; padding: 3vmin; position: relative; }
+.pick-half.seat-left  { background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.2)); border-right: .4vmin solid rgba(255,255,255,.5); }
+.pick-half.seat-right { background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.2)); }
+.pick-title { font-size: 4.4vmin; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.4); }
+.pick-row { display: flex; gap: 2vmin; flex-wrap: wrap; justify-content: center; }
+.pick-row.hidden { visibility: hidden; }
+.pick-card { width: 22vmin; height: 26vmin; background: #fff; border-radius: 3.5vmin; border: .7vmin solid #f0c27a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1vmin; box-shadow: 0 .8vmin 0 #e0b070; }
+.pick-card .art { width: 15vmin; height: 15vmin; } .pick-card .art svg { width: 100%; height: 100%; }
+.pick-card .word { font-weight: 900; font-size: 2.6vmin; }
+.pick-card.on { border-color: #5cc77a; box-shadow: 0 0 0 .8vmin rgba(92,199,122,.4), 0 .8vmin 0 #33935a; transform: translateY(-.6vmin); }
+.pick-card.taken, .swatch.taken { opacity: .35; filter: grayscale(.6); }
+.pick-card.shake { animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-1vmin); } 75% { transform: translateX(1vmin); } }
+.swatch { width: 11vmin; height: 11vmin; border-radius: 50%; background: var(--c); border: .7vmin solid #fff; box-shadow: 0 .5vmin 1.5vmin rgba(0,0,0,.25); display: flex; align-items: flex-end; justify-content: center; }
+.swatch span { font-size: 2vmin; font-weight: 900; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.5); margin-bottom: .6vmin; }
+.swatch.on { border-color: #3e3a4f; transform: scale(1.12); }
+.pick-go .bigbtn.go { border-color: #5cc77a; box-shadow: 0 .8vmin 0 #33935a; background: #eafbe9; }
+.pick-half.done { justify-content: center; }
+.pick-done { width: 18vmin; height: 18vmin; } .pick-done svg { width: 100%; height: 100%; }
+.bubble .bigbtn.next { margin: 1.5vmin auto 0; display: flex; width: calc(var(--btn) * .8); height: calc(var(--btn) * .8); }
+
+/* ---------- the grown-up corner (parent screen) ---------- */
+#parent { position: fixed; inset: 0; display: none; background: rgba(40,25,10,.6); overflow: hidden; }
+#parent.show { display: flex; align-items: flex-start; justify-content: center; padding: 3vmin; }
+#parent * { -webkit-user-select: text; user-select: text; }
+#parent .panel { background: var(--paper); border-radius: 3vmin; padding: 3vmin 4vmin; width: min(1100px, 100%); max-height: 100%; overflow: auto; overscroll-behavior: contain; touch-action: pan-y; font-size: 18px; line-height: 1.4; }
+#parent h2 { margin: 0 0 .5em; font-size: 26px; display: flex; align-items: center; justify-content: space-between; }
+#parent h3 { margin: 1em 0 .4em; font-size: 20px; } #parent h3 small { font-weight: 600; opacity: .6; font-size: 15px; }
+#parent .note { margin: 0 0 1em; color: #6f6880; }
+#parent .seats { display: flex; gap: 2vmin; flex-wrap: wrap; }
+#parent section.seat { flex: 1; min-width: 280px; padding: 1em; border-radius: 2vmin; background: #fff; border: 3px solid #eee; }
+#parent section.seat.seat-left { border-color: var(--L); } #parent section.seat.seat-right { border-color: var(--R); } #parent section.seat.seat-away { border-color: var(--A); }
+#parent label { display: block; margin: .6em 0; font-weight: 700; } #parent label small { display: block; font-weight: 500; color: #6f6880; }
+#parent label.check { font-weight: 600; } #parent input[type=checkbox] { width: 22px; height: 22px; vertical-align: middle; }
+#parent input, #parent textarea, #parent select { font: inherit; width: 100%; padding: .5em .7em; border-radius: 12px; border: 2px solid #ddd; background: #fff; margin-top: .3em; }
+#parent textarea { min-height: 120px; }
+#parent .row { display: flex; gap: .8em; align-items: center; flex-wrap: wrap; margin: .6em 0; }
+#parent code { font-size: 20px; letter-spacing: .08em; background: #fff; padding: .4em .8em; border-radius: 10px; border: 2px solid #ddd; }
+#parent .pbtn { display: inline-block; font-weight: 800; padding: .6em 1.2em; border-radius: 14px; background: #fff; border: 3px solid #e0b070; box-shadow: 0 4px 0 #e0b070; cursor: pointer; -webkit-user-select: none; user-select: none; }
+#parent .pbtn.go, #parent .pbtn.close { background: #5cc77a; color: #fff; border-color: #33935a; box-shadow: 0 4px 0 #33935a; }
+#parent .pbtn.small { padding: .4em .9em; font-size: 15px; }
+#parent .row.danger { margin-top: 1.5em; } #parent .row.danger .pbtn { border-color: #e08a8a; box-shadow: 0 4px 0 #c45f5f; }
+#parent .progress { margin-top: .5em; color: #6f6880; }
+#parent.pin .panel { width: 360px; text-align: center; margin-top: 10vh; }
+#parent input.shake { animation: shake .4s; border-color: #c23b3b; }

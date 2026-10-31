@@ -60,6 +60,11 @@ async function openTwoDevices() {
 }
 function loadFrame2(src) { return new Promise(resolve => { frame2.onload = () => resolve(); frame2.src = src; }); }
 async function reopenGame() { await openGame(saved()); }
+/* A save where both girls have already picked their princess and seen the story: the game opens on the title. */
+function readySave() {
+  return { heroes: { left: { kind: 'fire', color: 'orange', setup: true, joined: true }, right: { kind: 'flower', color: 'green', setup: true, joined: true } },
+           shared: { flags: { 'intro-seen': true } } };
+}
 /* A finger tap: down and up on the middle of the element. */
 function tap(el, { hold = 0, x, y } = {}) {
   if (!el) throw new Fail('There was nothing to tap');

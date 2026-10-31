@@ -6,8 +6,34 @@
 /* =====================================================================
    OPENING, SAVING, LOADING
    ===================================================================== */
-test('The title opens over the Academy gate with three princesses', async () => {
+test('A brand-new game asks each girl to pick a princess and a color', async () => {
   await openGame(null);
+  await until(() => G('scene') === 'pick', 10000, 'the picking screen');
+  tap($g('.pick-half[data-seat="left"] .pick-card[data-kind="fire"]'));
+  await sleep(100);
+  tap($g('.pick-half[data-seat="right"] .pick-card[data-kind="fire"]'));      // already taken by her sister
+  expectEqual(G('picking.right.kind'), null, 'the same princess as her sister cannot be picked');
+  tap($g('.pick-half[data-seat="right"] .pick-card[data-kind="flower"]'));
+  await sleep(100);
+  tap($g('.pick-half[data-seat="right"] .swatch[data-color="orange"]'));      // Fire Girl's default color, taken
+  expect(G('picking.right.color') !== 'orange', 'the same color as her sister cannot be picked');
+  tap($g('.pick-half[data-seat="right"] .swatch[data-color="pink"]'));
+  await sleep(100);
+  tap($g('.pick-half[data-seat="left"] [data-go]'));
+  await sleep(200);
+  tap($g('.pick-half[data-seat="right"] [data-go]'));
+  await until(() => G('scene') === 'intro', 5000, 'the school story');
+  for (let i = 0; i < 10 && G('scene') === 'intro'; i++) { tap($g('.bubble .bigbtn.next')); await sleep(150); }
+  await until(() => G('scene') === 'world', 5000, 'the world');
+  const S = G('S');
+  expectEqual([S.heroes.left.kind, S.heroes.left.color, S.heroes.right.kind, S.heroes.right.color], ['fire', 'orange', 'flower', 'pink'], 'choices saved');
+  expect(S.heroes.left.joined && S.heroes.right.joined, 'both joined');
+  expect(S.shared.flags['intro-seen'], 'the story is marked as seen');
+  expectEqual(saved().heroes.left.kind, 'fire', 'written to the save');
+});
+
+test('The title opens over the Academy gate with three princesses', async () => {
+  await openGame(readySave());
   await until(() => G('scene') === 'title', 10000, 'the title');
   expectEqual($g('#game-title').textContent, G('WORLD.title'), 'the title comes from data/world.js');
   expectEqual(G('document.body.dataset.place'), 'academy-gate', 'the gate scene is behind the title');
@@ -39,7 +65,7 @@ test('Progress is still there after closing and opening the game', async () => {
 
 test('A damaged save does not break the game', async () => {
   await openGame('{ this is not a save');
-  await until(() => G('scene') === 'title', 10000, 'the title');
+  await until(() => G('scene') === 'pick', 10000, 'the picking screen (a new game)');
   expect(localStorage.getItem('ember-bloom-test-save-damaged'), 'the damaged save was set aside, not thrown away');
 });
 
@@ -156,10 +182,79 @@ test('The companion drives the cousin until her real device joins', async () => 
 });
 
 /* =====================================================================
+   JOIN, LEAVE, THE GROWN-UP CORNER
+   ===================================================================== */
+test('A girl can leave and the companion walks her hero along; Join brings her back', async () => {
+  await openGame(readySave());
+  await until(() => G('scene') === 'title', 10000, 'the title');
+  tap($g('#title'));
+  await until(() => G('scene') === 'world', 2000, 'the world');
+  expect($g('.seatbtn.seat-right.joined'), 'the right seat shows Bye for now');
+  tap($g('.seatbtn.seat-right .byebtn'));
+  await sleep(100);
+  expectEqual(G('S.heroes.right.joined'), false, 'she left');
+  expect($g('.seatbtn.seat-right.empty .bigbtn.join'), 'a big Join button appears on her side');
+  G("onTap({ seat: 'right', x: 400, y: 800, hotspot: null })");
+  await sleep(100);
+  expectEqual(G('Stage.heroes.right.target'), null, 'taps on her side do nothing while she is away');
+  G("onTap({ seat: 'left', x: 1280, y: 800, hotspot: SCENES['academy-gate'].hotspots[0] })");
+  await until(() => G('document.body.dataset.place') === 'dorm', 8000, 'the dorm');
+  await until(() => G('P.right.scene') === 'dorm' && G('P.right.driver') === 'npc', 5000, 'the companion to bring her hero along');
+  tap($g('.seatbtn.seat-right .bigbtn.join'));
+  await sleep(150);
+  expectEqual(G('S.heroes.right.joined'), true, 'she is back');
+  expectEqual(G('S.heroes.left.coins'), 0, 'nothing changed for her sister');
+});
+
+test('The grown-up corner saves names, words, settings and a PIN, on the device only', async () => {
+  await openGame(readySave());
+  await until(() => G('scene') === 'title', 10000, 'the title');
+  G('parentOpen()');
+  await until(() => G('scene') === 'parent', 2000, 'the parent screen');
+  $g('[data-name="left"]').value = 'Twin A';
+  $g('[data-words="left"]').value = 'cat\nShip \n\nfrog';
+  $g('[data-words="right"]').value = 'sun, bed';
+  $g('[data-math="right"]').value = '2';
+  $g('[data-set="classLength"]').value = 'short';
+  $g('[data-set="readToGrownUp"]').checked = true;
+  $g('[data-pin]').value = '1234';
+  tap($g('[data-close]'));
+  await sleep(400);
+  const S = G('S');
+  expectEqual(S.heroes.left.name, 'Twin A', 'name saved');
+  expectEqual(S.heroes.left.words, ['cat', 'ship', 'frog'], 'words cleaned and saved');
+  expectEqual(S.heroes.right.words, ['sun', 'bed'], 'commas work too');
+  expectEqual([S.settings.mathLevel.right, S.settings.classLength, S.settings.readToGrownUp, S.settings.parentPin], [2, 'short', true, '1234'], 'settings saved');
+  expectEqual(G('Stage.heroes.left.label'), 'Twin A', 'her name shows over her head');
+  expect(!G('outboxAll().some(a => a.type === "settings.set")'), 'settings never go in the outbox (device only)');
+  G('parentGate()');
+  await sleep(100);
+  expect($g('#p-pin'), 'with a PIN set, the corner asks for it');
+  $g('#p-pin').value = '9999'; tap($g('[data-ok]')); await sleep(100);
+  expect($g('#p-pin'), 'a wrong PIN stays on the PIN screen');
+  $g('#p-pin').value = '1234'; tap($g('[data-ok]')); await sleep(100);
+  expect($g('[data-name="left"]'), 'the right PIN opens the corner');
+  tap($g('[data-close]')); await sleep(100);
+});
+
+test('A family world code and the cousin link can be made in the grown-up corner', async () => {
+  await openGame(readySave());
+  await until(() => G('scene') === 'title', 10000, 'the title');
+  G('parentOpen()');
+  tap($g('[data-makeworld]'));
+  await sleep(200);
+  const code = G('S.settings.worldCode');
+  expect(code && code.length === 24, 'a 24-letter code was made');
+  expect($g('[data-copylink]'), 'a copy-link button appears');
+  expect(!/[A-Z]/.test(code), 'lower case letters and digits only (easy to type)');
+  tap($g('[data-close]')); await sleep(100);
+});
+
+/* =====================================================================
    THE STAGE
    ===================================================================== */
 test('Tapping a door walks a hero there and the whole device travels', async () => {
-  await openGame(null);
+  await openGame(readySave());
   await until(() => G('scene') === 'title', 10000, 'the title');
   tap($g('#title'));
   await until(() => G('scene') === 'world', 2000, 'the world');

@@ -33,7 +33,7 @@ NET.onPresence((seat, p, fromDev) => {
 /* Seats nobody is driving go back to the companion after a quiet spell. */
 function presenceTick(now) {
   for (const seat of WORLD.seats) {
-    if (S.settings.localSeats.includes(seat)) continue;
+    if (S.settings.localSeats.includes(seat)) { if (!isPlayerHere(seat) && P[seat].driver === 'player') { P[seat].driver = 'npc'; notifyPresence(seat); } continue; }
     if (P[seat].driver === 'player' && now - (P[seat].seen || 0) > GONE_MS) {
       P[seat].driver = 'npc';
       if (S.settings.seatOwners[seat]) dispatch('settings.set', null, { seatOwners: { [seat]: null } });
