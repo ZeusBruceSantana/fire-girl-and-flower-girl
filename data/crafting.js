@@ -17,3 +17,11 @@ const RECIPES = [
   { id: 'lantern-paint', word: 'Lantern paint', needs: ['ash-paint', 'petal-dye'],     makes: 'lantern-paint',   who: 'any',      about: 'Ash and dye together: paint that holds a little light. Ember-Bloom magic in a jar.' },
   { id: 'ember-bloom',   word: 'Ember bloom',   needs: ['lantern-paint', 'glow-ink'],  makes: 'gem-ember-bloom', who: 'any',      about: 'The legendary one. A flower with a flame inside, and a spark to keep it glowing.' },
 ];
+
+/* POTIONS (Phase D, "brew the potion"): no materials, just reading. The recipe names two or three of her own words
+   (as pictures where the word has one); she finds each one's jar on the shelf by reading the labels. One brew a day.
+     words   how many ingredients      color   the cauldron's colour      makes   the item id that appears */
+const POTIONS = [
+  { id: 'giggle-potion', word: 'Giggle potion', words: 2, color: '#ff8fb8', makes: 'potion-giggle', about: 'Two ingredients. Smells of bubblegum.' },
+  { id: 'glow-potion',   word: 'Glow potion',   words: 3, color: '#ffd23f', makes: 'potion-glow',   about: 'Three ingredients. Glows in a dark cupboard.' },
+];
