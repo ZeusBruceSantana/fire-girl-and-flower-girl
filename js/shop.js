@@ -52,8 +52,7 @@ const Shop = {
       <div class="shop-tabs">
         <div class="shop-tab ${this.tab === 'buy' ? 'on' : ''}" data-tab="buy"><span class="icon">${ART['tab-bag']}</span><span class="word">${esc(SHOP_UI.buy)}</span></div>
         ${shop.buys ? `<div class="shop-tab ${this.tab === 'sell' ? 'on' : ''}" data-tab="sell"><span class="icon">${ART.coin}</span><span class="word">${esc(SHOP_UI.sell)}</span></div>` : ''}
-        <div class="shop-tab close" data-close><span class="icon">${ART.close}</span><span class="word">${esc(SHOP_UI.close)}</span></div>
-      </div>
+      </div>${uiCloseHtml(SHOP_UI.close)}
       <div class="shop-page"></div></div>`;
     this.el.querySelectorAll('[data-tab]').forEach(t => t.addEventListener('pointerdown', e => { e.stopPropagation(); this.tab = t.dataset.tab; this.render(); Speech.say(SHOP_UI[this.tab]); }));
     this.el.querySelector('[data-close]').addEventListener('pointerdown', e => { e.stopPropagation(); this.close(); });

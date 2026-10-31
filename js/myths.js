@@ -51,7 +51,7 @@ const Storybook = {
         <div class="book-text">${words}</div>
       </div>
       <div class="book-choice"></div>
-      <div class="book-nav"><div class="bigbtn next" data-next><span class="icon">${ART.arrow}</span><span class="word">${esc(MYTHS_UI.next)}</span></div></div>`;
+      <div class="book-nav"><div class="btn primary next" data-next><span class="icon">${ART.arrow}</span><span class="word">${esc(MYTHS_UI.next)}</span></div></div>`;
     b.card.querySelectorAll('.w').forEach(w => w.addEventListener('pointerdown', e => { e.stopPropagation(); Speech.say(w.textContent); w.classList.add('said'); }));
     Speech.say(page.text, { interrupt: false });
     b.card.querySelector('[data-next]').addEventListener('pointerdown', e => { e.stopPropagation(); this.next(seat); });

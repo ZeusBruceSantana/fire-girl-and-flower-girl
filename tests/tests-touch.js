@@ -34,7 +34,7 @@ test('Touch: tap targets keep their floors on a phone-sized screen', async () =>
     await sleep(300);                                        // the game's resize
     expect(W.innerWidth <= 400, 'the game is phone-sized (' + W.innerWidth + ' px wide)');
     const h = el => el.getBoundingClientRect().height, w = el => el.getBoundingClientRect().width;
-    const bye = $g('.byebtn');
+    const bye = $g('.btn.bye');
     expect(bye && h(bye) >= 44, 'Bye for now is at least 44 px tall (' + (bye && h(bye).toFixed(0)) + ')');
     const portrait = $g('.hudcard.seat-left .portrait');
     expect(w(portrait) >= 44 && h(portrait) >= 44, 'the HUD portrait is at least 44 px square');

@@ -23,7 +23,7 @@ const Menu = {
     const tabs = ['spellbook', 'bag', 'collection', 'journal', 'map', 'badges', 'friends'];
     this.el.innerHTML = `<div class="frame">
       <div class="tabs">${tabs.map(t => `<div class="tab ${t === this.tab ? 'on' : ''}" data-tab="${t}"><span class="icon">${ART['tab-' + t] || ''}</span><span class="word">${esc(WORLD.ui.tabs[t])}</span></div>`).join('')}
-        <div class="tab close" data-close><span class="icon">${ART.close}</span><span class="word">${esc(WORLD.ui.close)}</span></div></div>
+</div>${uiCloseHtml(WORLD.ui.close)}
       <div class="page page-${this.tab}"><div class="page-title">${esc(h.name || kind.title)} · ${esc(WORLD.ui.tabs[this.tab])}</div><div class="page-body"></div></div></div>`;
     this.el.querySelectorAll('[data-tab]').forEach(t => t.addEventListener('pointerdown', e => { e.stopPropagation(); this.tab = t.dataset.tab; this.render(); Speech.say(WORLD.ui.tabs[this.tab]); }));
     this.el.querySelector('[data-close]').addEventListener('pointerdown', e => { e.stopPropagation(); this.close(); });

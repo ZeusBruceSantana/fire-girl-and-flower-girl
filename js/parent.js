@@ -18,7 +18,7 @@ function parentGate() {
   if (!S.settings.parentPin) return parentOpen();
   const panel = parentShell('pin');
   panel.innerHTML = `<h2>${esc(WORLD.ui.parentPin)}</h2><input id="p-pin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off">
-    <div class="row"><div class="pbtn go" data-ok>${esc(WORLD.ui.ok)}</div><div class="pbtn" data-cancel>${esc(WORLD.ui.cancel)}</div></div>`;
+    <div class="row"><div class="btn confirm" data-ok>${esc(WORLD.ui.ok)}</div><div class="btn quiet" data-cancel>${esc(WORLD.ui.cancel)}</div></div>`;
   panel.querySelector('[data-ok]').addEventListener('pointerdown', () => { if ($('#p-pin').value === S.settings.parentPin) parentOpen(); else { $('#p-pin').value = ''; $('#p-pin').classList.add('shake'); } });
   panel.querySelector('[data-cancel]').addEventListener('pointerdown', parentClose);
   $('#p-pin').focus();
@@ -49,7 +49,7 @@ function parentOpen() {
     </section>`;
   };
   panel.innerHTML = `
-    <h2>${esc(WORLD.ui.parentTitle)} <div class="pbtn close" data-close>${esc(WORLD.ui.done)}</div></h2>
+    <h2>${esc(WORLD.ui.parentTitle)} <div class="btn confirm" data-close>${esc(WORLD.ui.done)}</div></h2>
     <p class="note">${esc(WORLD.ui.parentNote)}</p>
     ${typeof SaveState !== 'undefined' && SaveState.failed ? `<p class="note save-failed" style="color:#c23b3b;font-weight:800;border:3px solid #c23b3b;border-radius:12px;padding:.6em .9em">${esc(WORLD.ui.saveFailedNote)}</p>` : ''}
     <div class="seats">${seats.map(seatBlock).join('')}</div>
@@ -60,7 +60,7 @@ function parentOpen() {
       <label class="check"><input type="checkbox" data-set="readAloud" ${S.settings.readAloud ? 'checked' : ''}> ${esc(WORLD.ui.readAloud)}</label>
       <label class="check"><input type="checkbox" data-sound="muted" ${S.settings.sound.muted ? '' : 'checked'}> ${esc(WORLD.ui.sounds)}</label>
       <label class="check"><input type="checkbox" data-sound="music" ${S.settings.sound.music ? 'checked' : ''}> ${esc(WORLD.ui.music)}</label>
-      <label>${esc(WORLD.ui.voice)} <select data-voice>${voiceOptions()}</select> <div class="pbtn small" data-testvoice>${esc(WORLD.ui.testVoice)}</div></label>
+      <label>${esc(WORLD.ui.voice)} <select data-voice>${voiceOptions()}</select> <div class="btn small" data-testvoice>${esc(WORLD.ui.testVoice)}</div></label>
     </section>
     <section>
       <h3>${esc(WORLD.ui.thisDevice)}</h3>
@@ -68,11 +68,11 @@ function parentOpen() {
         <select data-seats>${[[['left', 'right'], WORLD.ui.twoSeats], [['left'], WORLD.ui.leftOnly], [['right'], WORLD.ui.rightOnly], [['away'], WORLD.ui.awayOnly]].map(([v, w]) => `<option value="${v.join(',')}" ${seats.join(',') === v.join(',') ? 'selected' : ''}>${esc(w)}</option>`).join('')}</select></label>
       <label>${esc(WORLD.ui.worldCode)} <small>${esc(WORLD.ui.worldCodeHelp)}</small>
         <div class="row"><code id="p-world">${esc(S.settings.worldCode || WORLD.ui.none)}</code>
-        <div class="pbtn small" data-makeworld>${esc(S.settings.worldCode ? WORLD.ui.newCode : WORLD.ui.makeCode)}</div>
-        ${S.settings.worldCode ? `<div class="pbtn small" data-copylink>${esc(WORLD.ui.copyLink)}</div>` : ''}</div></label>
+        <div class="btn small" data-makeworld>${esc(S.settings.worldCode ? WORLD.ui.newCode : WORLD.ui.makeCode)}</div>
+        ${S.settings.worldCode ? `<div class="btn small" data-copylink>${esc(WORLD.ui.copyLink)}</div>` : ''}</div></label>
       <label>${esc(WORLD.ui.roomUrl)} <small>${esc(WORLD.ui.roomUrlHelp)}</small> <input data-room placeholder="https://ember-bloom-relay.yourname.workers.dev" autocomplete="off" value="${esc(S.settings.roomUrl || '')}"></label>
       <label>${esc(WORLD.ui.pin)} <small>${esc(WORLD.ui.pinHelp)}</small> <input data-pin inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" value="${esc(S.settings.parentPin || '')}"></label>
-      <div class="row danger"><div class="pbtn" data-startover>${esc(WORLD.ui.startOver)}</div></div>
+      <div class="row danger"><div class="btn" data-startover>${esc(WORLD.ui.startOver)}</div></div>
     </section>`;
   const q = sel => panel.querySelector(sel);
   q('[data-close]').addEventListener('pointerdown', () => { parentSave(panel); parentClose(); });

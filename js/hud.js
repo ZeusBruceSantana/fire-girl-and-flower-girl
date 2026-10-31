@@ -11,12 +11,22 @@ const HUD = {
     for (const seat of S.settings.localSeats) {
       const h = S.heroes[seat];
       if (!h.setup) continue;
-      const kind = WORLD.heroes[h.kind];
-      const need = xpForLevel(h.level + 1) - xpForLevel(h.level), have = h.xp - xpForLevel(h.level);
-      const ring = 2 * Math.PI * 44, filled = ring * clamp(have / need, 0, 1);
       const card = document.createElement('div');
       card.className = 'hudcard seat-' + seat + (h.joined ? '' : ' away');
-      card.innerHTML = `
+      card.innerHTML = hudCardHtml(seat);
+      card.querySelector('[data-menu]').addEventListener('pointerdown', e => { e.stopPropagation(); if (sceneLayer) return; Menu.open(seat); });   // not over a dialogue, a class or a battle
+      root.append(card);
+    }
+  },
+};
+/* The inside of one hero's HUD card: portrait medallion with the XP ring and level, name, coins and hearts, the Ember
+   meter and (on the world) the objective line. The battle screen uses the same card (Battle.renderParty), so there is
+   one HUD look: call it with { objective: false } there. Wrap it in <div class="hudcard seat-<seat>">. */
+function hudCardHtml(seat, { objective = true } = {}) {
+  const h = S.heroes[seat], kind = WORLD.heroes[h.kind];
+  const need = xpForLevel(h.level + 1) - xpForLevel(h.level), have = h.xp - xpForLevel(h.level);
+  const ring = 2 * Math.PI * 44, filled = ring * clamp(have / need, 0, 1);
+  return `
         <div class="portrait" data-menu="${seat}">
           <svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" class="track"/><circle cx="50" cy="50" r="44" class="fill" style="stroke-dasharray:${filled.toFixed(1)} ${ring.toFixed(1)}"/></svg>
           <div class="face">${Dialogue.portraitHtml(null, seat)}</div>
@@ -29,12 +39,8 @@ const HUD = {
             <span class="c hearts">${ART.heart}<b>${h.hearts}</b></span>
           </div>
           <div class="ember" title="${esc(WORLD.ui.ember)}">${ART.ember}<div class="bar"><div class="in" style="width:${(100 * h.ember / h.maxEmber).toFixed(0)}%"></div></div><b>${h.ember}</b></div>
-          <div class="objective">${esc(currentObjective(seat))}</div>
+          ${objective ? `<div class="objective">${esc(currentObjective(seat))}</div>` : ''}
         </div>`;
-      card.querySelector('[data-menu]').addEventListener('pointerdown', e => { e.stopPropagation(); if (sceneLayer) return; Menu.open(seat); });   // not over a dialogue, a class or a battle
-      root.append(card);
-    }
-  },
-};
+}
 /* One line of what to do next. Grows with the epics (quests, cases, the timetable). */
 function currentObjective(seat) { return Day.objective(seat); }

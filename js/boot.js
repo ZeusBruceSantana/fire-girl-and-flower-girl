@@ -5,6 +5,9 @@
 
 async function boot() {
   uiInit();
+  // Painted interface art (art/ui/frame.png, art/ui/parchment.png) is used once listed in art/overrides.js:
+  // the body gets "has-ui-frame" / "has-ui-parchment" and styles.css draws the panels from it.
+  if (typeof ART_OVERRIDES !== 'undefined') for (const p of ART_OVERRIDES) if (p.startsWith('art/ui/')) document.body.classList.add('has-ui-' + p.slice(7).replace(/\W+/g, '-'));
   Speech.init();
   parentInit();
   Dialogue.init(); Challenge.init(); Menu.init();

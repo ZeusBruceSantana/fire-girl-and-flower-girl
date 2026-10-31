@@ -23,7 +23,7 @@ test('A brand-new game asks each girl to pick a princess and a color', async () 
   await sleep(200);
   tap($g('.pick-half[data-seat="right"] [data-go]'));
   await until(() => G('scene') === 'intro', 5000, 'the school story');
-  for (let i = 0; i < 10 && G('scene') === 'intro'; i++) { tap($g('.bubble .bigbtn.next')); await sleep(150); }
+  for (let i = 0; i < 10 && G('scene') === 'intro'; i++) { tap($g('.bubble .btn.next')); await sleep(150); }
   await until(() => G('scene') === 'world', 5000, 'the world');
   const S = G('S');
   expectEqual([S.heroes.left.kind, S.heroes.left.color, S.heroes.right.kind, S.heroes.right.color], ['fire', 'orange', 'flower', 'pink'], 'choices saved');
@@ -190,17 +190,17 @@ test('A girl can leave and the companion walks her hero along; Join brings her b
   tap($g('#title'));
   await until(() => G('scene') === 'world', 2000, 'the world');
   expect($g('.seatbtn.seat-right.joined'), 'the right seat shows Bye for now');
-  tap($g('.seatbtn.seat-right .byebtn'));
+  tap($g('.seatbtn.seat-right .btn.bye'));
   await sleep(100);
   expectEqual(G('S.heroes.right.joined'), false, 'she left');
-  expect($g('.seatbtn.seat-right.empty .bigbtn.join'), 'a big Join button appears on her side');
+  expect($g('.seatbtn.seat-right.empty .btn.join'), 'a big Join button appears on her side');
   G("onTap({ seat: 'right', x: 400, y: 800, hotspot: null })");
   await sleep(100);
   expectEqual(G('Stage.heroes.right.target'), null, 'taps on her side do nothing while she is away');
   G("onTap({ seat: 'left', x: 1280, y: 800, hotspot: SCENES['academy-gate'].hotspots[0] })");
   await until(() => G('document.body.dataset.place') === 'dorm', 8000, 'the dorm');
   await until(() => G('P.right.scene') === 'dorm' && G('P.right.driver') === 'npc', 5000, 'the companion to bring her hero along');
-  tap($g('.seatbtn.seat-right .bigbtn.join'));
+  tap($g('.seatbtn.seat-right .btn.join'));
   await sleep(150);
   expectEqual(G('S.heroes.right.joined'), true, 'she is back');
   expectEqual(G('S.heroes.left.coins'), 0, 'nothing changed for her sister');

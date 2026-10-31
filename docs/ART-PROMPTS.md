@@ -276,6 +276,12 @@ Same chat as the characters. These make the menus look like part of the book.
 > the center completely empty and plain, square, transparent background outside the frame. Same painted
 > storybook style.
 
+How it drops in: save the frame as `art/ui/frame.png`, add `'art/ui/frame'` to `art/overrides.js`, run
+`node tools/make-manifest.js`. Every panel (menus, shop, Lair, HUD cards, dialogue, challenge cards) then draws its edge
+from the painting. If the border looks too thick or thin, change `--frame-slice` (how much of the picture is border) and
+`--frame-width` (how thick it is drawn) at the top of `styles.css`. An optional `art/ui/parchment.png` (a plain parchment
+texture, listed the same way) becomes the panel background.
+
 **Name plate** · `art/ui/plate.png` (wide 4:1, transparent)
 > A small decorative gold-and-parchment name plate banner for a storybook game, empty in the middle,
 > transparent background.

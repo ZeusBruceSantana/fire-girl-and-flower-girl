@@ -30,7 +30,8 @@ test('Perf: a storm full of glowing particles and a map both keep drawing withou
   const t0 = G('Stage.time');
   await sleep(600);
   expect(G('Stage.time') > t0 + 0.3, 'the draw loop keeps running through a storm');
-  expect(G('Stage.particles.length') > 20, 'the storm is really on (' + G('Stage.particles.length') + ' drops)');
+  // drops spawn at most one per frame, so a slow first second (a font still loading) can need longer than 600 ms
+  await until(() => G('Stage.particles.length') > 20, 3000, 'the storm to be really on (' + G('Stage.particles.length') + ' drops)');
   G("Stage.scene.particles = 'embers'; for (let i = 0; i < 24; i++) Stage.particles.push({ x: 1280 + i * 10, y: 900, vx: 0, vy: -50, size: 12, color: '#ffd23f', life: 1, age: 0, phase: 0, burst: true })");
   await sleep(200);
   G("stageGo('map:whispering-woods')");

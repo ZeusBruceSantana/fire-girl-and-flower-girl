@@ -19,18 +19,18 @@
 .m-paid { width: 12vmin; height: 12vmin; } .m-paid svg { width: 100%; height: 100%; }
 .m-change { min-width: 24vmin; min-height: 12vmin; padding: 1vmin 1.6vmin; border-radius: 2vmin; background: rgba(255,255,255,.6); border: .4vmin dashed var(--gold); }
 .m-change.right { background: #eafbe9; border-color: #5cc77a; border-style: solid; }
-.m-change-label { font-weight: 900; font-size: 2.6vmin; }
+.m-change-label { font-weight: 800; font-size: 2.6vmin; }
 .m-given { display: flex; gap: .6vmin; flex-wrap: wrap; min-height: 7vmin; }
 .m-row.tray { gap: 2vmin; }
-.m-num { min-width: 11vmin; height: 11vmin; padding: 0 1vmin; border-radius: 2vmin; background: #fff; border: .5vmin solid var(--gold); font-size: 5vmin; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.m-num { min-width: 11vmin; height: 11vmin; padding: 0 1vmin; border-radius: 2vmin; background: #fff; border: .5vmin solid var(--gold); font-size: 5vmin; font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .m-num.blank { border-style: dashed; background: rgba(255,255,255,.6); color: #c9b58a; }
 #challenge.split .m-num { min-width: 8vmin; height: 8vmin; font-size: 3.8vmin; }
 .m-pic { width: 8vmin; height: 8vmin; } .m-pic svg { width: 100%; height: 100%; }
-.m-pic.blank { border-radius: 2vmin; border: .5vmin dashed var(--gold); display: flex; align-items: center; justify-content: center; font-size: 5vmin; font-weight: 900; color: #c9b58a; }
+.m-pic.blank { border-radius: 2vmin; border: .5vmin dashed var(--gold); display: flex; align-items: center; justify-content: center; font-size: 5vmin; font-weight: 800; color: #c9b58a; }
 .m-pic.tiny { width: 3.4vmin; height: 3.4vmin; }
 .m-group { display: flex; gap: .8vmin; flex-wrap: wrap; max-width: 36vmin; justify-content: center; }
 .m-group.faded { opacity: .35; text-decoration: line-through; }
-.m-op { font-size: 7vmin; font-weight: 900; color: var(--gold-dark); padding: 0 1.4vmin; }
+.m-op { font-size: 7vmin; font-weight: 800; color: var(--gold-dark); padding: 0 1.4vmin; }
 .ch-options.jars { align-items: center; }
 .ch-opt.jar { min-width: 22vmin; height: auto; padding: 1.4vmin; }
 .m-jar { position: relative; width: 18vmin; height: 20vmin; } .m-jar > svg { width: 100%; height: 100%; }

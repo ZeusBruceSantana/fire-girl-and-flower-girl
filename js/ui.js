@@ -41,10 +41,18 @@ function uiToast(text, { icon = null, ms = 1800 } = {}) {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, ms);
 }
 
-/* A big button: icon + word. */
+/* THE Close control: one round gold button with the word under it, top-right of every panel (styles.css .btn-close).
+   Every panel builds it here, so there is exactly one look; tests find it by [data-close]. `attr` names a different
+   data attribute for a panel inside a panel (the Lair's big picture). */
+function uiCloseHtml(word = WORLD.ui.close, attr = 'data-close') {
+  return `<div class="btn-close" ${attr} role="button" aria-label="${esc(word)}"><span class="disc">${ART.x}</span><span class="word">${esc(word)}</span></div>`;
+}
+
+/* A button from the one family (styles.css .btn): icon + word. `cls` adds the variant and shape: 'primary', 'confirm',
+   'quiet'; 'tile' for the big square, 'small' for a compact row. */
 function uiButton({ icon, word, onTap, cls = '' }) {
   const b = document.createElement('div');
-  b.className = 'bigbtn ' + cls;
+  b.className = 'btn ' + cls;
   b.innerHTML = (icon && ART[icon] ? `<span class="icon">${ART[icon]}</span>` : '') + `<span class="word">${esc(word)}</span>`;
   b.addEventListener('pointerdown', e => { e.stopPropagation(); onTap(b); });
   return b;

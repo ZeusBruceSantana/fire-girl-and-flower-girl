@@ -10,24 +10,24 @@
 /* ---------- the party, left ---------- */
 #battle .party { position: absolute; left: 2vmin; top: 2vmin; display: flex; flex-direction: column; gap: 1.4vmin; }
 #battle .member { display: flex; align-items: center; gap: 1.2vmin; padding: 1vmin 2vmin 1vmin 1vmin; border-radius: 5vmin;
-  background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .4vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); transition: transform .3s, box-shadow .3s; }
+  background: var(--parchment); border: .4vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); transition: transform .3s, box-shadow .3s; }
 #battle .member.turn { transform: translateX(1.4vmin) scale(1.04); box-shadow: 0 0 0 .8vmin rgba(255,210,63,.75), var(--frame-shadow); }
 #battle .member.auto { opacity: .8; }
 #battle .member .face { width: 9vmin; height: 9vmin; border-radius: 50%; overflow: hidden; background: #fff; border: .4vmin solid #fff; flex: none; }
 #battle .member .face svg, #battle .member .face img { width: 100%; height: 100%; object-fit: cover; }
-#battle .member .name { font-weight: 900; font-size: 2.6vmin; max-width: 30vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#battle .member .name { font-weight: 800; font-size: 2.6vmin; max-width: 30vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #battle .member .name .lv { display: inline-block; min-width: 3vmin; padding: 0 .6vmin; border-radius: 1.5vmin; background: var(--gold); color: #fff; font-size: 2vmin; text-align: center; margin-left: .4vmin; }
-#battle .member .ember { display: flex; align-items: center; gap: .5vmin; font-weight: 900; font-size: 2.1vmin; margin-top: .3vmin; }
+#battle .member .ember { display: flex; align-items: center; gap: .5vmin; font-weight: 800; font-size: 2.1vmin; margin-top: .3vmin; }
 #battle .member .ember svg { width: 2.8vmin; height: 2.8vmin; }
 #battle .member .ember .bar { width: 14vmin; height: 1.5vmin; border-radius: 1vmin; background: rgba(0,0,0,.15); overflow: hidden; }
 #battle .member .ember .in { height: 100%; background: linear-gradient(90deg, #ff7a3d, #ffd23f); border-radius: 1vmin; transition: width .4s; }
-#battle .member .status { display: inline-block; margin-top: .3vmin; font-weight: 900; font-size: 2vmin; padding: 0 .8vmin; border-radius: 1vmin; }
+#battle .member .status { display: inline-block; margin-top: .3vmin; font-weight: 800; font-size: 2vmin; padding: 0 .8vmin; border-radius: 1vmin; }
 #battle .member .status.soot { background: #3e3a4f; color: #fff; }
 #battle .member .status.tangle { background: #7fd08a; color: #fff; }
 
 /* ---------- the trouble, right ---------- */
 #battle .trouble { position: absolute; right: 6vmin; top: 10vmin; width: 40vmin; text-align: center; }
-#battle .trouble .plate { display: inline-block; background: linear-gradient(#ffe39a, var(--gold)); border: .4vmin solid var(--gold-dark); border-radius: 2vmin; padding: .5vmin 2.6vmin; font-weight: 900; font-size: 3vmin; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); box-shadow: 0 .4vmin 1vmin rgba(0,0,0,.25); }
+#battle .trouble .plate { display: inline-block; background: linear-gradient(#ffe39a, var(--gold)); border: .4vmin solid var(--gold-dark); border-radius: 2vmin; padding: .5vmin 2.6vmin; font-weight: 800; font-size: 3vmin; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); box-shadow: 0 .4vmin 1vmin rgba(0,0,0,.25); }
 #battle .trouble .sprite { width: 30vmin; height: 30vmin; margin: 1.5vmin auto; animation: idle-bob 2.4s ease-in-out infinite; }
 #battle.boss .trouble .sprite { width: 42vmin; height: 42vmin; }
 #battle .trouble .sprite img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1.5vmin 2vmin rgba(0,0,0,.35)); }
@@ -35,7 +35,7 @@
 #battle .trouble .sprite.wobble { animation: t-wobble .7s; }
 #battle .trouble.won .sprite { animation: t-leave 1.2s ease-in forwards; }
 #battle .trouble.phase2 .plate { background: linear-gradient(#ffb3cf, #ff6f9c); }
-#battle .trouble .giggle { display: flex; align-items: center; gap: 1vmin; justify-content: center; font-weight: 900; font-size: 2.4vmin; background: rgba(255,250,240,.85); border: .4vmin solid var(--gold-dark); border-radius: 3vmin; padding: .8vmin 1.6vmin; }
+#battle .trouble .giggle { display: flex; align-items: center; gap: 1vmin; justify-content: center; font-weight: 800; font-size: 2.4vmin; background: rgba(255,250,240,.85); border: .4vmin solid var(--gold-dark); border-radius: 3vmin; padding: .8vmin 1.6vmin; }
 #battle .trouble .giggle .bar { flex: 1; height: 2.4vmin; border-radius: 1.5vmin; background: rgba(0,0,0,.15); overflow: hidden; }
 #battle .trouble .giggle .in { height: 100%; width: 0; background: linear-gradient(90deg, #ffb3cf, #ff6f9c); border-radius: 1.5vmin; transition: width .5s; }
 #battle .trouble .giggle .smile { font-size: 3.4vmin; color: #ff6f9c; }
@@ -46,17 +46,17 @@
 
 /* ---------- floating numbers and callouts ---------- */
 #battle .floats { position: absolute; right: 18vmin; top: 22vmin; width: 20vmin; pointer-events: none; }
-#battle .float { position: absolute; left: 0; font-weight: 900; font-size: 7vmin; color: #fff; text-shadow: 0 .3vmin 1vmin rgba(0,0,0,.5); animation: float-up 1.2s ease-out forwards; }
+#battle .float { position: absolute; left: 0; font-weight: 800; font-size: 7vmin; color: #fff; text-shadow: 0 .3vmin 1vmin rgba(0,0,0,.5); animation: float-up 1.2s ease-out forwards; }
 #battle .float.big { font-size: 10vmin; color: #ffd23f; }
 @keyframes float-up { to { transform: translateY(-14vmin); opacity: 0; } }
 
 /* ---------- the message line and the move panel ---------- */
-#battle .message { position: absolute; left: 50%; bottom: 24vmin; transform: translateX(-50%); min-width: 40vw; max-width: 90vw; text-align: center; padding: 1.4vmin 3vmin; border-radius: 3vmin; font-weight: 900; font-size: 3.4vmin;
-  background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .4vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
+#battle .message { position: absolute; left: 50%; bottom: 24vmin; transform: translateX(-50%); min-width: 40vw; max-width: 90vw; text-align: center; padding: 1.4vmin 3vmin; border-radius: 3vmin; font-weight: 800; font-size: 3.4vmin;
+  background: var(--parchment); border: .4vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
 #battle .moves { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); display: none; gap: 2vmin; padding: 2vmin; border-radius: 3vmin;
-  background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .5vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
+  background: var(--parchment); border: .5vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
 #battle .moves.show { display: flex; }
-#battle .move { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3vmin; min-width: var(--btn); height: var(--btn); min-height: var(--tap); padding: 0 2vmin; border-radius: 2.6vmin; background: #fff8ea; border: .5vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-weight: 900; }
+#battle .move { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3vmin; min-width: var(--btn); height: var(--btn); min-height: var(--tap); padding: 0 2vmin; border-radius: 2.6vmin; background: #fff8ea; border: .5vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-weight: 800; }
 #battle .move:active { transform: translateY(.5vmin); box-shadow: 0 .3vmin 0 var(--gold-dark); }
 #battle .move .icon { width: 5vmin; height: 5vmin; } #battle .move .icon svg { width: 100%; height: 100%; }
 #battle .move .word { font-size: 3vmin; } #battle .move .cost { font-size: 2vmin; color: var(--gold-dark); }

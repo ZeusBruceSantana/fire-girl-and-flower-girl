@@ -62,7 +62,7 @@ const Bag = {
             <div class="art">${ART[item.art] || ART.gem}</div><div class="word">${esc(item.word)}</div>
             <div class="fx">${esc(other ? BAG_UI.forOther.replace('{name}', WORLD.heroes[item.for].title) : effectWords(item))}</div>${n > 1 ? `<div class="n">×${n}</div>` : ''}</div>`; }).join('')}</div>
         ${rest.length ? `<div class="mats"><div class="mats-title">${esc(BAG_UI.materials)}</div><div class="grid small">${rest.map(({ item, n }) => `<div class="cell rarity-${item.rarity}" data-mat="${item.id}"><div class="art">${ART[item.art] || ART.gem}</div><div class="word">${esc(item.word)}</div>${n > 1 ? `<div class="n">×${n}</div>` : ''}</div>`).join('')}</div>
-          <div class="bigbtn craft" data-craft><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>` : ''}
+          <div class="btn primary craft" data-craft><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>` : ''}
       </div></div>`;
     this.picked = null;
     const rerender = () => { refreshHeroSprite(seat); menu.render(); };
@@ -117,14 +117,14 @@ const Bag = {
     const can = r => r.needs.every(m => { const need = r.needs.filter(x => x === m).length; return (counts[m] || 0) >= need; });
     el.className = 'show seat-' + seat;
     el.innerHTML = `<div class="frame">
-      <div class="tabs"><div class="tab on"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.crafting)}</span></div><div class="tab close" data-close><span class="icon">${ART.close}</span><span class="word">${esc(BAG_UI.close)}</span></div></div>
+      <div class="tabs"><div class="tab on"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.crafting)}</span></div></div>${uiCloseHtml(BAG_UI.close)}
       <div class="page"><div class="page-title">${esc(h.name || kind.title)} · ${esc(BAG_UI.crafting)}</div>
       ${recipes.length ? `<div class="recipes">${recipes.map(r => { const makes = ITEMS.find(i => i.id === r.makes), ok = can(r);
         return `<div class="recipe ${ok ? '' : 'cannot'}" data-recipe="${r.id}">
           <div class="art">${ART[makes.art] || ART.gem}</div>
           <div class="info"><div class="word">${esc(r.word)}</div><div class="about">${esc(r.about)}</div>
             <div class="needs">${esc(BAG_UI.needs)}: ${r.needs.map(m => { const it = ITEMS.find(i => i.id === m); return `<span class="need ${counts[m] ? 'have' : 'miss'}">${esc(it.word)} (${counts[m] || 0})</span>`; }).join(' ')}</div></div>
-          <div class="bigbtn ${ok ? '' : 'disabled'}" data-craft="${r.id}"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>`; }).join('')}</div>` : `<div class="empty">${esc(BAG_UI.noRecipes)}</div>`}
+          <div class="btn primary ${ok ? '' : 'disabled'}" data-craft="${r.id}"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>`; }).join('')}</div>` : `<div class="empty">${esc(BAG_UI.noRecipes)}</div>`}
       </div></div>`;
     pushLayer('crafting');
     Speech.say(BAG_UI.crafting);

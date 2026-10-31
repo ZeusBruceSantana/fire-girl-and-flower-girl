@@ -4,7 +4,7 @@
    ===================================================================== */
 #place {
   position: absolute; left: 50%; top: 4vmin; transform: translate(-50%, -2vmin); pointer-events: none;
-  font-size: 4.6vmin; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.45);
+  font-size: 4.6vmin; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.45);
   background: rgba(40,25,10,.45); padding: 1.2vmin 3.4vmin; border-radius: 4vmin; opacity: 0; transition: opacity .4s, transform .4s;
 }
 #place.show { opacity: 1; transform: translate(-50%, 0); }
@@ -23,7 +23,7 @@ body[data-scene="title"] #place { opacity: 0; }
 .hudcard.seat-left  { left: 2vmin; }
 .hudcard.seat-right { right: 2vmin; flex-direction: row-reverse; text-align: right; }
 .hudcard.seat-away  { left: 2vmin; }   /* the cousin's device shows one seat; her card sits left, clear of the grown-up corner */
-.hudcard { background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .4vmin solid var(--gold-dark); border-radius: 6vmin; box-shadow: var(--frame-shadow); color: var(--ink2); }
+.hudcard { background: var(--parchment); border: .4vmin solid var(--gold-dark); border-radius: 6vmin; box-shadow: var(--frame-shadow); color: var(--ink2); }
 .hudcard.away { opacity: .55; }
 .hudcard .portrait { position: relative; width: max(12vmin, 48px); height: max(12vmin, 48px); flex: none; }
 .hudcard .ring { position: absolute; inset: 0; transform: rotate(-90deg); }
@@ -31,14 +31,14 @@ body[data-scene="title"] #place { opacity: 0; }
 .hudcard .ring .fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray .6s; }
 .hudcard .face { position: absolute; inset: 1.4vmin; border-radius: 50%; overflow: hidden; background: #fff; border: .4vmin solid #fff; }
 .hudcard .face svg, .hudcard .face img { width: 100%; height: 100%; object-fit: cover; }
-.hudcard .level { position: absolute; right: -.6vmin; bottom: -.6vmin; width: 4.6vmin; height: 4.6vmin; border-radius: 50%; background: var(--gold); border: .4vmin solid #fff; color: #fff; font-weight: 900; font-size: 2.6vmin; display: flex; align-items: center; justify-content: center; box-shadow: 0 .3vmin 1vmin rgba(0,0,0,.3); }
+.hudcard .level { position: absolute; right: -.6vmin; bottom: -.6vmin; width: 4.6vmin; height: 4.6vmin; border-radius: 50%; background: var(--gold); border: .4vmin solid #fff; color: #fff; font-weight: 800; font-size: 2.6vmin; display: flex; align-items: center; justify-content: center; box-shadow: 0 .3vmin 1vmin rgba(0,0,0,.3); }
 .hudcard.seat-left .level { right: auto; left: -.6vmin; }
-.hudcard .name { font-weight: 900; font-size: 3vmin; line-height: 1.1; max-width: 34vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hudcard .name { font-weight: 800; font-size: 3vmin; line-height: 1.1; max-width: 34vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hudcard.seat-left .name { color: var(--L-dark); } .hudcard.seat-right .name { color: var(--R-dark); } .hudcard.seat-away .name { color: var(--A-dark); }
-.hudcard .counters { display: flex; gap: 1.4vmin; margin: .4vmin 0; font-weight: 900; font-size: 2.4vmin; }
+.hudcard .counters { display: flex; gap: 1.4vmin; margin: .4vmin 0; font-weight: 800; font-size: 2.4vmin; }
 .hudcard.seat-right .counters { justify-content: flex-end; }
 .hudcard .c { display: inline-flex; align-items: center; gap: .4vmin; } .hudcard .c svg { width: 3vmin; height: 3vmin; }
-.hudcard .ember { display: flex; align-items: center; gap: .6vmin; font-weight: 900; font-size: 2.2vmin; }
+.hudcard .ember { display: flex; align-items: center; gap: .6vmin; font-weight: 800; font-size: 2.2vmin; }
 .hudcard.seat-right .ember { flex-direction: row-reverse; }
 .hudcard .ember svg { width: 3vmin; height: 3vmin; }
 .hudcard .ember .bar, .ember-row .bar { width: 14vmin; height: 1.6vmin; border-radius: 1vmin; background: rgba(0,0,0,.15); overflow: hidden; }

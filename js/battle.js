@@ -39,7 +39,7 @@ const BATTLE_UI = {
   ember: 'Ember',
   yourPart: 'Your part of {spell}!',
   tapNow: 'Together! Tap now!',
-  tapTogether: 'Tap!',
+  tapTogether: 'Tap',
   tryTogether: 'Almost! Tap at the same time. Again!',
   togetherMagic: 'Together magic!',
   togetherCost: '{n} each',
@@ -188,7 +188,7 @@ const Battle = {
     return new Promise(resolve => {
       const wrap = document.createElement('div');
       wrap.className = 'together-tap';
-      wrap.innerHTML = seats.map(s => `<div class="tapbtn seat-${s}" data-seat="${s}"><div class="bigbtn"><span class="icon">${ART.ember}</span><span class="word">${esc(BATTLE_UI.tapTogether)}</span></div></div>`).join('');
+      wrap.innerHTML = seats.map(s => `<div class="tapbtn seat-${s}" data-seat="${s}"><div class="btn tile primary"><span class="icon">${ART.ember}</span><span class="word">${esc(BATTLE_UI.tapTogether)}</span></div></div>`).join('');
       this.el.appendChild(wrap);
       this.message(BATTLE_UI.tapNow);
       let tapped = {}, timer = 0;

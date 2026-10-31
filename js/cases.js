@@ -233,7 +233,7 @@ const Cases = {
         <div class="suspects ${this.foundAll(c) ? '' : 'not-yet'}">${c.suspects.map(sp => `<div class="suspect" data-id="${sp.id}"><div class="art">${this.suspectArt(sp)}</div><div class="word">${esc(sp.word)}</div></div>`).join('')}</div>
         <div class="verdict"></div>`;
     }
-    this.el.innerHTML = `<div class="frame"><div class="head"><h2>${esc(CASES_UI.boardTitle)}</h2><div class="bigbtn close" data-close><span class="icon">${ART.close}</span><span class="word">${esc(CASES_UI.close)}</span></div></div>
+    this.el.innerHTML = `<div class="frame"><div class="head"><h2>${esc(CASES_UI.boardTitle)}</h2>${uiCloseHtml(CASES_UI.close)}</div>
       <div class="board">${main}</div><div class="others"><div class="label">${esc(CASES_UI.solvedCases)}</div>${others}</div></div>`;
     this.el.querySelector('[data-close]').addEventListener('pointerdown', e => { e.stopPropagation(); this.close(); });
     if (c && this.foundAll(c)) this.el.querySelectorAll('.suspect').forEach(el => el.addEventListener('pointerdown', e => { e.stopPropagation(); this.accuse(seat, c, el.dataset.id); }));

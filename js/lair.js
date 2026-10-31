@@ -69,7 +69,7 @@ const Lair = {
     this.el.innerHTML = `<div class="lair-frame">
       <div class="lair-head"><div class="lair-title">${esc(LAIR_UI.stations[station])}</div>
         <div class="lair-fund">${ART.heart}<b>${S.shared.lair.fund}</b><small>${esc(LAIR_UI.fund)}</small></div>
-        <div class="bigbtn lair-close" data-close><span class="icon">${ART.close}</span><span class="word">${esc(LAIR_UI.close)}</span></div></div>
+        ${uiCloseHtml(LAIR_UI.close)}</div>
       <div class="lair-body"></div></div>`;
     this.el.querySelector('[data-close]').addEventListener('pointerdown', e => { e.stopPropagation(); this.close(); });
     const body = this.el.querySelector('.lair-body');
@@ -100,7 +100,7 @@ const Lair = {
       <div class="lc-cost">${coins ? ART.coin : ART.heart}<b>${price}</b></div>
       <div class="lc-about">${esc(up.about)}</div>
       ${up.unlocks ? `<div class="lc-unlocks">${esc(LAIR_UI.unlocks[up.unlocks] || up.unlocks)}</div>` : ''}
-      <div class="lc-state">${owned ? esc(LAIR_UI.owned) : state === 'buyable' ? `<span class="bigbtn small" data-buy="${up.id}"><span class="word">${esc(LAIR_UI.buy)}</span></span>` : esc(needWord)}</div></div>`;
+      <div class="lc-state">${owned ? esc(LAIR_UI.owned) : state === 'buyable' ? `<span class="btn primary small" data-buy="${up.id}"><span class="word">${esc(LAIR_UI.buy)}</span></span>` : esc(needWord)}</div></div>`;
   },
   render_upgrades(body) {
     const hearts = LAIR.upgrades.filter(u => u.coins == null), cozy = LAIR.upgrades.filter(u => u.coins != null);
@@ -146,7 +146,7 @@ const Lair = {
         ${p.img ? `<img src="${esc(p.img)}" alt="">` : '<div class="blank"></div>'}
         <div class="caption">${esc(LAIR_UI.dayWord)} ${esc(String(p.day))}${p.subject ? ' · ' + esc(p.subject) : ''}</div>
         ${p.given ? `<div class="ribbon">${ART.heart}<span>${esc(LAIR_UI.given)}</span></div>` : ''}</div>`).join('')}</div>
-      <div class="lair-big" hidden><img alt=""><div class="bigbtn small" data-closebig><span class="word">${esc(LAIR_UI.close)}</span></div></div>`;
+      <div class="lair-big" hidden><img alt="">${uiCloseHtml(LAIR_UI.close, 'data-closebig')}</div>`;
     const big = body.querySelector('.lair-big');
     body.querySelectorAll('.frame').forEach(f => f.addEventListener('pointerdown', e => {
       e.stopPropagation();
@@ -169,7 +169,7 @@ const Lair = {
         <div class="lf-art"><img src="art/npcs/${esc(f.art)}.svg" alt="" onerror="this.outerHTML = ART.person"></div>
         <div class="lf-word">${esc(hearts ? f.word : '?')}</div>
         <div class="lf-lv">${'♥'.repeat(lvl)}${'♡'.repeat(5 - lvl)}</div>
-        <div class="lf-state">${here ? esc(f.word + ' ' + LAIR_UI.alreadyToday) : can ? `<span class="bigbtn small" data-invite="${f.id}"><span class="word">${esc(LAIR_UI.inviteCost)}</span></span>` : esc(LAIR_UI.toGo.replace('{n}', toGo))}</div></div>`; }).join('')}</div>`;
+        <div class="lf-state">${here ? esc(f.word + ' ' + LAIR_UI.alreadyToday) : can ? `<span class="btn primary small" data-invite="${f.id}"><span class="word">${esc(LAIR_UI.inviteCost)}</span></span>` : esc(LAIR_UI.toGo.replace('{n}', toGo))}</div></div>`; }).join('')}</div>`;
     body.querySelectorAll('.lair-friend').forEach(el => el.addEventListener('pointerdown', e => {
       e.stopPropagation();
       const f = FRIENDS[el.dataset.f];
@@ -194,7 +194,7 @@ const Lair = {
     body.innerHTML = `<div class="lair-scrolls">${MYTHS.map(m => { const got = h.scrolls.includes(m.id); return `<div class="scroll ${got ? 'got' : 'silhouette'}" data-m="${m.id}">
         <div class="sc-art">${ART['tab-spellbook'] || ''}</div>
         <div class="sc-word">${got ? esc(m.word) : '?'}</div>
-        ${got ? `<span class="bigbtn small" data-read="${m.id}"><span class="word">${esc(LAIR_UI.reread)}</span></span>` : ''}</div>`; }).join('')}</div>
+        ${got ? `<span class="btn small" data-read="${m.id}"><span class="word">${esc(LAIR_UI.reread)}</span></span>` : ''}</div>`; }).join('')}</div>
       ${h.scrolls.length ? '' : `<div class="lair-note">${esc(LAIR_UI.noScrolls)}</div>`}`;
     if (!h.scrolls.length) Speech.say(LAIR_UI.noScrolls, { interrupt: false });
     body.querySelectorAll('[data-read]').forEach(b => b.addEventListener('pointerdown', async e => {

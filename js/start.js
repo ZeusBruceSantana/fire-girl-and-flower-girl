@@ -39,7 +39,7 @@ function renderPickHalf(half, seat) {
     <div class="pick-row colors ${p.kind ? '' : 'hidden'}">${Object.entries(WORLD.colors).map(([id, c]) => {
       const taken = others.some(o => o.color === id);
       return `<div class="swatch ${p.color === id ? 'on' : ''} ${taken ? 'taken' : ''}" data-color="${id}" style="--c:${c.main}"><span>${esc(c.word)}</span></div>`; }).join('')}</div>
-    <div class="pick-go ${p.kind && p.color ? '' : 'hidden'}"><div class="bigbtn go" data-go><span class="icon">${ART.check}</span><span class="word">${esc(WORLD.ui.ready)}</span></div></div>`;
+    <div class="pick-go ${p.kind && p.color ? '' : 'hidden'}"><div class="btn tile confirm go" data-go><span class="icon">${ART.check}</span><span class="word">${esc(WORLD.ui.ready)}</span></div></div>`;
   half.querySelectorAll('.pick-card').forEach(el => el.addEventListener('pointerdown', e => {
     e.stopPropagation();
     if (el.classList.contains('taken')) { Speech.say(WORLD.ui.sisterHasThat); el.classList.add('shake'); setTimeout(() => el.classList.remove('shake'), 500); return; }
@@ -83,7 +83,7 @@ async function playIntro() {
   for (const line of WORLD.school.story) {
     await new Promise(resolve => {
       const b = uiBubble(line, { who: WORLD.school.short });
-      const next = uiButton({ icon: 'arrow', word: WORLD.ui.next, cls: 'next', onTap: () => { b.remove(); resolve(); } });
+      const next = uiButton({ icon: 'arrow', word: WORLD.ui.next, cls: 'primary next', onTap: () => { b.remove(); resolve(); } });
       b.append(next);
     });
   }
@@ -115,11 +115,11 @@ function renderSeatButtons() {
     const el = document.createElement('div');
     el.className = 'seatbtn seat-' + seat + (h.joined ? ' joined' : ' empty');
     if (!h.joined) {
-      el.append(uiButton({ icon: WORLD.heroes[h.kind || WORLD.defaultSides[seat]].art, word: WORLD.ui.join, cls: 'join', onTap: () => {
+      el.append(uiButton({ icon: WORLD.heroes[h.kind || WORLD.defaultSides[seat]].art, word: WORLD.ui.join, cls: 'tile primary join', onTap: () => {
         dispatch('hero.join', seat, {}); Stage.heroes[seat].setAnim('hop'); Speech.say(WORLD.ui.welcomeBack); renderSeatButtons(); } }));
     } else {
       const bye = document.createElement('div');
-      bye.className = 'byebtn'; bye.innerHTML = `<span>${esc(WORLD.ui.bye)}</span>`;
+      bye.className = 'btn quiet small bye'; bye.innerHTML = `<span>${esc(WORLD.ui.bye)}</span>`;
       bye.addEventListener('pointerdown', e => { e.stopPropagation(); dispatch('hero.leave', seat, {}); Speech.say(WORLD.ui.seeYou); renderSeatButtons(); });
       el.append(bye);
     }

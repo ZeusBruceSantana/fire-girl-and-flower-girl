@@ -9,7 +9,7 @@
 const ART_UI = {
   anything: 'Paint anything you like!',
   paintWord: 'Paint what this word says:',
-  done: 'Done!',
+  done: 'Done',
   undo: 'Undo',
   clear: 'Clear mine',
   stamps: 'Stamps',
@@ -121,7 +121,7 @@ const ArtClass = {
       <div class="brushes">${BRUSHES.map(b => `<div class="brush ${t.size === b ? 'on' : ''}" data-size="${b}"><span style="width:${b * 0.5}px;height:${b * 0.5}px"></span></div>`).join('')}</div>
       <div class="stamps">${Object.keys(STAMPS).map(k => `<div class="stamp" data-stamp="${k}">${STAMP_ICONS[k]}</div>`).join('')}</div>
       <div class="tools"><div class="tool" data-undo>${esc(ART_UI.undo)}</div><div class="tool" data-clear>${esc(ART_UI.clear)}</div></div>
-      <div class="bigbtn done" data-done><span class="icon">${ART.check}</span><span class="word">${esc(ART_UI.done)}</span></div>`;
+      <div class="btn confirm done" data-done><span class="icon">${ART.check}</span><span class="word">${esc(ART_UI.done)}</span></div>`;
   },
   bindPalette(side, seat) {
     const ses = this.session, t = ses.tools[seat], pal = this.paletteFor(seat);

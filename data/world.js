@@ -203,7 +203,7 @@ const WORLD = {
   ui: {
     pickPrincess: 'Who will you be? Tap a princess.',
     who: 'Who are you?',
-    ready: 'Ready!',
+    ready: 'Ready',
     sisterHasThat: 'That one is taken. Pick another!',   // the other player on this screen (the twins are sisters; the princesses are not)
     next: 'Next',
     join: 'Join',
@@ -356,6 +356,7 @@ const ART = {
   owl: '<svg viewBox="0 0 100 100"><ellipse cx="50" cy="60" rx="30" ry="34" fill="#b08a5a"/><circle cx="38" cy="50" r="12" fill="#fff"/><circle cx="62" cy="50" r="12" fill="#fff"/><circle cx="38" cy="50" r="12" fill="none" stroke="#3e3a4f" stroke-width="2"/><circle cx="62" cy="50" r="12" fill="none" stroke="#3e3a4f" stroke-width="2"/><circle cx="38" cy="50" r="5" fill="#3e3a4f"/><circle cx="62" cy="50" r="5" fill="#3e3a4f"/><path d="M46 62 L54 62 L50 70Z" fill="#ffa14f"/></svg>',
   ember: '<svg viewBox="0 0 100 100"><path d="M50 8 C34 30 28 44 36 56 C38 44 46 40 46 32 C56 42 66 52 60 64 C72 56 74 34 50 8Z" fill="#ff7a3d"/><path d="M50 40 C44 50 44 58 48 64 C49 56 53 54 53 50 C58 58 60 64 56 70 C64 64 64 50 50 40Z" fill="#ffd23f"/><path d="M34 70 C34 86 66 86 66 70 C66 92 34 92 34 70Z" fill="#ff7a3d"/></svg>',
   ear: '<svg viewBox="0 0 100 100"><path d="M34 40 C34 20 66 20 66 40 C66 54 56 56 54 66 C52 78 40 80 36 70" fill="none" stroke="#3e3a4f" stroke-width="8" stroke-linecap="round"/><path d="M46 42 C46 34 56 34 56 42 C56 48 50 48 50 54" fill="none" stroke="#3e3a4f" stroke-width="6" stroke-linecap="round"/><path d="M74 30 C84 40 84 60 74 70 M82 20 C96 36 96 64 82 80" fill="none" stroke="#7fc4ff" stroke-width="6" stroke-linecap="round"/></svg>',
+  x: '<svg viewBox="0 0 100 100"><path d="M26 26 L74 74 M74 26 L26 74" stroke="#3b2f22" stroke-width="14" stroke-linecap="round"/></svg>',   // the Close control's cross
   close: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#f3e9db"/><path d="M34 34 L66 66 M66 34 L34 66" stroke="#9b8a74" stroke-width="10" stroke-linecap="round"/></svg>',
   badge: '<svg viewBox="0 0 100 100"><path d="M50 8 L60 30 L84 32 L66 48 L72 72 L50 60 L28 72 L34 48 L16 32 L40 30Z" fill="#ffd23f" stroke="#d9a400" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="46" r="10" fill="#fff"/></svg>',
   gem: '<svg viewBox="0 0 100 100"><path d="M30 20 L70 20 L88 44 L50 88 L12 44Z" fill="#7fc4ff" stroke="#4a9be0" stroke-width="4" stroke-linejoin="round"/><path d="M30 20 L50 44 L70 20 M12 44 L50 44 L88 44 M50 44 L50 88" fill="none" stroke="#fff" stroke-width="3" opacity=".8"/></svg>',
