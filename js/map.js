@@ -211,7 +211,17 @@ const MapStage = {
     const c = Stage.canvas, s = this.scale, left = this.cam.x - this.visW / 2, top = this.cam.y - this.visH / 2;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = '#243a1e'; ctx.fillRect(0, 0, c.width, c.height);
-    if (this.img) ctx.drawImage(this.img, -left * s, -top * s, this.map.size[0] * s, this.map.size[1] * s);
+    if (this.img) {
+      // Only the slice of the painting that is on screen is drawn (the whole 4096 x 3072 picture would be
+      // rescaled every frame otherwise). The slice is measured in the picture's own pixels, which may differ
+      // from the map's logical size.
+      const [mw, mh] = this.map.size, iw = this.img.naturalWidth || this.img.width, ih = this.img.naturalHeight || this.img.height;
+      if (iw && ih) {
+        const sx = clamp(left, 0, mw), sy = clamp(top, 0, mh);
+        const sw = Math.min(this.visW - (sx - left), mw - sx), sh = Math.min(this.visH - (sy - top), mh - sy);
+        if (sw > 0 && sh > 0) ctx.drawImage(this.img, sx * iw / mw, sy * ih / mh, sw * iw / mw, sh * ih / mh, (sx - left) * s, (sy - top) * s, sw * s, sh * s);
+      } else ctx.drawImage(this.img, -left * s, -top * s, mw * s, mh * s);
+    }
     ctx.setTransform(s, 0, 0, s, -left * s, -top * s);
     this.drawThings(ctx);
     const actors = [...this.party.map(seat => Stage.heroes[seat]).filter(h => h && h.visible), ...this.npcs, ...this.troubles];
@@ -228,19 +238,20 @@ const MapStage = {
       const [x, y, w, h] = th.rect, cx = x + w / 2, cy = y + h / 2;
       ctx.save();
       if (th.kind === 'chest') { ctx.fillStyle = '#8a5a2a'; roundRect(ctx, x, y, w, h, 14); ctx.fill(); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + w * 0.42, y + h * 0.3, w * 0.16, h * 0.4); ctx.strokeStyle = '#5a3a1a'; ctx.lineWidth = 6; roundRect(ctx, x, y, w, h, 14); ctx.stroke(); }
-      else if (th.kind === 'clue') { ctx.globalAlpha = 0.7 + Math.sin(t * 4 + x) * 0.3; ctx.fillStyle = '#7fc4ff'; ctx.shadowColor = '#7fc4ff'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '900 48px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', cx, cy + 17); }
-      else if (th.kind === 'sparkle') { ctx.globalAlpha = 0.6 + Math.sin(t * 5 + x) * 0.4; ctx.fillStyle = '#fff6a8'; ctx.shadowColor = '#ffd23f'; ctx.shadowBlur = 30; star(ctx, cx, cy, 5, 38, 16, t); ctx.fill(); }
+      else if (th.kind === 'clue') { ctx.globalAlpha = 0.7 + Math.sin(t * 4 + x) * 0.3; drawGlow(ctx, cx, cy, 70, '#7fc4ff', 0.7); ctx.fillStyle = '#7fc4ff'; ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '900 48px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', cx, cy + 17); }
+      else if (th.kind === 'sparkle') { ctx.globalAlpha = 0.6 + Math.sin(t * 5 + x) * 0.4; drawGlow(ctx, cx, cy, 70, '#ffd23f', 0.7); ctx.fillStyle = '#fff6a8'; star(ctx, cx, cy, 5, 38, 16, t); ctx.fill(); }
       else if (th.kind === 'sign') { ctx.fillStyle = '#8a5a2a'; ctx.fillRect(cx - 10, cy, 20, h); ctx.fillStyle = '#e9c58a'; roundRect(ctx, x, y, w, h * 0.6, 10); ctx.fill(); ctx.strokeStyle = '#8a5a2a'; ctx.lineWidth = 5; roundRect(ctx, x, y, w, h * 0.6, 10); ctx.stroke(); }
       ctx.restore();
     }
   },
   drawMarkers(ctx) {
     const t = Stage.time;
-    for (const n of this.npcs) { const top = n.y - n.height - 20 + Math.sin(t * 3) * 10; ctx.save(); ctx.fillStyle = '#ffd23f'; ctx.shadowColor = '#ffb347'; ctx.shadowBlur = 20; roundRect(ctx, n.x - 12, top - 70, 24, 50, 10); ctx.fill(); ctx.beginPath(); ctx.arc(n.x, top - 4, 11, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+    for (const n of this.npcs) { const top = n.y - n.height - 20 + Math.sin(t * 3) * 10; ctx.save(); drawGlow(ctx, n.x, top - 32, 55, '#ffb347', 0.7); ctx.fillStyle = '#ffd23f'; roundRect(ctx, n.x - 12, top - 70, 24, 50, 10); ctx.fill(); ctx.beginPath(); ctx.arc(n.x, top - 4, 11, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
     for (const d of this.map.doors) {
       if (d.secret && !S.shared.flags['gap-found']) continue;
       const cx = d.rect[0] + d.rect[2] / 2, cy = d.rect[1] + d.rect[3] / 2 + Math.sin(t * 3) * 8;
-      ctx.save(); ctx.globalAlpha = 0.85; ctx.fillStyle = d.locked && !S.shared.flags[d.locked] ? '#c9c3d3' : '#fff'; ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 12;
+      ctx.save(); ctx.globalAlpha = 0.85; ctx.fillStyle = d.locked && !S.shared.flags[d.locked] ? '#c9c3d3' : '#fff';
+      drawGlow(ctx, cx, cy - 8, 40, 'rgba(0,0,0,.4)', 0.6);
       ctx.beginPath(); ctx.moveTo(cx - 22, cy - 26); ctx.lineTo(cx + 22, cy - 26); ctx.lineTo(cx, cy + 10); ctx.closePath(); ctx.fill(); ctx.restore();
     }
   },
