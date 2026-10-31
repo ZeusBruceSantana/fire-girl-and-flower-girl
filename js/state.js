@@ -94,6 +94,7 @@ const ACTIONS = {
   'hero.hearts': (s, a) => { const h = s.heroes[a.hero]; h.hearts += a.payload.amount; if (a.payload.friend) h.friends[a.payload.friend] = (h.friends[a.payload.friend] || 0) + a.payload.amount;
                              if (a.payload.amount > 0) s.shared.lair.fund += Math.round(a.payload.amount * LAIR.fundShare); },   // earning feeds the fund; spending never drains it
   'hero.trouble': (s, a) => { const h = s.heroes[a.hero]; h.troubles = h.troubles || {}; h.troubles[a.payload.kind] = (h.troubles[a.payload.kind] || 0) + 1; },   // one more of that trouble cheered up
+  'hero.freeMove': (s, a) => { const h = s.heroes[a.hero]; h.freeMoveDay = Math.max(h.freeMoveDay || 0, a.payload.day); },   // ember gear's free move, used for that day
   'hero.ember':  (s, a) => { const h = s.heroes[a.hero]; h.ember = clamp(h.ember + a.payload.amount, 0, h.maxEmber); },
   'hero.item':   (s, a) => { const h = s.heroes[a.hero]; h.inventory.push(a.payload.item); h.collection[a.payload.item] = (h.collection[a.payload.item] || 0) + 1; },
   'hero.sell':   (s, a) => { const h = s.heroes[a.hero], i = h.inventory.indexOf(a.payload.item); if (i >= 0) { h.inventory.splice(i, 1); h.coins += a.payload.coins; } },

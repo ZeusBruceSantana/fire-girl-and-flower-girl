@@ -6,7 +6,7 @@
      maxEmber  handled in js/state.js ('hero.equip' recomputes the meter's size)
      hearts    read by js/day.js at lunch and when helping (extra hearts)
      reveal    read by js/map.js (hidden sparkles show)
-     freeSpark read by js/day.js at bedtime (a free level-1 spell each day)
+     freeSpark read by js/battle.js spellsFor (her first paid move each day is free)
    Materials from classes and adventures are crafted at the Lair's table (Bag.openCrafting, data/crafting.js). */
 
 const BAG_UI = {
@@ -15,7 +15,7 @@ const BAG_UI = {
   materials: 'Materials', craft: 'Craft', crafting: 'Crafting', close: 'Close',
   forOther: 'for {name}', notHers: 'That one is made for {name}. Pretty, though!',
   wearIt: 'Tap where to wear it.', wornIt: '{item} on!', tookOff: '{item} off.',
-  effects: { maxEmber: '+{n} ember', hearts: 'more hearts', reveal: 'finds sparkles', freeSpark: 'a free Spark each day' },
+  effects: { maxEmber: '+{n} ember', hearts: 'more hearts', reveal: 'finds sparkles', freeSpark: 'first paid spell each day is free' },
   needs: 'Needs', have: 'have', made: 'You made {item}!', noRecipes: 'No recipes for you yet. Collect materials in class!',
   cannot: 'Missing a material.',
 };

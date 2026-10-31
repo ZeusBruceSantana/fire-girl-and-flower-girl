@@ -117,3 +117,22 @@ test('Balance: levels stop at 10 and late levels grow the Ember meter', async ()
   G("for (let i = 0; i < 5; i++) dispatch('hero.trouble', 'right', { kind: 'cold-snap' })");
   expectEqual(G("S.heroes.right.troubles['cold-snap']"), 5, 'five Cold Snaps cheered up: a friend (the Journal lists it)');
 });
+
+test('Balance: ember gear makes her first paid move each day free, once a day', async () => {
+  await openWorldB();
+  levelUp('left', 4);
+  G("dispatch('hero.item', 'left', { item: 'crown-ember' }); dispatch('hero.equip', 'left', { slot: 'head', item: 'crown-ember' }); dispatch('hero.leave', 'right', {}); Battle.rng = () => 0.1");
+  startBattle({ troubles: [{ kind: 'grumpy-weed', level: 1 }], backdrop: 'woods-path', party: ['left'] });
+  await until(() => G('Battle.state && Battle.state.turnSeat') === 'left' && $g('#battle .move[data-spell="glow"]'), 4000, 'her move panel');
+  const ember0 = G('S.heroes.left.ember');
+  expectEqual(G("Battle.spellsFor('left').find(s => s.id === 'glow').cost"), 0, 'Glow is free today with the ember crown');
+  tap($g('#battle .move[data-spell="glow"]'));
+  await until(() => G("!!Challenge.active.left"), 3000, 'the word card');
+  expectEqual(G('S.heroes.left.ember'), ember0, 'no ember paid for the free move');
+  expectEqual(G('S.heroes.left.freeMoveDay'), G('S.shared.clock.day'), 'the free move is used up for today');
+  expect(G("Battle.spellsFor('left').find(s => s.id === 'glow').cost") > 0, 'the next paid move costs ember again');
+  G('Battle.cancel(); Challenge.close()');
+  await until(() => !G('Battle.active'), 3000, 'cancelled');
+  G("dispatch('clock.day', null, { day: S.shared.clock.day + 1 })");
+  expect(G("(S.heroes.left.freeMoveDay || 0) < S.shared.clock.day"), 'a new day brings the free move back');
+});

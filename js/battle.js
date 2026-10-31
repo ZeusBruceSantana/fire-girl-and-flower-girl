@@ -142,8 +142,10 @@ const Battle = {
   spellsFor(seat) {
     const h = S.heroes[seat];
     return WORLD.heroes[h.kind].spells.map(sp => {
-      const cost = sp.level === 1 ? 0 : sp.ember + (this.state.soot[seat] || 0);   // the free move stays free, soot or not
-      return { ...sp, element: sp.element || h.kind, cost, locked: h.level < sp.level, affordable: cost <= h.ember };
+      // ember gear (freeSpark: the ember crown, the ember cape) makes her first paid move each day free
+      const freeToday = sp.level > 1 && h.level >= sp.level && gearEffects(seat).freeSpark > 0 && (h.freeMoveDay || 0) < S.shared.clock.day;
+      const cost = sp.level === 1 || freeToday ? 0 : sp.ember + (this.state.soot[seat] || 0);   // the free move stays free, soot or not
+      return { ...sp, element: sp.element || h.kind, cost, freeToday, locked: h.level < sp.level, affordable: cost <= h.ember };
     });
   },
   /* Together spells this seat could start now: her level is high enough, every needed princess is in the party,
@@ -255,6 +257,7 @@ const Battle = {
   pay(seat, spell) {
     const cost = Math.min(spell.cost, S.heroes[seat].ember);
     if (cost > 0) dispatch('hero.ember', seat, { amount: -cost });
+    if (spell.freeToday) dispatch('hero.freeMove', seat, { day: S.shared.clock.day });
     this.state.soot[seat] = 0;
     this.renderParty();
   },

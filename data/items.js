@@ -15,7 +15,7 @@
      about   one short line, read aloud on tap
      effect  (gear only) what wearing it does, summed across everything worn (see js/bag.js gearEffects):
                maxEmber: +N to the Ember meter's size   hearts: +N hearts at lunch and when helping
-               reveal: 1 shows hidden sparkles on maps   freeSpark: 1 free level-1 spell each day
+               reveal: 1 shows hidden sparkles on maps   freeSpark: her first paid spell each day is free
      Materials (slot null, from classes and adventures) are crafted at the Lair: see data/crafting.js */
 
 const RARITY = {
