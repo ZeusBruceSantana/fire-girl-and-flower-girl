@@ -49,7 +49,30 @@ const BATTLE_UI = {
   calm: 'The {name} takes a deep breath and does nothing.',
   bigSneeze: 'An ENORMOUS sneeze! Soot on everyone.',
   befriended: 'The {name} is your friend now!',
+  sootChip: 'sooty',
+  tangleChip: 'tangled',
 };
+
+/* Each move's element: its colour token (styles.css) and its glyph. A support move keeps the heart. */
+const ELEMENT_COLOR = { fire: 'fire', flower: 'flower', electric: 'electric', light: 'light', earth: 'earth', water: 'water' };
+const MOVE_GLYPHS = {
+  fire: '<svg viewBox="0 0 100 100"><path d="M50 6 C30 32 22 48 30 66 C36 82 64 86 72 68 C80 50 66 38 62 24 C58 36 52 40 48 40 C52 28 52 18 50 6Z" fill="#ff7a3d"/><path d="M50 46 C42 58 40 68 46 76 C52 82 62 76 60 64 C58 58 54 54 50 46Z" fill="#ffd23f"/></svg>',
+  flower: `<svg viewBox="0 0 100 100"><g fill="#ff8fb8">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="50" cy="28" rx="14" ry="20" transform="rotate(${a} 50 50)"/>`).join('')}</g><circle cx="50" cy="50" r="12" fill="#ffd23f"/></svg>`,
+  electric: '<svg viewBox="0 0 100 100"><path d="M58 6 L22 56 L46 56 L38 94 L78 40 L54 40 Z" fill="#8f6cf0" stroke="#5a3ea8" stroke-width="4" stroke-linejoin="round"/></svg>',
+  light: `<svg viewBox="0 0 100 100"><g stroke="#e0a800" stroke-width="7" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="50" y1="8" x2="50" y2="20" transform="rotate(${a} 50 50)"/>`).join('')}</g><circle cx="50" cy="50" r="20" fill="#ffd23f" stroke="#e0a800" stroke-width="4"/></svg>`,
+  earth: '<svg viewBox="0 0 100 100"><path d="M50 92 C50 70 50 50 50 30" stroke="#5f8a3a" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M50 56 C30 56 18 42 16 24 C36 24 48 36 50 56Z" fill="#7cb84a"/><path d="M50 44 C66 44 80 32 84 14 C64 14 52 26 50 44Z" fill="#a9783f"/></svg>',
+  water: '<svg viewBox="0 0 100 100"><path d="M50 8 C36 32 22 48 22 64 C22 80 36 92 50 92 C64 92 78 80 78 64 C78 48 64 32 50 8Z" fill="#5cb8e6"/></svg>',
+};
+/* The trouble's mood on the Giggle meter: grumpy, unsure, happy, laughing. */
+const MOOD_FACES = (() => {
+  const face = (brows, mouth) => `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#ffd9e6" stroke="#e0609c" stroke-width="5"/><circle cx="36" cy="44" r="5" fill="#3b2f22"/><circle cx="64" cy="44" r="5" fill="#3b2f22"/>${brows}<path d="${mouth}" fill="${mouth.endsWith('Z') ? '#b8336a' : 'none'}" stroke="#3b2f22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return {
+    grumpy: face('<path d="M26 30 L44 37 M74 30 L56 37" stroke="#3b2f22" stroke-width="5" stroke-linecap="round"/>', 'M34 74 Q50 62 66 74'),
+    unsure: face('', 'M36 70 L64 70'),
+    happy:  face('', 'M32 64 Q50 80 68 64'),
+    laugh:  face('', 'M30 60 Q50 92 70 60 Z'),
+  };
+})();
 
 const Battle = {
   active: false, state: null, el: null, rng: Math.random,
@@ -178,7 +201,7 @@ const Battle = {
     this.callout(BATTLE_UI.togetherMagic);
     this.message(spell.word + '! ' + BATTLE_UI.togetherMagic + (matched ? ' ' + BATTLE_UI.superEffective : ''));
     Speech.say(BATTLE_UI.togetherMagic, { interrupt: false });
-    for (const s of order) if (Stage.heroes[s]) Stage.heroes[s].setAnim('cast');
+    for (const s of order) { if (Stage.heroes[s]) Stage.heroes[s].setAnim('cast'); this.castAnim(s); }
     await this.wait(900);
     return true;
   },
@@ -213,7 +236,7 @@ const Battle = {
   playerTurn(seat) {
     const st = this.state;
     this.renderMoves(seat);
-    this.message(BATTLE_UI.yourTurn.replace('{name}', this.heroName(seat)));
+    this.message(BATTLE_UI.yourTurn.replace('{name}', this.heroName(seat)), { banner: true });
     return new Promise(resolve => {
       this._pendingMove = async spell => {
         this._pendingMove = null;
@@ -256,6 +279,7 @@ const Battle = {
     st.lastMatched = matched;
     st.meter = Math.min(st.max, st.meter + effect);
     st.turns++;
+    this.castAnim(seat);
     this.renderParty(); this.renderTrouble();
     this.floatNumber(effect, matched);
     this.shakeTrouble();
@@ -274,6 +298,7 @@ const Battle = {
     st.lastMatched = false;
     st.meter = Math.min(st.max, st.meter + 1);
     st.turns++;
+    this.castAnim(seat);
     this.renderParty(); this.renderTrouble();
     this.floatNumber(1, false);
     this.message(text);
@@ -309,25 +334,26 @@ const Battle = {
     await this.say(BATTLE_UI.won.replace('{name}', def.name));
     await this.wait(900);
     let first = true, xp = 0;
+    const rows = [];
     for (const seat of st.players) {
-      const before = S.heroes[seat].level;
+      const before = S.heroes[seat].level, xpFrom = this.levelFraction(seat);
+      const row = { seat, loot: [], levelFrom: before, xpFrom };
       const coins = def.coins[0] + Math.floor(this.rng() * (def.coins[1] - def.coins[0] + 1));
       xp = this.xpFor(def, t, S.heroes[seat].level, (st.firstTries[seat] || 0) > 0);
       dispatch('hero.xp', seat, { amount: xp });
       dispatch('hero.coins', seat, { amount: coins });
       dispatch('hero.trouble', seat, { kind: t.kind });
-      if ((S.heroes[seat].troubles || {})[t.kind] === BEFRIEND_AT) { uiToast(BATTLE_UI.befriended.replace('{name}', def.name), { icon: 'heart' }); Speech.say(BATTLE_UI.befriended.replace('{name}', def.name), { interrupt: false }); }
+      row.friend = (S.heroes[seat].troubles || {})[t.kind] === BEFRIEND_AT;
       st.xp = Math.max(st.xp, xp); st.coins = Math.max(st.coins, coins);
-      for (const l of def.loot) if (this.rng() < l.chance) {
-        dispatch('hero.item', seat, { item: l.item }); st.loot.push(l.item);
-        const item = ITEMS.find(i => i.id === l.item);
-        uiToast(BATTLE_UI.found.replace('{item}', item ? item.word : l.item), { icon: 'gem' });
-      }
-      if (S.heroes[seat].level > before) { uiToast(BATTLE_UI.levelUp.replace('{level}', S.heroes[seat].level), { icon: 'badge' }); Speech.say(BATTLE_UI.levelUp.replace('{level}', S.heroes[seat].level), { interrupt: false }); }
+      for (const l of def.loot) if (this.rng() < l.chance) { dispatch('hero.item', seat, { item: l.item }); st.loot.push(l.item); row.loot.push(l.item); }
+      Object.assign(row, { xp, coins, levelTo: S.heroes[seat].level, xpTo: this.levelFraction(seat) });
+      if (row.levelTo > before) row.xpFrom = 0;            // the bar refills from empty in her new level
+      rows.push(row);
       if (first) { dispatch('event.add', seat, { what: 'battle', trouble: t.kind, won: true }); first = false; }
     }
-    if (st.players.length) await this.say(BATTLE_UI.rewards.replace('{xp}', st.xp).replace('{coins}', st.coins));
-    await this.wait(900);
+    // the win ceremony: xp bars fill, the loot, a level card for anyone who grew (js/ceremony.js)
+    if (rows.length) await Ceremony.battleWin({ trouble: def.name, rows });
+    await this.wait(300);
   },
   /* XP for a win: the trouble's xp × its level (× 2 for a boss), scaled down the more the hero outlevels it
      (a level-1 weed is worth a quarter to a level-5 hero), and halved if she never got a word on the first try.
@@ -335,6 +361,12 @@ const Battle = {
   xpFor(def, t, heroLevel, anyFirstTry) {
     const scale = clamp(1 - 0.25 * (heroLevel - t.level), 0.25, 1);
     return Math.max(1, Math.round(def.xp * t.level * (t.boss ? 2 : 1) * scale * (anyFirstTry ? 1 : 0.5)));
+  },
+
+  /* How far through her current level a hero is, 0..1 (the xp bar). */
+  levelFraction(seat) {
+    const h = S.heroes[seat], lo = xpForLevel(h.level), hi = xpForLevel(h.level + 1);
+    return hi > lo ? clamp((h.xp - lo) / (hi - lo), 0, 1) : 1;
   },
 
   /* ---------- rendering ---------- */
@@ -356,41 +388,64 @@ const Battle = {
     this.el.className = 'show' + (st.trouble.boss ? ' boss' : '');
     this.el.innerHTML = `
       <div class="backdrop">${this.backdropHtml(st.backdrop)}<div class="vig"></div></div>
-      <div class="party"></div>
+      <div class="stage-party n${st.party.length}">${st.party.map((seat, i) => this.cutoutHtml(seat, i)).join('')}</div>
+      <div class="party n${st.party.length}"></div>
       <div class="trouble"></div>
       <div class="floats"></div>
       <div class="message"><span class="w"></span></div>
       <div class="moves"></div>`;
     this.renderParty(); this.renderTrouble();
   },
+  /* One hero standing on the left, facing the trouble: the same paper-doll pictures the world draws her with
+     (her painted full.png when there is one, else the placeholder layers and anything she wears). */
+  cutoutHtml(seat, i) {
+    const doll = Stage.heroes && Stage.heroes[seat], kind = S.heroes[seat].kind;
+    let srcs = doll && doll.kind === kind && doll.layers ? DOLL_LAYERS.map(l => doll.layers[l] && doll.layers[l].src).filter(Boolean) : [];
+    if (!srcs.length) {
+      const full = 'art/heroes/' + kind + '/full';
+      srcs = typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(full) ? [full + '.png'] : DOLL_LAYERS.map(l => 'art/heroes/' + kind + '/' + l + '.svg');
+    }
+    return `<div class="cutout seat-${seat} k-${kind}" data-seat="${seat}" style="--i:${i}"><div class="doll">${srcs.map(src => `<img src="${esc(src)}" alt="" onerror="this.remove()">`).join('')}</div><div class="ground"></div></div>`;
+  },
+  /* The party's cards: the world HUD card (js/hud.js hudCardHtml), with battle-only status chips beside it. */
   renderParty() {
     const st = this.state, root = this.el && this.el.querySelector('.party');
     if (!root) return;
-    root.innerHTML = st.party.map(seat => {
-      const h = S.heroes[seat];
-      return `<div class="member seat-${seat} ${st.turnSeat === seat ? 'turn' : ''} ${isPlayerHere(seat) ? '' : 'auto'}" data-seat="${seat}">
-        <div class="face">${Dialogue.portraitHtml(null, seat)}</div>
-        <div class="info">
-          <div class="name">${esc(this.heroName(seat))} <span class="lv">${h.level}</span></div>
-          <div class="ember">${ART.ember}<div class="bar"><div class="in" style="width:${(100 * h.ember / h.maxEmber).toFixed(0)}%"></div></div><b>${h.ember}</b></div>
-          ${st.soot[seat] ? '<div class="status soot">●</div>' : ''}${st.skip[seat] ? '<div class="status tangle">~</div>' : ''}
-        </div></div>`;
-    }).join('');
+    root.innerHTML = st.party.map(seat => `<div class="member seat-${seat} ${st.turnSeat === seat ? 'turn' : ''} ${isPlayerHere(seat) ? '' : 'auto'}" data-seat="${seat}">
+        <div class="hudcard seat-${seat}">${hudCardHtml(seat, { objective: false })}</div>
+        ${st.soot[seat] || st.skip[seat] ? `<div class="chips">${st.soot[seat] ? `<span class="status soot">${esc(BATTLE_UI.sootChip)}</span>` : ''}${st.skip[seat] ? `<span class="status tangle">${esc(BATTLE_UI.tangleChip)}</span>` : ''}</div>` : ''}
+      </div>`).join('');
+    this.el.querySelectorAll('.stage-party .cutout').forEach(c => {
+      const seat = c.dataset.seat;
+      c.classList.toggle('turn', st.turnSeat === seat);
+      c.classList.toggle('auto', !isPlayerHere(seat));
+      c.classList.toggle('sooty', !!st.soot[seat]);
+      c.classList.toggle('tangled', !!st.skip[seat]);
+    });
+  },
+  /* Her cut-out leaps a little as a move goes off. */
+  castAnim(seat) {
+    const c = this.el && this.el.querySelector(`.stage-party .cutout[data-seat="${seat}"]`); if (!c) return;
+    c.classList.remove('cast'); void c.offsetWidth; c.classList.add('cast');
+    setTimeout(() => c.classList.remove('cast'), TEST_MODE ? 10 : 700);
   },
   renderTrouble() {
     const st = this.state, def = WORLD.troubles[st.trouble.kind], root = this.el.querySelector('.trouble');
     if (!root.querySelector('.sprite')) root.innerHTML = `<div class="plate"><span>${esc(def.name)}</span>${st.trouble.boss ? ' <b>!</b>' : ''}</div><div class="sprite">${this.troubleArt(def, st.trouble.boss)}</div>
-      <div class="giggle"><span class="label">${esc(BATTLE_UI.giggle)}</span><div class="bar"><div class="in"></div></div><span class="smile">☺</span></div>`;
-    root.querySelector('.giggle .in').style.width = (100 * st.meter / st.max).toFixed(0) + '%';
+      <div class="giggle"><span class="label">${esc(BATTLE_UI.giggle)}</span><div class="bar"><div class="in"></div></div><span class="mood"></span></div>`;
+    const f = st.max ? st.meter / st.max : 0, mood = f >= 1 ? 'laugh' : f >= 0.66 ? 'happy' : f >= 0.33 ? 'unsure' : 'grumpy';
+    root.querySelector('.giggle .in').style.width = (100 * f).toFixed(0) + '%';
+    const m = root.querySelector('.giggle .mood');
+    if (m.dataset.mood !== mood) { m.dataset.mood = mood; m.innerHTML = MOOD_FACES[mood]; }
     root.classList.toggle('phase2', st.phase === 2);
   },
   renderMoves(seat) {
     const root = this.el.querySelector('.moves');
     const together = this.togetherFor(seat).filter(sp => sp.available);
-    root.innerHTML = this.spellsFor(seat).map(sp => `<div class="move ${sp.locked ? 'locked' : ''} ${!sp.locked && !sp.affordable ? 'poor' : ''} ${sp.support ? 'support' : ''}" data-spell="${sp.id}">
-        <span class="icon">${sp.support ? ART.heart : ART.ember}</span><span class="word">${esc(sp.word)}</span>
+    root.innerHTML = this.spellsFor(seat).map(sp => `<div class="move ${sp.locked ? 'locked' : ''} ${!sp.locked && !sp.affordable ? 'poor' : ''} ${sp.support ? 'support' : ''}" data-spell="${sp.id}" data-element="${sp.element}" style="--el: var(--${ELEMENT_COLOR[sp.element] || 'gold'})">
+        <span class="icon">${sp.support ? ART.heart : MOVE_GLYPHS[sp.element] || ART.ember}</span><span class="word">${esc(sp.word)}</span>
         <span class="cost">${sp.locked ? esc(BATTLE_UI.locked.replace('{level}', sp.level)) : sp.cost === 0 ? esc(BATTLE_UI.free) : sp.cost}</span></div>`).join('')
-      + together.map(sp => `<div class="move together ${sp.affordable ? '' : 'poor'}" data-spell="${sp.id}"><span class="icon">${ART.heart}</span><span class="word">${esc(sp.word)}</span><span class="cost">${esc(BATTLE_UI.togetherCost.replace('{n}', sp.cost))}</span></div>`).join('');
+      + together.map(sp => `<div class="move together ${sp.affordable ? '' : 'poor'}" data-spell="${sp.id}" data-element="together" style="--el: var(--gold)"><span class="icon">${ART.heart}</span><span class="word">${esc(sp.word)}</span><span class="cost">${esc(BATTLE_UI.togetherCost.replace('{n}', sp.cost))}</span></div>`).join('');
     root.classList.add('show');
     const spells = [...this.spellsFor(seat), ...together];
     root.querySelectorAll('.move').forEach(el => el.addEventListener('pointerdown', e => {
@@ -402,7 +457,12 @@ const Battle = {
     }));
   },
   clearMoves() { const root = this.el && this.el.querySelector('.moves'); if (root) { root.classList.remove('show'); root.innerHTML = ''; } },
-  message(text) { const m = this.el && this.el.querySelector('.message .w'); if (m) m.textContent = text; Speech.say(text, { interrupt: false }); },
+  /* The line under the trouble. { banner: true } makes it the big "your move" banner with a short entrance. */
+  message(text, { banner = false } = {}) {
+    const box = this.el && this.el.querySelector('.message'), m = box && box.querySelector('.w');
+    if (m) { m.textContent = text; box.classList.remove('banner'); if (banner) { void box.offsetWidth; box.classList.add('banner'); } }
+    Speech.say(text, { interrupt: false });
+  },
   async say(text) { this.message(text); await this.wait(700); },
   floatNumber(n, big) {
     const root = this.el && this.el.querySelector('.floats'); if (!root) return;
