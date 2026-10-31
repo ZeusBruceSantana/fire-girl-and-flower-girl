@@ -46,10 +46,10 @@ const MAPS = {
     word: 'the Whispering Woods', size: [4096, 3072], tint: 'day', particles: 'leaves', backdrop: 'woods-path',
     walk: [[200, 200, 900, 300], [900, 200, 300, 900], [900, 900, 1200, 300], [1900, 900, 300, 1000], [700, 1600, 700, 500],
            [1000, 1700, 1200, 300], [1900, 1700, 1500, 300], [2600, 1500, 600, 500], [3200, 1700, 300, 900], [3000, 2500, 900, 400], [3300, 900, 400, 300]],
-    spawn: { default: [300, 350], 'map:school-grounds': [300, 350], 'scene:town-square': [3800, 2700], 'scene:lair': [900, 1750] },
+    spawn: { default: [300, 350], 'map:school-grounds': [300, 350], 'map:middlemarket': [3800, 2700], 'scene:lair': [900, 1750] },
     doors: [
       { id: 'back',  word: 'back to school',   rect: [200, 200, 160, 300],  to: 'map:school-grounds', at: [3700, 2700] },
-      { id: 'town',  word: 'the town',         rect: [3740, 2500, 160, 400], to: 'scene:town-square', at: 300 },
+      { id: 'town',  word: 'the town',         rect: [3740, 2500, 160, 400], to: 'map:middlemarket', at: [2048, 700] },
       { id: 'cave',  word: 'a dark cave',      rect: [3560, 900, 140, 200],  to: 'scene:tunnel', at: 300, locked: 'flash-cave', lockedSay: 'Too dark to see. A flash of light would help.' },
     ],
     things: [
@@ -64,6 +64,29 @@ const MAPS = {
       { id: 't-smoke-1', kind: 'sneezy-smoke', x: 2000, y: 1400, roam: [1920, 1000, 260, 800], level: 2 },
       { id: 't-frost-1', kind: 'cold-snap',    x: 2900, y: 1800, roam: [2600, 1550, 600, 400], level: 2 },
       { id: 't-weed-boss', kind: 'grumpy-weed', x: 3350, y: 2300, roam: [3250, 1800, 200, 700], level: 3, boss: true },
+    ],
+  },
+
+  'middlemarket': {
+    word: 'Middlemarket', size: [4096, 3072], tint: 'day', particles: 'bubbles', backdrop: 'town-square',
+    walk: [[1948, 500, 200, 900], [1400, 1300, 1300, 900], [2700, 1850, 1100, 250], [3300, 1500, 600, 800], [900, 2200, 1100, 220], [700, 2000, 300, 500]],
+    spawn: { default: [2048, 700], 'map:whispering-woods': [2048, 700] },
+    doors: [
+      { id: 'bridge', word: 'the bridge to the woods', rect: [1948, 300, 200, 200], to: 'map:whispering-woods', at: [3800, 2700] },
+    ],
+    things: [
+      { id: 'sign-square', word: 'a signpost', kind: 'sign', rect: [1420, 1250, 120, 120], text: 'Middlemarket. Bakery left. Constable right. Market this way.' },
+      { id: 'sparkle-4', word: 'a sparkle', kind: 'sparkle', rect: [3700, 2200, 80, 80], item: 'gem-amber' },
+    ],
+    npcs: [
+      { id: 'pebble', word: 'Constable Pebble', who: 'pebble',      x: 2950, y: 1650, talk: 'Junior Helpers! No cases today... which means a case is coming. They always come.' },
+      { id: 'crumb',  word: 'Mrs. Crumb',       who: 'baker',       x: 1150, y: 1650, shop: 'bakery' },
+      { id: 'nell',   word: 'Nell',             who: 'goatherd',    x: 3600, y: 1700, shop: 'market' },
+      { id: 'tilt',   word: 'Mr. Tilt',         who: 'signpainter', x: 2300, y: 1000, talk: 'Painting the clock tower sign. Upside down? No! ...Is it?' },
+      { id: 'cook',   word: 'Cook',             who: 'cook',        x: 850,  y: 2250 },
+    ],
+    troubles: [
+      { id: 't-smoke-town', kind: 'sneezy-smoke', x: 3500, y: 2100, roam: [3320, 1900, 560, 380], level: 2 },
     ],
   },
 };

@@ -58,6 +58,7 @@ const Menu = {
 
   /* ---------- Bag (Epic 3 adds drag-equip and effects) ---------- */
   render_bag(body, seat, h) {
+    if (typeof Bag !== 'undefined' && Bag.render) return Bag.render(body, seat, h, this);
     const counts = {};
     for (const id of h.inventory) counts[id] = (counts[id] || 0) + 1;
     const items = Object.entries(counts).map(([id, n]) => ({ item: ITEMS.find(i => i.id === id), n })).filter(x => x.item);

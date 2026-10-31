@@ -38,6 +38,7 @@ const Day = {
     if (action === 'lesson') return Dialogue.say({ who: WORLD.teachers.cinder.name, art: 'cinder', text: WORLD.ui.noClassNow });
     if (action === 'sit' && p === 'lunch') return this.sitAtTable(seat, hotspot);
     if (action === 'sit') return Dialogue.say({ seat, who: WORLD.teachers.cook.name, art: 'cook', text: WORLD.ui.notLunchYet });
+    if (action === 'inventory' && typeof Bag !== 'undefined' && Bag.openCrafting) return Bag.openCrafting(seat);
     if (action === 'sleep' && (p === 'bedtime' || p === 'free')) return this.bedtime();
     if (action === 'sleep' && p === 'wake') return this.wake();
     if (action === 'sleep') return Dialogue.say({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: WORLD.ui.notSleepy });
