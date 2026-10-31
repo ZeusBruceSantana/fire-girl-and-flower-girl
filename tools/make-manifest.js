@@ -13,7 +13,7 @@ const OUT = path.join(root, 'sw-manifest.js');
 const FOLDERS = ['art', 'data', 'icons', 'js'];
 const ROOT_FILES = ['index.html', 'manifest.webmanifest'];
 const ROOT_PATTERN = /^styles.*\.css$/;          // every styles*.css at the root
-const SKIP_DIRS = new Set(['tests', 'docs', 'relay', 'tools', '.github', 'node_modules', '.git', '.claude']);
+const SKIP_DIRS = new Set(['tests', 'docs', 'relay', 'tools', '.github', 'node_modules', '.git', '.claude', 'incoming']);   // art/incoming: raw paintings waiting for review, never shipped
 const SKIP_FILES = /(^|\/)(sw\.js|sw-manifest\.js|README\.md|LICENSE|.*\.md|\.DS_Store|Thumbs\.db)$/;
 
 /* Every file the game needs offline, as sorted relative paths with forward slashes. */
