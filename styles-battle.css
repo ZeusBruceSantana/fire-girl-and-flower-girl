@@ -1,44 +1,63 @@
 /* =====================================================================
    EMBER BLOOM: the battle screen (js/battle.js). Parchment and gold over a painted backdrop.
+   The party stands on the left as cut-outs facing the trouble on the right; their cards are the world HUD card
+   (styles-hud.css .hudcard), stacked top-left. Tokens, the type scale and the button family live in styles.css.
    ===================================================================== */
-#battle { position: fixed; inset: 0; z-index: 30; display: none; overflow: hidden; color: var(--ink2); }
+#battle { position: fixed; inset: 0; z-index: 30; display: none; overflow: hidden; color: var(--ink); }
 #battle.show { display: block; }
 #battle .backdrop { position: absolute; inset: 0; background: #1a1410; }
 #battle .backdrop .bd { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 #battle .backdrop .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, rgba(20,10,0,.05), rgba(20,10,0,.55) 80%); }
 
-/* ---------- the party, left ---------- */
-#battle .party { position: absolute; left: 2vmin; top: 2vmin; display: flex; flex-direction: column; gap: 1.4vmin; }
-#battle .member { display: flex; align-items: center; gap: 1.2vmin; padding: 1vmin 2vmin 1vmin 1vmin; border-radius: 5vmin;
-  background: var(--parchment); border: .4vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); transition: transform .3s, box-shadow .3s; }
-#battle .member.turn { transform: translateX(1.4vmin) scale(1.04); box-shadow: 0 0 0 .8vmin rgba(255,210,63,.75), var(--frame-shadow); }
-#battle .member.auto { opacity: .8; }
-#battle .member .face { width: 9vmin; height: 9vmin; border-radius: 50%; overflow: hidden; background: #fff; border: .4vmin solid #fff; flex: none; }
-#battle .member .face svg, #battle .member .face img { width: 100%; height: 100%; object-fit: cover; }
-#battle .member .name { font-weight: 800; font-size: 2.6vmin; max-width: 30vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#battle .member .name .lv { display: inline-block; min-width: 3vmin; padding: 0 .6vmin; border-radius: 1.5vmin; background: var(--gold); color: #fff; font-size: 2vmin; text-align: center; margin-left: .4vmin; }
-#battle .member .ember { display: flex; align-items: center; gap: .5vmin; font-weight: 800; font-size: 2.1vmin; margin-top: .3vmin; }
-#battle .member .ember svg { width: 2.8vmin; height: 2.8vmin; }
-#battle .member .ember .bar { width: 14vmin; height: 1.5vmin; border-radius: 1vmin; background: rgba(0,0,0,.15); overflow: hidden; }
-#battle .member .ember .in { height: 100%; background: linear-gradient(90deg, #ff7a3d, #ffd23f); border-radius: 1vmin; transition: width .4s; }
-#battle .member .status { display: inline-block; margin-top: .3vmin; font-weight: 800; font-size: 2vmin; padding: 0 .8vmin; border-radius: 1vmin; }
-#battle .member .status.soot { background: #3e3a4f; color: #fff; }
-#battle .member .status.tangle { background: #7fd08a; color: #fff; }
+/* ---------- the party's cards, top-left: the world HUD card, placed in a column ---------- */
+#battle .party { position: absolute; left: 2vmin; top: 2vmin; display: flex; flex-direction: column; align-items: flex-start; gap: 1.2vmin; z-index: 2; }
+#battle .party.n3 { zoom: .82; }
+#battle .member { position: relative; display: flex; align-items: center; gap: 1vmin; transition: transform var(--dur-in) var(--ease-out); }
+#battle .member .hudcard { position: relative; top: auto; left: auto; right: auto; flex-direction: row; text-align: left; pointer-events: none; }
+#battle .member .hudcard .counters { justify-content: flex-start; }
+#battle .member .hudcard .ember { flex-direction: row; }
+#battle .member .hudcard .level { right: -.6vmin; left: auto; }
+#battle .member.turn { transform: translateX(1.4vmin); }
+#battle .member.turn .hudcard { box-shadow: 0 0 0 .7vmin var(--gold-glow), var(--frame-shadow); }
+#battle .member.auto .hudcard { opacity: .8; }
+#battle .member .chips { display: flex; flex-direction: column; gap: .6vmin; }
+#battle .member .status { display: inline-flex; align-items: center; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); padding: .2vmin 1.4vmin; border-radius: var(--r); box-shadow: var(--shadow-float); }
+#battle .member .status.soot { background: #4a4038; color: #fff; }
+#battle .member .status.tangle { background: var(--flower); color: #fff; }
+
+/* ---------- the party on stage: cut-outs standing on the left, facing the trouble ---------- */
+#battle .stage-party { position: absolute; left: 4vmin; bottom: 27vmin; display: flex; align-items: flex-end; pointer-events: none; z-index: 1; }
+#battle .cutout { position: relative; width: 22vmin; height: 33vmin; margin-right: -6vmin; transition: transform var(--dur-in) var(--ease-out), filter var(--dur-in); }
+#battle .stage-party.n3 .cutout { width: 19vmin; height: 28.5vmin; }
+#battle .cutout:nth-child(2) { z-index: 1; transform: translateY(1.5vmin); }
+#battle .cutout:nth-child(3) { transform: translateY(-1vmin) scale(.94); }
+#battle .cutout .doll { position: absolute; inset: 0; animation: idle-bob 2.6s ease-in-out infinite; animation-delay: calc(var(--i) * -.8s); }
+#battle .cutout .doll img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: bottom; filter: drop-shadow(0 .8vmin 1.2vmin rgba(20,10,0,.35)); }
+#battle .cutout .ground { position: absolute; left: 18%; right: 18%; bottom: -1vmin; height: 2.4vmin; border-radius: 50%; background: rgba(20,10,0,.3); filter: blur(.4vmin); }
+#battle .cutout.turn { transform: translateX(3vmin) translateY(-1vmin) scale(1.08); z-index: 3; }
+#battle .cutout.turn .doll img { filter: drop-shadow(0 0 1.4vmin var(--gold-glow)) drop-shadow(0 .8vmin 1.2vmin rgba(20,10,0,.35)); }
+#battle .cutout.turn .ground { background: radial-gradient(rgba(255,224,138,.8), rgba(255,224,138,0) 70%); filter: none; }
+#battle .cutout.auto { filter: saturate(.75); }
+#battle .cutout.sooty .doll img { filter: brightness(.82) drop-shadow(0 .8vmin 1.2vmin rgba(20,10,0,.35)); }
+#battle .cutout.tangled .doll { animation: t-wobble .9s ease-in-out infinite; }
+#battle .cutout.cast .doll { animation: hero-cast .6s var(--ease-out); }
+@keyframes hero-cast { 35% { transform: translate(2.4vmin, -3vmin) scale(1.06); } }
 
 /* ---------- the trouble, right ---------- */
 #battle .trouble { position: absolute; right: 6vmin; top: 10vmin; width: 40vmin; text-align: center; }
-#battle .trouble .plate { display: inline-block; background: linear-gradient(#ffe39a, var(--gold)); border: .4vmin solid var(--gold-dark); border-radius: 2vmin; padding: .5vmin 2.6vmin; font-weight: 800; font-size: 3vmin; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); box-shadow: 0 .4vmin 1vmin rgba(0,0,0,.25); }
+#battle .trouble .plate { display: inline-block; background: linear-gradient(#ffe9a6, var(--gold)); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: .2vmin 2.6vmin; font-family: var(--font-display); font-weight: 800; font-size: var(--t-title); line-height: 1.2; color: #3a2506; box-shadow: var(--shadow-float); }
 #battle .trouble .sprite { width: 30vmin; height: 30vmin; margin: 1.5vmin auto; animation: idle-bob 2.4s ease-in-out infinite; }
 #battle.boss .trouble .sprite { width: 42vmin; height: 42vmin; }
 #battle .trouble .sprite img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1.5vmin 2vmin rgba(0,0,0,.35)); }
 #battle .trouble .sprite.shake { animation: t-shake .5s; }
 #battle .trouble .sprite.wobble { animation: t-wobble .7s; }
 #battle .trouble.won .sprite { animation: t-leave 1.2s ease-in forwards; }
-#battle .trouble.phase2 .plate { background: linear-gradient(#ffb3cf, #ff6f9c); }
-#battle .trouble .giggle { display: flex; align-items: center; gap: 1vmin; justify-content: center; font-weight: 800; font-size: 2.4vmin; background: rgba(255,250,240,.85); border: .4vmin solid var(--gold-dark); border-radius: 3vmin; padding: .8vmin 1.6vmin; }
-#battle .trouble .giggle .bar { flex: 1; height: 2.4vmin; border-radius: 1.5vmin; background: rgba(0,0,0,.15); overflow: hidden; }
-#battle .trouble .giggle .in { height: 100%; width: 0; background: linear-gradient(90deg, #ffb3cf, #ff6f9c); border-radius: 1.5vmin; transition: width .5s; }
-#battle .trouble .giggle .smile { font-size: 3.4vmin; color: #ff6f9c; }
+#battle .trouble.phase2 .plate { background: linear-gradient(#ffc6da, #ff6f9c); }
+#battle .trouble .giggle { display: flex; align-items: center; gap: 1.2vmin; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: var(--t-small); background: var(--parchment); border: .4vmin solid var(--gold-deep); border-radius: var(--r); padding: .8vmin 1.4vmin; box-shadow: var(--shadow-float); }
+#battle .trouble .giggle .bar { flex: 1; height: 2.4vmin; border-radius: 1.2vmin; background: rgba(59,47,34,.15); overflow: hidden; }
+#battle .trouble .giggle .in { height: 100%; width: 0; background: linear-gradient(90deg, #ffb3cf, #ff6f9c); border-radius: 1.2vmin; transition: width var(--dur-fill) var(--ease-out); }
+#battle .trouble .giggle .mood { width: 6vmin; height: 6vmin; flex: none; }
+#battle .trouble .giggle .mood svg { width: 100%; height: 100%; animation: pop-right var(--dur-pop) ease-out; }
 @keyframes idle-bob { 50% { transform: translateY(-1.2vmin); } }
 @keyframes t-shake { 20%, 60% { transform: translateX(-2vmin) rotate(-4deg); } 40%, 80% { transform: translateX(2vmin) rotate(4deg); } }
 @keyframes t-wobble { 30% { transform: scale(1.1, .9); } 60% { transform: scale(.95, 1.05); } }
@@ -46,19 +65,33 @@
 
 /* ---------- floating numbers and callouts ---------- */
 #battle .floats { position: absolute; right: 18vmin; top: 22vmin; width: 20vmin; pointer-events: none; }
-#battle .float { position: absolute; left: 0; font-weight: 800; font-size: 7vmin; color: #fff; text-shadow: 0 .3vmin 1vmin rgba(0,0,0,.5); animation: float-up 1.2s ease-out forwards; }
-#battle .float.big { font-size: 10vmin; color: #ffd23f; }
+#battle .float { position: absolute; left: 0; font-family: var(--font-display); font-weight: 800; font-size: var(--t-display); color: #fff; text-shadow: 0 .3vmin 1vmin rgba(0,0,0,.5); animation: float-up 1.2s ease-out forwards; }
+#battle .float.big { color: var(--light); }
 @keyframes float-up { to { transform: translateY(-14vmin); opacity: 0; } }
 
-/* ---------- the message line and the move panel ---------- */
-#battle .message { position: absolute; left: 50%; bottom: 24vmin; transform: translateX(-50%); min-width: 40vw; max-width: 90vw; text-align: center; padding: 1.4vmin 3vmin; border-radius: 3vmin; font-weight: 800; font-size: 3.4vmin;
-  background: var(--parchment); border: .4vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
-#battle .moves { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); display: none; gap: 2vmin; padding: 2vmin; border-radius: 3vmin;
-  background: var(--parchment); border: .5vmin solid var(--gold-dark); box-shadow: var(--frame-shadow); }
-#battle .moves.show { display: flex; }
-#battle .move { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3vmin; min-width: var(--btn); height: var(--btn); min-height: var(--tap); padding: 0 2vmin; border-radius: 2.6vmin; background: #fff8ea; border: .5vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-weight: 800; }
-#battle .move:active { transform: translateY(.5vmin); box-shadow: 0 .3vmin 0 var(--gold-dark); }
-#battle .move .icon { width: 5vmin; height: 5vmin; } #battle .move .icon svg { width: 100%; height: 100%; }
-#battle .move .word { font-size: 3vmin; } #battle .move .cost { font-size: 2vmin; color: var(--gold-dark); }
-#battle .move.locked, #battle .move.poor { opacity: .4; filter: grayscale(.7); }
-@media (orientation: portrait) { #battle .trouble { right: 2vmin; top: 28vmin; width: 36vmin; } #battle .party { gap: .8vmin; } }
+/* ---------- the message line (the "your move" banner) and the move panel ---------- */
+#battle .message { position: absolute; left: 58%; bottom: 27vmin; transform: translateX(-50%); min-width: 36vw; max-width: 74vw; text-align: center; padding: 1.2vmin 3vmin; border-radius: var(--r);
+  font-family: var(--font-display); font-weight: 700; font-size: var(--t-button); line-height: 1.2;
+  background: var(--parchment); border: .4vmin solid var(--gold-deep); box-shadow: var(--frame-shadow); }
+#battle .message.banner { font-size: var(--t-title); font-weight: 800; padding: 1vmin 4vmin; animation: rise-in-x var(--dur-in) var(--ease-out); }
+#battle .moves { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); display: none; gap: 1.6vmin; padding: 1.8vmin; border-radius: var(--r);
+  background: var(--parchment); border: .5vmin solid var(--gold-deep); box-shadow: var(--frame-shadow); }
+#battle .moves.show { display: flex; animation: rise-in-x var(--dur-in) var(--ease-out); }
+/* A move card: the one button recipe, edged in its element's colour, with that element's glyph in a coloured disc. */
+#battle .move { --el: var(--gold); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2vmin; min-width: var(--btn); height: var(--btn); min-height: var(--tap); padding: 0 2vmin;
+  border-radius: var(--r); background: var(--paper-0); border: .4vmin solid var(--gold-deep); box-shadow: inset 0 -1.2vmin 0 color-mix(in srgb, var(--el) 30%, transparent), 0 var(--press) 0 var(--gold-deep);
+  font-family: var(--font-display); font-weight: 700; transition: transform 80ms, box-shadow 80ms; }
+#battle .move:active { transform: translateY(calc(var(--press) * .75)); box-shadow: inset 0 -1.2vmin 0 color-mix(in srgb, var(--el) 30%, transparent), 0 calc(var(--press) * .25) 0 var(--gold-deep); }
+#battle .move .icon { width: 6vmin; height: 6vmin; padding: .8vmin; border-radius: 50%; background: color-mix(in srgb, var(--el) 22%, #fff); border: .3vmin solid var(--el); }
+#battle .move .icon svg { width: 100%; height: 100%; }
+#battle .move .word { font-size: var(--t-button); line-height: 1.1; white-space: nowrap; }
+#battle .move .cost { font-family: var(--font); font-weight: 600; font-size: var(--t-small); color: var(--ink-soft); }
+#battle .move.locked, #battle .move.poor { opacity: .55; filter: saturate(.35); }
+#battle .move.locked .icon svg { opacity: .5; }
+@media (orientation: portrait) {
+  #battle .trouble { right: 2vmin; top: 28vmin; width: 36vmin; }
+  #battle .party { gap: .8vmin; }
+  #battle .stage-party { bottom: 30vmin; }
+  #battle .cutout { width: 16vmin; height: 24vmin; }
+  #battle .message { left: 50%; }
+}

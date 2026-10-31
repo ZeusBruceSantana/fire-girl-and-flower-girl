@@ -2,10 +2,10 @@
    Together moves in battle: the two big "tap now" buttons, one per girl's half. */
 #battle .together-tap { position: absolute; inset: 0; display: flex; pointer-events: none; z-index: 6; }
 #battle .together-tap .tapbtn { flex: 1; display: flex; align-items: center; justify-content: center; pointer-events: auto; }
-#battle .together-tap .tapbtn .btn { width: calc(var(--btn) * 1.8); height: calc(var(--btn) * 1.8); font-size: 3.6vmin; animation: breathe 1s ease-in-out infinite; }
-#battle .together-tap .tapbtn.done .btn { background: #eafbe9; border-color: #5cc77a; animation: none; }
-#battle .together-tap .tapbtn.seat-left .btn { border-color: var(--L); box-shadow: 0 .8vmin 0 var(--L-dark); }
-#battle .together-tap .tapbtn.seat-right .btn { border-color: var(--R); box-shadow: 0 .8vmin 0 var(--R-dark); }
-#battle .move.together { background: linear-gradient(135deg, #fff0c2, #ffd9ec, #e4e9ff); border-color: #e0609c; }
-#battle .move.together .word { color: #b8336a; }
-#battle .callout.together-magic { font-size: 6vmin; color: #fff; text-shadow: 0 0 2vmin #ffd23f, 0 0 4vmin #ff8fb8; }
+#battle .together-tap .tapbtn .btn { width: calc(var(--btn) * 1.8); height: calc(var(--btn) * 1.8); font-size: var(--t-title); animation: breathe 1s ease-in-out infinite; }
+#battle .together-tap .tapbtn.done .btn { background: linear-gradient(#8ddca4, var(--ok) 90%); border-color: var(--ok-deep); box-shadow: 0 var(--press) 0 var(--ok-deep); color: #fff; animation: none; }
+#battle .together-tap .tapbtn.seat-left .btn { border-color: var(--L-dark); box-shadow: 0 var(--press) 0 var(--L-dark); }
+#battle .together-tap .tapbtn.seat-right .btn { border-color: var(--R-dark); box-shadow: 0 var(--press) 0 var(--R-dark); }
+#battle .move.together { margin-top: 0; padding-top: 0; border-top: .4vmin solid var(--gold-deep); background: linear-gradient(135deg, #fff3cf, #ffe1ee, #e9ecff); }   /* the Spellbook also has a .together section: undo its spacing here */
+#battle .move.together .word { color: #a02c5c; }
+#battle .callout.together-magic { font-size: var(--t-display); color: #fff; text-shadow: 0 0 2vmin var(--light), 0 0 4vmin #ff8fb8; }
