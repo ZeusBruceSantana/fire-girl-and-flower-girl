@@ -271,18 +271,45 @@ const WORLD = {
     newDay: 'A new day! Day {day}.',
     readItAloud: 'Read it out loud to a grown-up.',
     grownUpCheck: 'Grown-up: she read it!',
+    // maps and battles (version 3)
+    objFreeMap: 'Free time! Out the door and explore. The woods are past the wall...',
+    openChest: 'A chest! Build the word to open it.',
+    chestEmpty: 'Already opened.',
+    found: 'Found',
+    battleStart: 'A {name} blocks the way!',
+    battleBossStart: 'A very big {name} blocks the way!',
+    yourTurn: '{name}, your move!',
+    companionTurn: '{name} casts {spell}!',
+    troubleTurn: 'The {name} {action}.',
+    superEffective: 'Super effective!',
+    combo: 'Combo!',
+    battleWon: 'The {name} giggles, cheers up, and wanders off!',
+    battleRewards: '{xp} xp and {coins} coins!',
+    newFriendTrouble: 'It left a sparkle behind. A new friend!',
+    skipTurn: '{name} is all tangled up and skips a turn.',
+    sootOn: 'Soot! The next move costs 1 more ember.',
+    levelUp: 'Level {level}!',
     whatNow: 'What now?', castSpell: 'Cast a spell', lookCloser: 'Look closer', leaveIt: 'Leave it',
     comingSoon: 'Hoo. Nothing to do here yet. Soon!',
     flags: { 'intro-seen': 'The first day at the Academy.', 'tunnel-found': 'We found the secret tunnel!' },
   },
 
   /* Silly, never scary. Each has a small picture word. */
+  /* Troubles: silly, never scary. Battle data (version 3):
+       weakTo   the element that works best against it (a matching spell doubles the effect)
+       giggle   how full its Giggle meter must get before it cheers up (per level: giggle * level)
+       xp, coins, loot   what it leaves behind
+       actions  the silly things it does on its turn: 'soot' (a hero's next move costs 1 more ember),
+                'grumble' (nothing), 'tangle' (a hero skips a turn), 'zap' (steals 1 ember), 'shiver' (nothing, but cute) */
   troubles: {
-    // weakTo: the element that works best against it (the elemental triangle). A matching spell doubles the effect.
-    'static-sprite': { name: 'Static Sprite', art: 'static', weakTo: 'flower',   about: 'A fuzzy ball of static that makes everyone\'s hair stand up.' },
-    'grumpy-weed':  { name: 'Grumpy Weed',  art: 'weed',  weakTo: 'fire',     about: 'Grows where it should not and complains about it.' },
-    'sneezy-smoke': { name: 'Sneezy Smoke', art: 'smoke', weakTo: 'flower',   about: 'A puff of smoke that cannot stop sneezing soot on things.' },
-    'cold-snap':    { name: 'Cold Snap',    art: 'frost', weakTo: 'fire',     about: 'A tiny frost that turns puddles to ice and makes everyone shiver.' },
+    'grumpy-weed':   { name: 'Grumpy Weed',   art: 'grumpy-weed',   weakTo: 'fire',     giggle: 6,  xp: 12, coins: [2, 5], loot: [{ item: 'seed-sun', chance: 0.5 }, { item: 'gem-amber', chance: 0.2 }],
+                       actions: [{ id: 'grumble', word: 'grumbles about the weather' }, { id: 'tangle', word: 'tangles a shoelace' }], about: 'Grows where it should not and complains about it.' },
+    'sneezy-smoke':  { name: 'Sneezy Smoke',  art: 'sneezy-smoke',  weakTo: 'flower',   giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'gem-amber', chance: 0.4 }, { item: 'wand-candle', chance: 0.08 }],
+                       actions: [{ id: 'soot', word: 'sneezes soot everywhere' }, { id: 'grumble', word: 'sniffles' }], about: 'A puff of smoke that cannot stop sneezing soot on things.' },
+    'cold-snap':     { name: 'Cold Snap',     art: 'cold-snap',     weakTo: 'fire',     giggle: 8,  xp: 16, coins: [3, 6], loot: [{ item: 'gem-dewdrop', chance: 0.4 }, { item: 'boots-spark', chance: 0.08 }],
+                       actions: [{ id: 'shiver', word: 'shivers dramatically' }, { id: 'zap', word: 'freezes a little ember' }], about: 'A tiny frost that turns puddles to ice and makes everyone shiver.' },
+    'static-sprite': { name: 'Static Sprite', art: 'static-sprite', weakTo: 'flower',   giggle: 10, xp: 20, coins: [4, 8], loot: [{ item: 'boots-spark', chance: 0.3 }, { item: 'gem-dewdrop', chance: 0.3 }],
+                       actions: [{ id: 'zap', word: 'zaps a little ember away' }, { id: 'tangle', word: 'makes everyone\'s hair stand up' }], about: 'A fuzzy ball of static that makes everyone\'s hair stand up.' },
   },
 };
 

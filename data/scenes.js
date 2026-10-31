@@ -34,6 +34,7 @@ const SCENES = {
       { id: 'bed-electric', word: 'a bed',      rect: [1700, 760, 560, 400], kind: 'thing', action: 'sleep' },
       { id: 'wardrobe',     word: 'the wardrobe', rect: [2280, 560, 240, 640], kind: 'thing', action: 'outfits' },
       { id: 'door',         word: 'the door',   rect: [40, 520, 220, 700],   kind: 'exit', to: 'classroom', at: 1280 },
+      { id: 'outside',      word: 'outside',    rect: [2300, 1220, 240, 200], kind: 'exit', to: 'map:school-grounds' },
     ] },
 
   'classroom': { word: 'the classroom', layers: ['sky', 'far', 'mid', 'near'], tint: 'day', particles: 'dust',
@@ -75,14 +76,14 @@ const SCENES = {
       { id: 'case-board', word: 'the case board',  rect: [1800, 300, 560, 560], kind: 'thing', action: 'cases' },
       { id: 'map-wall',   word: 'the map',         rect: [200, 300, 560, 560],  kind: 'thing', action: 'map' },
       { id: 'ladder',     word: 'the ladder up',   rect: [40, 300, 240, 1000],  kind: 'exit', to: 'tunnel', at: 2200 },
-      { id: 'out',        word: 'the way out',     rect: [2280, 500, 260, 800], kind: 'exit', to: 'woods-path', at: 300 },
+      { id: 'out',        word: 'the way out',     rect: [2280, 500, 260, 800], kind: 'exit', to: 'map:whispering-woods' },
     ] },
 
   'woods-path': { word: 'the woods', layers: ['sky', 'far', 'mid', 'near'], tint: 'day', particles: 'leaves',
     path: [[200, 1250], [800, 1300], [1500, 1240], [2360, 1280]], spawn: { left: 300, right: 520, away: 410 },
     hotspots: [
       { id: 'back', word: 'back to the Lair', rect: [40, 500, 260, 800],   kind: 'exit', to: 'lair', at: 2200 },
-      { id: 'on',   word: 'the path on',      rect: [2260, 500, 280, 800], kind: 'exit', to: 'town-square', at: 300 },
+      { id: 'on',   word: 'the path on',      rect: [2260, 500, 280, 800], kind: 'exit', to: 'map:whispering-woods' },
     ] },
 
   'town-square': { word: 'Middlemarket', layers: ['sky', 'far', 'mid', 'near'], tint: 'day', particles: 'bubbles',
@@ -91,6 +92,6 @@ const SCENES = {
       { id: 'pebble',  word: 'Constable Pebble', rect: [1900, 560, 360, 680], kind: 'npc', npc: 'pebble' },
       { id: 'bakery',  word: 'the bakery',       rect: [300, 500, 560, 700],  kind: 'npc', npc: 'baker' },
       { id: 'fountain', word: 'the fountain',    rect: [1060, 700, 440, 440], kind: 'thing', action: 'look' },
-      { id: 'back',    word: 'the woods',        rect: [40, 500, 240, 800],   kind: 'exit', to: 'woods-path', at: 2200 },
+      { id: 'back',    word: 'the woods',        rect: [40, 500, 240, 800],   kind: 'exit', to: 'map:whispering-woods' },
     ] },
 };
