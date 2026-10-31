@@ -41,6 +41,12 @@ function uiToast(text, { icon = null, ms = 1800 } = {}) {
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, ms);
 }
 
+/* Small interface glyphs that are not items or places (the HUD objective, the "try again" hint). Two-tone, 24-unit look. */
+const UI_GLYPHS = {
+  objective: '<svg viewBox="0 0 100 100"><path d="M50 8 L61 36 L92 38 L68 58 L76 90 L50 72 L24 90 L32 58 L8 38 L39 36Z" fill="#ffd23f" stroke="#9c6f14" stroke-width="7" stroke-linejoin="round"/></svg>',
+  hint: '<svg viewBox="0 0 100 100"><path d="M74 36 A30 30 0 1 0 80 58" fill="none" stroke="#e8812a" stroke-width="12" stroke-linecap="round"/><path d="M60 28 L82 32 L78 10" fill="none" stroke="#e8812a" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
 /* THE Close control: one round gold button with the word under it, top-right of every panel (styles.css .btn-close).
    Every panel builds it here, so there is exactly one look; tests find it by [data-close]. `attr` names a different
    data attribute for a panel inside a panel (the Lair's big picture). */

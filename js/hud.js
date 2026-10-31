@@ -3,7 +3,7 @@
    an XP ring, coins, hearts, the Ember meter and the current objective. Tapping the portrait opens her menu. */
 
 const HUD = {
-  init() { onChange(() => this.render()); this.render(); },
+  init() { onChange(() => this.render()); this.render(); addEventListener('resize', () => this.measure()); },
   render() {
     const root = $('#hud');
     if (!root) return;
@@ -15,8 +15,19 @@ const HUD = {
       card.className = 'hudcard seat-' + seat + (h.joined ? '' : ' away');
       card.innerHTML = hudCardHtml(seat);
       card.querySelector('[data-menu]').addEventListener('pointerdown', e => { e.stopPropagation(); if (sceneLayer) return; Menu.open(seat); });   // not over a dialogue, a class or a battle
+      const obj = card.querySelector('.objective');   // the one line a child must read: tap it to hear it
+      if (obj) obj.addEventListener('pointerdown', e => { e.stopPropagation(); Speech.say(obj.textContent); });
       root.append(card);
     }
+    this.measure();
+    requestAnimationFrame(() => this.measure());
+  },
+  /* How far down the HUD reaches (cards and their objective lines), as --hud-bottom on the page. The place banner,
+     the class target range and the class cards all sit below it, so nothing ever hides behind a HUD card. */
+  measure() {
+    let bottom = 0;
+    for (const el of $$('#hud .hudcard, #hud .hudcard .objective')) { const r = el.getBoundingClientRect(); if (r.height) bottom = Math.max(bottom, r.bottom); }
+    if (bottom) document.documentElement.style.setProperty('--hud-bottom', Math.round(bottom) + 'px');
   },
 };
 /* The inside of one hero's HUD card: portrait medallion with the XP ring and level, name, coins and hearts, the Ember
@@ -39,8 +50,8 @@ function hudCardHtml(seat, { objective = true } = {}) {
             <span class="c hearts">${ART.heart}<b>${h.hearts}</b></span>
           </div>
           <div class="ember" title="${esc(WORLD.ui.ember)}">${ART.ember}<div class="bar"><div class="in" style="width:${(100 * h.ember / h.maxEmber).toFixed(0)}%"></div></div><b>${h.ember}</b></div>
-          ${objective ? `<div class="objective">${esc(currentObjective(seat))}</div>` : ''}
-        </div>`;
+        </div>
+        ${objective ? `<div class="objective"><span class="icon">${UI_GLYPHS.objective}</span><span class="text">${esc(currentObjective(seat))}</span></div>` : ''}`;
 }
 /* One line of what to do next. Grows with the epics (quests, cases, the timetable). */
 function currentObjective(seat) { return Day.objective(seat); }
