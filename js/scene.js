@@ -91,6 +91,7 @@ async function stageGo(sceneId, { positions = {} } = {}) {
   Stage.cam.x = cameraTargetX();
   Stage.fadeTarget = 0;
   Stage.ready = true;
+  if (S.settings.localSeats.some(isPlayerHere) && !S.shared.flags['visited-' + sceneId]) dispatch('flag.set', S.settings.localSeats.find(isPlayerHere), { flag: 'visited-' + sceneId });
   setScene('world');
   document.body.dataset.place = sceneId;
   uiSceneName(def.word);
@@ -182,13 +183,13 @@ const PARTICLE_LOOKS = {
 const rnd = (a, b) => a + Math.random() * (b - a);
 function updateParticles(dt, now) {
   const look = PARTICLE_LOOKS[Stage.scene.particles];
-  if (!look) return;
-  if (Stage.particles.length < 60 && Math.random() < look.rate * dt) {
+  if (!look) { for (const p of Stage.particles) { p.age += dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.burst) { p.vy += 900 * dt; } } Stage.particles = Stage.particles.filter(p => p.age < p.life); return; }
+  if (Stage.particles.filter(p => !p.burst).length < 60 && Math.random() < look.rate * dt) {
     const w = SCENE_SIZE.w, h = SCENE_SIZE.h;
     Stage.particles.push({ x: rnd(0, w), y: look.vy[0] < 0 ? rnd(h * 0.4, h) : rnd(-50, h * 0.3), vx: rnd(...look.vx), vy: rnd(...look.vy),
       size: rnd(...look.size), color: look.color[Math.floor(Math.random() * look.color.length)], life: rnd(...look.life), age: 0, phase: Math.random() * 7 });
   }
-  for (const p of Stage.particles) { p.age += dt; p.x += (p.vx + Math.sin(now / 900 + p.phase) * 18) * dt; p.y += p.vy * dt; }
+  for (const p of Stage.particles) { p.age += dt; p.x += (p.vx + Math.sin(now / 900 + p.phase) * 18) * dt; p.y += p.vy * dt; if (p.burst) { p.vy += 900 * dt; p.vx *= 0.98; } }
   Stage.particles = Stage.particles.filter(p => p.age < p.life);
 }
 
@@ -214,6 +215,7 @@ function stageDraw() {
   const actors = [...Object.values(Stage.heroes).filter(h => h.visible), ...Stage.npcs];
   actors.sort((a, b) => a.y - b.y);
   ctx.setTransform(s, 0, 0, s, -panX * s, -panY * s);
+  drawMarkers(ctx);
   for (const a of actors) a.draw(ctx, Stage.time);
   drawParticles(ctx);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -242,17 +244,43 @@ function drawLayer(ctx, name, panX, panY, s) {
   ctx.drawImage(img, dx, dy, SCENE_SIZE.w * s, SCENE_SIZE.h * s);
 }
 function drawParticles(ctx) {
+  const look = PARTICLE_LOOKS[Stage.scene.particles] || {};
   for (const p of Stage.particles) {
     const t = p.age / p.life, a = t < 0.15 ? t / 0.15 : t > 0.8 ? (1 - t) / 0.2 : 1;
     ctx.globalAlpha = a * 0.9;
     ctx.fillStyle = p.color;
-    if (PARTICLE_LOOKS[Stage.scene.particles].glow) { ctx.shadowColor = p.color; ctx.shadowBlur = 18; }
+    if (look.glow || p.burst) { ctx.shadowColor = p.color; ctx.shadowBlur = 18; }
     ctx.beginPath();
-    if (PARTICLE_LOOKS[Stage.scene.particles].spin) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.age * 2 + p.phase); ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+    if (look.spin && !p.burst) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.age * 2 + p.phase); ctx.ellipse(0, 0, p.size, p.size * 0.55, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
     else { ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
     ctx.shadowBlur = 0;
   }
   ctx.globalAlpha = 1;
+}
+/* World markers: what is alive in a scene, at a glance. A "!" over people with something to say, a shimmer on
+   things you can use, a soft arrow on exits, a faint glimmer on a secret only once it has been found. */
+function drawMarkers(ctx) {
+  const t = Stage.time;
+  for (const h of Stage.scene.hotspots) {
+    const [x, y, w] = h.rect, cx = x + w / 2, top = y - 30 + Math.sin(t * 3 + x) * 10;
+    ctx.save();
+    if (h.kind === 'npc') {
+      ctx.fillStyle = '#ffd23f'; ctx.shadowColor = '#ffb347'; ctx.shadowBlur = 24;
+      roundRect(ctx, cx - 16, top - 90, 32, 64, 14); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, top - 6, 14, 0, Math.PI * 2); ctx.fill();
+    } else if (h.kind === 'exit') {
+      if (h.secret && !S.shared.flags['tunnel-found']) { ctx.globalAlpha = 0.35 + Math.sin(t * 2) * 0.2; ctx.fillStyle = '#fff6a8'; ctx.shadowColor = '#fff6a8'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.arc(cx, y + h.rect[3] / 2, 10, 0, Math.PI * 2); ctx.fill(); }
+      else {
+        ctx.globalAlpha = 0.85; ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 16;
+        const dir = cx < SCENE_SIZE.w / 2 ? -1 : 1, ax = cx + Math.sin(t * 3) * 8 * dir, ay = y + h.rect[3] * 0.45;
+        ctx.beginPath(); ctx.moveTo(ax - 26 * dir, ay - 34); ctx.lineTo(ax + 26 * dir, ay); ctx.lineTo(ax - 26 * dir, ay + 34); ctx.lineTo(ax - 8 * dir, ay); ctx.closePath(); ctx.fill();
+      }
+    } else {
+      ctx.globalAlpha = 0.5 + Math.sin(t * 4 + x) * 0.3; ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 20;
+      for (let i = 0; i < 3; i++) { const px = x + w * (0.2 + 0.3 * i), py = y + 20 + Math.sin(t * 2 + i * 2) * 12; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill(); }
+    }
+    ctx.restore();
+  }
 }
 /* Soft light shafts for sunny and lantern-lit places: slow, wide, barely there. */
 const SHAFT_SCENES = { day: 'rgba(255,245,210,', morning: 'rgba(255,230,190,', lantern: 'rgba(255,200,120,', evening: 'rgba(255,200,150,' };

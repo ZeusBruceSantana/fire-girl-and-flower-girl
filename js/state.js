@@ -25,6 +25,7 @@ function freshHero() {
     xp: 0,
     coins: 0,
     hearts: 0,              // her own friendship hearts (the Lair fund gets a share too)
+    ember: 5, maxEmber: 10, // the Ember meter: reading fills it, spells spend it
     stats: { brave: 1, kind: 1, clever: 1 },
     inventory: [],          // item ids she carries
     equipped: {},           // slot -> item id
@@ -91,6 +92,7 @@ const ACTIONS = {
   'hero.coins':  (s, a) => { const h = s.heroes[a.hero]; h.coins = Math.max(0, h.coins + a.payload.amount); },
   'hero.hearts': (s, a) => { const h = s.heroes[a.hero]; h.hearts += a.payload.amount; if (a.payload.friend) h.friends[a.payload.friend] = (h.friends[a.payload.friend] || 0) + a.payload.amount;
                              s.shared.lair.fund += Math.round(a.payload.amount * LAIR.fundShare); },
+  'hero.ember':  (s, a) => { const h = s.heroes[a.hero]; h.ember = clamp(h.ember + a.payload.amount, 0, h.maxEmber); },
   'hero.item':   (s, a) => { const h = s.heroes[a.hero]; h.inventory.push(a.payload.item); h.collection[a.payload.item] = (h.collection[a.payload.item] || 0) + 1; },
   'hero.sell':   (s, a) => { const h = s.heroes[a.hero], i = h.inventory.indexOf(a.payload.item); if (i >= 0) { h.inventory.splice(i, 1); h.coins += a.payload.coins; } },
   'hero.equip':  (s, a) => { s.heroes[a.hero].equipped[a.payload.slot] = a.payload.item; },
@@ -101,7 +103,8 @@ const ACTIONS = {
   'hero.adventure': (s, a) => { s.heroes[a.hero].adventures[a.payload.adventure] = { beat: a.payload.beat, done: !!a.payload.done }; },
   'hero.words':  (s, a) => { s.heroes[a.hero].words = a.payload.words.map(w => String(w).trim().toLowerCase()).filter(Boolean).slice(0, 200); },
   'hero.word':   (s, a) => { const st = s.heroes[a.hero].wordStats, w = a.payload.word, r = st[w] || { seen: 0, right: 0, wrong: 0, lastSeen: 0, box: WORD_BOXES.startBox };
-                             r.seen++; if (a.payload.right) { r.right++; if (a.payload.firstTry) r.box = Math.min(3, r.box + 1); } else { r.wrong++; r.box = 0; } r.lastSeen = a.t; st[w] = r; },
+                             // a first-try win climbs a box; any miss on the way (even if she got it in the end) drops to box 0 so it comes back soon
+                             r.seen++; if (a.payload.right && a.payload.firstTry) { r.right++; r.box = Math.min(3, r.box + 1); } else if (a.payload.right) { r.right++; r.wrong++; r.box = 0; } else { r.wrong++; r.box = 0; } r.lastSeen = a.t; st[w] = r; },
   'hero.painting': (s, a) => { const h = s.heroes[a.hero]; h.paintings.push({ day: a.payload.day, subject: a.payload.subject, img: a.payload.img }); if (h.paintings.length > 30) h.paintings.shift(); },
 
   // ---- the shared world ----

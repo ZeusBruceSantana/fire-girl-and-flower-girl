@@ -1,9 +1,22 @@
 # Status
 
-**Updated:** 2026-10-31 · **Epic:** 1, The shell · **State:** built; waiting for art; Epic 2 next on the owner's go
+**Updated:** 2026-10-31 · **Epic:** 2a, The RPG interface · **State:** built; waiting for art; Epic 2b next
 **Repo:** https://github.com/ZeusBruceSantana/fire-girl-and-flower-girl
 
 ## Done
+
+**Epic 2a, the RPG interface** (design 2.1, `GAME-DESIGN.md` sections 16 and 17)
+- HUD per hero: portrait with an XP ring, level badge, coins, hearts, the Ember meter, the current
+  objective. Tap the portrait to open her menu.
+- The ornate menu (parchment and gold): Spellbook, Bag, Journal, Map with fog that lifts as places are
+  visited, Badges with silhouettes, Friends with heart levels.
+- Spellbook and the Ember meter: spells cost ember, reading earns it, a level-1 spell always works.
+  Casting = pick a spell, power it with a word, the effect bursts from her hand.
+- The first real reading challenges: Hear it, tap it; Build the word. Hint ladder (first letter, the
+  helper says it, the answer glows), never a failure, a missed word comes back soon.
+- RPG dialogue box: portrait, name plate, text that types out, tappable words, choices.
+- World markers: "!" over people, shimmer on things, arrows on exits, a glimmer on an unfound secret.
+- 25 tests, all passing.
 
 **Epic 1, the shell**
 - First launch: each girl picks her princess and her color on her own half (the same princess or color
@@ -43,8 +56,8 @@
 
 - Owner generates the first nine scene paintings and the three heroes (ART-PROMPTS.md). As each lands,
   the walk line and tap spots get tuned to it.
-- Epic 2, the first school day: the timetable, Spells class (reading challenges with each twin's own
-  words), lunch with two friends and ice cream, bedtime summary. The first playable day.
+- Epic 2b, the first school day: the timetable and clock, Spells class as a target range, lunch with two
+  friends and ice cream, bedtime summary. The first playable day.
 
 ## Blockers
 
@@ -52,7 +65,7 @@
 
 ## Decisions needed
 
-1. Go on Epic 2 (the first school day).
+1. Go on Epic 2b (the first school day).
 2. The defaults still stand unless changed: money is "coins", separate wallets, the girls pick who is
    Fire and who is Flower on first launch, names Emberfall / Petalvale / Stormhaven / Thistledown /
    Middlemarket.

@@ -322,3 +322,93 @@ test('Every exit, hotspot, teacher, case, adventure and friend points at things 
   })()`);
   expectEqual(problems, [], 'content problems');
 });
+
+/* =====================================================================
+   THE RPG INTERFACE: HUD, dialogue, challenges, spellbook (Epic 2a)
+   ===================================================================== */
+async function openWorld() {
+  await openGame(readySave());
+  await until(() => G('scene') === 'title', 10000, 'the title');
+  tap($g('#title'));
+  await until(() => G('scene') === 'world', 2000, 'the world');
+}
+
+test('The HUD shows each hero: portrait, level ring, coins, hearts and the Ember meter', async () => {
+  await openWorld();
+  expectEqual($$g('#hud .hudcard').length, 2, 'two cards, one per seat');
+  expect($g('.hudcard.seat-left .level').textContent.trim() === '1', 'level 1');
+  G("dispatch('hero.coins', 'left', { amount: 12 }); dispatch('hero.xp', 'left', { amount: 20 })");
+  await sleep(50);
+  expectEqual($g('.hudcard.seat-left .coins b').textContent, '12', 'coins update at once');
+  expect(parseFloat($g('.hudcard.seat-left .ring .fill').style.strokeDasharray) > 0, 'the XP ring filled a little');
+  expectEqual($g('.hudcard.seat-left .ember b').textContent, '5', 'the Ember meter starts half full');
+});
+
+test('A dialogue types out, every word is tappable, and a choice resolves', async () => {
+  await openWorld();
+  G("window.__pick = null; Dialogue.choose({ who: 'Mrs. Crumb', art: 'baker', text: 'My oven is out again! Can you help?', choices: [{ word: 'Of course', value: 'yes' }, { word: 'Later', value: 'no' }] }).then(v => { window.__pick = v; })");
+  await until(() => $g('.dlg .choices.show'), 3000, 'the choices to appear after typing');
+  expect($$g('.dlg .text .w').length >= 6, 'the text is split into tappable words');
+  expectEqual($g('.dlg .plate').textContent, 'Mrs. Crumb', 'the name plate');
+  tap($$g('.dlg .choice')[1]);
+  await until(() => G('window.__pick') === 'no', 2000, 'the choice to resolve');
+  expect(!$g('.dlg'), 'the box closed');
+  expectEqual(G('sceneLayer'), null, 'the world takes taps again');
+});
+
+test('Hear it, tap it: a wrong tap gives a hint and the right word always wins in the end', async () => {
+  await openWorld();
+  G("window.__res = null; Challenge.run({ seat: 'left', type: 'hear-and-pick', word: 'ship' }).then(r => { window.__res = r; })");
+  await until(() => $$g('.ch-opt').length === 3, 2000, 'three choices');
+  expect($$g('.ch-opt').some(o => o.dataset.w === 'ship'), 'the target word is one of them');
+  const wrong = $$g('.ch-opt').filter(o => o.dataset.w !== 'ship');
+  tap(wrong[0]); await sleep(50);
+  expect(wrong[0].classList.contains('out'), 'the wrong one fades out');
+  expect($g('.ch-opt[data-w="ship"]').classList.contains('first-letter'), 'hint 1: the first letter is marked');
+  tap(wrong[1]); await sleep(50);
+  expect($g('.ch-opt[data-w="ship"]').classList.contains('glow') || $$g('.ch-opt.fade').length > 0, 'hint 2 or 3 shows');
+  tap($g('.ch-opt[data-w="ship"]'));
+  await until(() => G('window.__res'), 3000, 'the challenge to finish');
+  const r = G('window.__res');
+  expectEqual([r.word, r.tries, r.firstTry], ['ship', 2, false], 'two tries, not first try');
+  expectEqual(G('S.heroes.left.wordStats.ship.box'), 0, 'a word with misses lands in box 0 (comes back soon)');
+  expectEqual(G('S.heroes.left.ember'), 5 + 1, 'still earned ember (never zero)');
+});
+
+test('Build the word: tiles go into slots in order; a first-try win fills more ember', async () => {
+  await openWorld();
+  G("window.__res = null; Challenge.run({ seat: 'right', type: 'letter-tiles', word: 'cat' }).then(r => { window.__res = r; })");
+  await until(() => $$g('.ch-tile').length >= 3, 2000, 'tiles');
+  for (const l of ['c', 'a', 't']) { tap($$g('.ch-tile:not(.used)').find(t => t.dataset.l === l)); await sleep(40); }
+  await until(() => G('window.__res'), 3000, 'the challenge to finish');
+  expectEqual(G('window.__res.firstTry'), true, 'first try');
+  expectEqual(G('S.heroes.right.ember'), 5 + 4, 'four ember for a first-try build');
+  expectEqual(G('S.heroes.right.wordStats.cat.box'), 2, 'cat moved up a box');
+});
+
+test('Casting from the Spellbook powers the spell with a word and spends ember', async () => {
+  await openWorld();
+  G("Menu.open('left', 'spellbook')");
+  await until(() => $g('#menu .spell'), 2000, 'the spellbook');
+  expectEqual($$g('#menu .spell:not(.locked)').length, 1, 'only Spark is open at level 1');
+  tap($g('#menu .spell[data-spell="spark"]'));
+  await until(() => $$g('.ch-opt').length === 3, 3000, 'the word challenge');
+  const target = G('Challenge.active.word');
+  tap($g(`.ch-opt[data-w="${CSS.escape(target)}"]`));
+  await until(() => !G('Challenge.active'), 3000, 'the cast to finish');
+  await sleep(100);
+  expectEqual(G('S.heroes.left.ember'), 5 + 3 - 1, 'earned 3 for a first try, paid 1 for Spark');
+  expect(G("S.shared.events.some(e => e.what === 'cast' && e.spell === 'spark')"), 'the cast is in the shared events');
+  expectEqual(G('Stage.heroes.left.anim'), 'cast', 'she strikes the casting pose');
+});
+
+test('The menu tabs all open: Bag, Journal, Map (with fog), Badges, Friends', async () => {
+  await openWorld();
+  G("Menu.open('right')");
+  for (const t of ['bag', 'journal', 'map', 'badges', 'friends']) {
+    tap($g(`#menu .tab[data-tab="${t}"]`)); await sleep(60); expect($g(`#menu .page-${t}`), 'tab ' + t + ' renders');
+    if (t === 'map') expect($$g('#menu .place.seen').length >= 1 && $$g('#menu .place.fog').length >= 1, 'the map shows visited places and fog');
+  }
+  tap($g('#menu [data-close]')); await sleep(50);
+  expect(!$g('#menu .frame'), 'closed');
+});

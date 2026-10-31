@@ -7,6 +7,7 @@ async function boot() {
   uiInit();
   Speech.init();
   parentInit();
+  Dialogue.init(); Challenge.init(); Menu.init();
   NET.onStatus(uiStatus);
   stageInit($('#world'));
   inputInit($('#world'));
@@ -27,13 +28,14 @@ async function boot() {
   await stageGo('academy-gate');
   for (const seat of WORLD.seats) if (!isPlayerHere(seat)) { const h = Stage.heroes[seat]; h.placeOnPath(SCENES['academy-gate'].spawn[seat]); P[seat] = { scene: 'academy-gate', x: h.x, driver: 'npc' }; }
 
+  HUD.init();
   if (needsSetup()) showPick(); else showTitle();
   await NET.connect(S.settings.worldCode, S.settings.localSeats[0]);
 }
 
 /* A tap on the stage: walk there; if it was a hotspot, do it on arrival. */
 function onTap(tap) {
-  if (scene !== 'world') return;
+  if (scene !== 'world' || sceneLayer) return;
   if (!isPlayerHere(tap.seat)) return;             // an empty seat: the Join button handles it
   const h = Stage.heroes[tap.seat];
   if (!h || !h.visible) return;
@@ -57,10 +59,12 @@ async function onArrive(seat, hotspot) {
   } else if (hotspot.kind === 'npc') {
     h.setAnim('hop');
     const npc = hotspot.npc === 'teacher' ? WORLD.teachers.cinder : (WORLD.teachers[hotspot.npc] || WORLD.people[hotspot.npc]);
-    uiBubble(npc ? npc.about : hotspot.word, { seat, who: npc ? npc.name : null });
+    await Dialogue.say({ who: npc ? npc.name : hotspot.word, art: npc ? npc.art : null, text: npc ? npc.about : hotspot.word });
   } else {
-    h.setAnim('cast');
-    uiBubble(hotspot.word + '. Coming soon!', { seat, ms: 2200 });
+    const pick = await Dialogue.choose({ seat, who: S.heroes[seat].name || WORLD.heroes[S.heroes[seat].kind].title, text: hotspot.word + '. ' + WORLD.ui.whatNow,
+      choices: [{ word: WORLD.ui.castSpell, icon: 'ember', value: 'cast' }, { word: WORLD.ui.lookCloser, icon: 'tab-journal', value: 'look' }, { word: WORLD.ui.leaveIt, icon: 'close', value: 'leave' }] });
+    if (pick === 'cast') Menu.open(seat, 'spellbook');
+    else if (pick === 'look') await Dialogue.say({ seat, who: WORLD.helper.name, art: WORLD.helper.art, text: WORLD.ui.comingSoon });
   }
 }
 
