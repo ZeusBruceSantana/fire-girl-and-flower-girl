@@ -7,6 +7,40 @@ Read `CLAUDE.md`, `docs/STATUS.md`, then this. The source for every detail is `d
 (the ten changes in section 3, the visual language in section 4). The story is approved in outline
 (`docs/STORY-DECISIONS.md`); Phase C does not touch story.
 
+
+## READ FIRST: how to work with the owner, and what to revisit with him
+
+The previous session ran Phases A and B without stopping to talk, and made design calls the owner would have wanted a
+say in. He was unhappy about that, rightly. **Talk before deciding anything that is a design choice, not a bug fix.**
+Keep him posted in short lines while working; answer his messages the moment they arrive; stop for his approval before
+each phase. He is an experienced project manager, new to coding: PM language is fine, explain technical terms in a line.
+
+Every item below is a number or a line in a data file; changing one is minutes. Offer him this list at the start and
+change whatever he wants before touching Phase C:
+
+- **Battles spend ember, classes earn it** (`js/battle.js`, `data/world.js`): a spell is paid before the word; words in
+  battle earn none; the level-1 move is always free; bedtime refills the meter. The dial he may want: how scarce.
+- **Lunch ends when either girl has done one thing**, and walking out of the cafeteria rings the bell (`js/day.js`).
+  The alternative was waiting for both girls.
+- **A battle only starts when the party walks into a trouble**; troubles never come to the party (`js/map.js`). Calmer,
+  less lively.
+- **Lair stations whose upgrade is not bought are hidden** (`needs` in `data/scenes.js`) rather than shown with a
+  "buy it first" card.
+- **The wardrobe opens the Bag; the fountain gives one wish a day** (`js/day.js`, `data/scenes.js`, `WORLD.ui.wish`).
+- **Honest lunch replies** (`ok: true` in `data/friends.js`) get fewer hearts than the thoughtful one (3/2/2); which
+  replies count as honest was the session's call.
+- **The grown-up corner is the top middle** of the screen (`styles.css #corner`), not the top-left.
+- **Numbers:** friend levels 3/6/10/15; class coins 2/4/6; together spells cost 4 each; level cap 10 with a bigger meter
+  at 9 and 10; weed giggle 9; trouble xp 6/8/8/10 and coin drops trimmed; the three-stars badge at ten three-star
+  classes; twelve coin cosmetics for the Lair with made-up names (`data/lair.js`); five "wanted" troubles with made-up
+  names (`data/cases.js WANTED`); the support moves' effects (Warm, Dew, Hum).
+- **Two on-screen lines** were reworded so the princesses are never called sisters ("That one is taken", "Waiting for
+  the other painter").
+
+What is untouched and his to shape: the story bible (nothing drafted; `docs/STORY-DECISIONS.md` holds his answers),
+the look of every screen (Phase C), heart words (how he uploads them, what the reading-only moments feel like), the
+stuffies' powers, and the three open questions at the end of this file.
+
 ## What is already in place
 
 - **The font is chosen and bundled.** Baloo 2 (OFL) is in `art/fonts/baloo2-latin.woff2` and `baloo2-latin-ext.woff2`
