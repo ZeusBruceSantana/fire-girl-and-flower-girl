@@ -72,6 +72,21 @@ to each commit on GitHub.
 4. The page updates by itself within a couple of minutes. Tell Claude Code which scenes are in so the
    walk line and tap spots can be tuned to the painting.
 
+## 6b. Keeping the offline file list up to date
+
+The game works without internet because the tablet keeps a copy of every file on a list
+(`sw-manifest.js`). After you add a painting or any new file, the list must be remade, or the tests
+say it is stale:
+
+1. In a terminal, inside the repository folder, run:
+
+```bash
+node tools/make-manifest.js
+```
+
+2. Commit the changed `sw-manifest.js` with the new picture. (Or just tell Claude Code which files you
+   added; it runs this as part of integrating the art.)
+
 ## 7. Playing together over the internet (the relay)
 
 Needed only when the girls play on separate devices, or the cousin joins from her house. One time,
