@@ -3,6 +3,9 @@
    Badges, Friends. One hero at a time (whoever tapped her portrait). Big tap targets, icon plus word.
    The Spellbook is where casting starts: pick a spell, power it with a word, the effect plays in the world. */
 
+const MENU_UI = { troublesTitle: 'Troubles I have cheered up', troubleFriend: 'friend!' };
+const TROUBLE_FRIEND_AT = 5;   // cheer one kind up this many times and it counts as a friend
+
 const Menu = {
   seat: null, tab: 'spellbook', el: null,
   init() { this.el = $('#menu'); },
@@ -91,6 +94,7 @@ const Menu = {
       <div class="j-section"><div class="j-title">${esc(WORLD.ui.toDo)}</div><div class="j-line">${esc(currentObjective(seat))}</div></div>
       ${quests.length ? `<div class="j-section"><div class="j-title">${esc(WORLD.ui.quests)}</div>${quests.map(([id, q]) => { const d = QUESTS.find(x => x.id === id); return d ? `<div class="j-line ${q.done ? 'done' : ''}">${esc(d.word)} <small>${q.done ? esc(WORLD.ui.doneWord) : (q.step + 1) + ' / ' + d.steps.length}</small></div>` : ''; }).join('')}</div>` : ''}
       ${flags.length ? `<div class="j-section"><div class="j-title">${esc(WORLD.ui.storySoFar)}</div>${flags.map(f => `<div class="j-line">${esc(WORLD.ui.flags[f] || f)}</div>`).join('')}</div>` : ''}
+      <div class="j-section troubles"><div class="j-title">${esc(MENU_UI.troublesTitle)}</div>${Object.entries(WORLD.troubles).map(([kind, t]) => { const n = (h.troubles && h.troubles[kind]) || 0; return `<div class="j-line ${n ? '' : 'unmet'}" data-kind="${kind}">${esc(n ? t.name : '?')} <small>${n ? '×' + n + (n >= TROUBLE_FRIEND_AT ? ' · ' + esc(MENU_UI.troubleFriend) : '') : ''}</small></div>`; }).join('')}</div>
       <div class="j-section"><div class="j-title">${esc(WORLD.ui.wordsKnown)}</div><div class="j-line">${esc(String(Object.values(h.wordStats).filter(w => w.box === 3).length))} ${esc(WORLD.ui.ofWords)} ${esc(String(Object.keys(h.wordStats).length))}</div></div></div>`;
   },
   /* ---------- Map (fog lifts as places are visited; travel arrives with the Lair in Epic 3) ---------- */
