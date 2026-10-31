@@ -18,4 +18,9 @@ const ART_OVERRIDES = [
   'art/scenes/tunnel/full.jpg',
   'art/scenes/woods-path/full.jpg',
   'art/scenes/town-square/full.jpg',
+  'art/maps/school-grounds/full.jpg',
+  'art/maps/whispering-woods/full.jpg',
+  'art/maps/middlemarket/full.jpg',
+  'art/maps/petalvale-orchard/full.jpg',
+  'art/maps/thunder-peak/full.jpg',
 ];

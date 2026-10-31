@@ -59,6 +59,8 @@ const ITEMS = [
   { id: 'petal-dye',     word: 'petal dye',     rarity: 'common',    slot: null,   for: 'any',    price: null, sell: 1,  art: 'gem',    about: 'Pink and green dye, made from petals.' },
   { id: 'glow-ink',      word: 'glow ink',      rarity: 'common',    slot: null,   for: 'any',    price: null, sell: 1,  art: 'gem',    about: 'Ink that glows in the dark, made from spark dust.' },
   { id: 'lantern-paint', word: 'lantern paint', rarity: 'rare',      slot: null,   for: 'any',    price: null, sell: 4,  art: 'gem',    about: 'Paint that holds a little light. Ash and dye together.' },
+  { id: 'potion-giggle', word: 'giggle potion', rarity: 'common',    slot: null,   for: 'any',    price: null, sell: 1,  art: 'paint',  about: 'Brewed by reading jar labels. One sniff and everyone giggles.' },
+  { id: 'potion-glow',   word: 'glow potion',   rarity: 'rare',      slot: null,   for: 'any',    price: null, sell: 2,  art: 'paint',  about: 'Brewed by reading jar labels. A night light in a bottle.' },
   { id: 'book-small-magic', word: 'spell book', rarity: 'rare',      slot: null,   for: 'any',    price: null, sell: 10, art: 'book',   about: 'Professor Hoot\'s own copy. Smells of feathers.' },
 ];
 

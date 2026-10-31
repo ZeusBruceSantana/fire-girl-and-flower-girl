@@ -95,3 +95,29 @@
   #battle .cutout { width: 16vmin; height: 24vmin; }
   #battle .message { left: 50%; }
 }
+
+/* ---------- cast by the tile (Phase D): the word card on the battle screen itself, on her half ---------- */
+/* While a word card is up the move line steps aside; nothing dims, the trouble and the party stay in view. */
+#battle.casting .message { opacity: 0; pointer-events: none; }
+#battle .cast-host { position: absolute; bottom: 3vmin; left: 58%; transform: translateX(-50%); z-index: 6; display: flex; justify-content: center; }
+#battle .cast-host.seat-left { left: 36%; }
+#battle .cast-host.seat-right { left: 70%; }
+#battle .cast-host .ch-card { width: min(58vw, 820px); padding: 1.4vmin 2.4vmin 1.6vmin; animation: rise-in var(--dur-in) var(--ease-out); }
+#battle .cast-host .ch-card.wobble { animation: wobble var(--dur-wobble) ease-in-out; }
+#battle .cast-host .ch-top { margin-bottom: 1.2vmin; }
+#battle .cast-host .ch-helper { display: none; }
+#battle .cast-host .ch-hear { width: max(10vmin, var(--tap)); height: max(10vmin, var(--tap)); padding: 1.6vmin; }
+#battle .cast-host .ch-hint { min-height: 3vmin; margin-top: 1vmin; }
+#battle .cast-host.seat-left .ch-card { border-color: var(--L-dark); }
+#battle .cast-host.seat-right .ch-card { border-color: var(--R-dark); }
+@media (orientation: portrait) {
+  #battle .cast-host, #battle .cast-host.seat-left, #battle .cast-host.seat-right { left: 50%; }
+  #battle .cast-host .ch-card { width: 94vw; }
+}
+/* the word she read flies at the trouble and bursts */
+#battle .cast-fly { position: absolute; z-index: 7; transform: translate(-50%, -50%); pointer-events: none; padding: .6vmin 2.4vmin; border-radius: var(--r);
+  background: var(--paper-0); border: .4vmin solid var(--gold-deep); box-shadow: 0 0 2vmin var(--gold-glow), var(--shadow-float);
+  font-family: var(--font-display); font-weight: 800; font-size: var(--t-word); color: var(--ink);
+  transition: transform 440ms cubic-bezier(.5, 0, .7, 1), opacity 440ms; }
+#battle .cast-fly.go { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.45) rotate(-12deg); }
+#battle .cast-fly.burst { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.6); transition-duration: 300ms; }

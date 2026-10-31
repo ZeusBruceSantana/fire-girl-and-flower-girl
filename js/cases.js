@@ -210,7 +210,8 @@ const Cases = {
   suspectArt(sp) {
     if (ART[sp.art]) return ART[sp.art];
     const trouble = Object.values(WORLD.troubles).find(t => t.art === sp.art || t.art === sp.art + '-sprite' || sp.art === t.art.split('-')[0] || t.art.startsWith(sp.art));
-    const src = trouble ? 'art/troubles/' + trouble.art + '.svg' : 'art/npcs/' + sp.art + '.svg';
+    const base = trouble ? 'art/troubles/' + trouble.art : 'art/npcs/' + sp.art;
+    const src = artFile(base) || base + '.svg';                                     // the painting once there is one
     return `<img src="${src}" alt="" onerror="this.outerHTML = ART.person">`;
   },
   openBoard(seat) {

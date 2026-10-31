@@ -1,7 +1,9 @@
 'use strict';
 /* Ember Bloom: battles (version 3, GAME-DESIGN.md 18.2; numbers retuned in the improvement program, Phase B).
    The party on the left, a trouble on the right, turn-based. A hero's turn: pick a move (a spell), PAY its ember,
-   then power it with a word (Challenge). Words read in battle earn no ember: class, chests and bedtime fill the
+   then cast it by reading a word from her list (Phase D, "cast by the tile"): the word card appears right on the
+   battle screen, on her half, nothing dims and nothing pauses; the right card flies at the trouble and the move
+   lands. Words read in battle earn no ember: class, chests and bedtime fill the
    meter, battles spend it, so "the big move or the free one?" is a real choice. The trouble has a Giggle meter
    instead of health: fill it and the trouble cheers up and wanders off. On its turn it does something silly.
    Nothing ever hurts a hero, and a battle cannot be lost: a level-1 move is always free.
@@ -93,10 +95,13 @@ const Battle = {
     return new Promise(resolve => { this._resolve = resolve; this.run().catch(e => { if (TEST_MODE) TEST_ERRORS.push('battle: ' + (e && e.message)); this.end(); }); });
   },
   /* A test aid (and the parent screen's way out): stop now. */
-  cancel() { if (!this.active) return; this.state.cancelled = true; if (this._pendingMove) { const p = this._pendingMove; this._pendingMove = null; p(null); } if (this._cancelTogether) { const c = this._cancelTogether; this._cancelTogether = null; c(); } },
+  cancel() { if (!this.active) return; this.state.cancelled = true; this.closeCasts(); if (this._pendingMove) { const p = this._pendingMove; this._pendingMove = null; p(null); } if (this._cancelTogether) { const c = this._cancelTogether; this._cancelTogether = null; c(); } },
+  /* Any word card still drawn on the battle screen resolves (with nothing) instead of waiting forever. */
+  closeCasts() { for (const [seat, a] of Object.entries(Challenge.active)) if (a.host && this.el && this.el.contains(a.host)) Challenge.finish(seat, null); },
   end() {
     const st = this.state;
     this.active = false;
+    this.closeCasts();
     if (this.el) { this.el.className = ''; this.el.innerHTML = ''; }
     popLayer('battle');
     const r = this._resolve; this._resolve = null;
@@ -175,7 +180,7 @@ const Battle = {
     for (const s of order) {
       if (st.cancelled) return null;
       if (isPlayerHere(s)) {
-        const r = await Challenge.run({ seat: s, type: 'letter-tiles', prompt: BATTLE_UI.yourPart.replace('{spell}', spell.word), emberReward: false });
+        const r = await this.castWord(s, 'letter-tiles', BATTLE_UI.yourPart.replace('{spell}', spell.word));
         if (!r) return null;
         parts[s] = !!r.firstTry;
         if (r.firstTry) st.firstTries[s] = (st.firstTries[s] || 0) + 1;
@@ -246,13 +251,57 @@ const Battle = {
         this.clearMoves();
         if (spell.together) { const ok = await this.castTogether(seat, spell); return resolve(ok === null ? null : true); }
         this.pay(seat, spell);                           // the ember goes first; the word is the casting, not the earning
-        const r = await Challenge.run({ seat, type: spell.ember >= 3 ? 'letter-tiles' : 'hear-and-pick', prompt: BATTLE_UI.cast.replace('{spell}', spell.word), emberReward: false });
+        const r = await this.castWord(seat, spell.ember >= 3 ? 'letter-tiles' : 'hear-and-pick', BATTLE_UI.cast.replace('{spell}', spell.word));
         if (!r || st.cancelled) return resolve(null);
+        await this.flyCard(r);                            // the word she read flies at the trouble, then the move lands
         if (r.firstTry) st.firstTries[seat] = (st.firstTries[seat] || 0) + 1;
         await this.applyMove(seat, spell, !!r.firstTry);
         resolve(true);
       };
     });
+  },
+  /* Cast by the tile: the word card is drawn on the battle screen itself (Challenge.run's host), on her half, while
+     the party, the trouble and the meter stay in view. The word comes from her own list (js/words.js). Returns the
+     challenge result, plus where the right answer was on screen (for the card that flies at the trouble). */
+  castWord(seat, type, prompt) {
+    const host = document.createElement('div');
+    host.className = 'cast-host seat-' + seat;
+    this.el.appendChild(host);
+    this.el.classList.add('casting');
+    let spot = null;
+    const watch = typeof MutationObserver !== 'undefined' ? new MutationObserver(() => {
+      const right = host.querySelector('.right');
+      if (right) spot = right.getBoundingClientRect();                  // the word she tapped (or the last letter she placed)
+    }) : null;
+    if (watch) watch.observe(host, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    return Challenge.run({ seat, type, prompt, emberReward: false, host }).then(r => {
+      if (watch) watch.disconnect();
+      const card = host.getBoundingClientRect();
+      host.remove();
+      if (this.el && !this.el.querySelector('.cast-host')) this.el.classList.remove('casting');
+      return r ? { ...r, seat, spot: spot || card } : r;
+    });
+  },
+  /* The word card flies from where she read it to the trouble, and bursts. Instant with reduced motion. */
+  async flyCard(r) {
+    const sprite = this.el && this.el.querySelector('.trouble .sprite');
+    if (!sprite || !r || !r.spot) return;
+    const reduce = document.documentElement.classList.contains('reduce-motion') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (reduce) return;
+    const box = this.el.getBoundingClientRect(), from = r.spot, to = sprite.getBoundingClientRect();
+    const fly = document.createElement('div');
+    fly.className = 'cast-fly seat-' + r.seat;
+    fly.textContent = r.word;
+    fly.style.left = (from.left + from.width / 2 - box.left) + 'px';
+    fly.style.top = (from.top + from.height / 2 - box.top) + 'px';
+    this.el.appendChild(fly);
+    void fly.offsetWidth;
+    fly.style.setProperty('--dx', (to.left + to.width / 2 - from.left - from.width / 2) + 'px');
+    fly.style.setProperty('--dy', (to.top + to.height / 2 - from.top - from.height / 2) + 'px');
+    fly.classList.add('go');
+    await this.wait(460);
+    fly.classList.add('burst');
+    setTimeout(() => fly.remove(), TEST_MODE ? 10 : 320);
   },
   pay(seat, spell) {
     const cost = Math.min(spell.cost, S.heroes[seat].ember);
@@ -376,14 +425,13 @@ const Battle = {
   heroName(seat) { const h = S.heroes[seat]; return h.name || WORLD.heroes[h.kind].title; },
   troubleArt(def, boss) {
     const base = 'art/troubles/' + def.art + (boss ? '-boss' : '');
-    const png = typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(base);
-    const fallback = boss ? `this.onerror=null;this.src='art/troubles/${def.art}.svg'` : `this.onerror=null;this.src='art/troubles/mystery.svg'`;
-    return `<img src="${base}.${png ? 'png' : 'svg'}" alt="" onerror="${fallback}">`;
+    const fallback = boss ? `this.onerror=null;this.src='${artFile('art/troubles/' + def.art) || 'art/troubles/' + def.art + '.svg'}'` : `this.onerror=null;this.src='art/troubles/mystery.svg'`;
+    return `<img src="${artFile(base) || base + '.svg'}" alt="" onerror="${fallback}">`;
   },
   backdropHtml(id) {
     const sc = SCENES[id] ? id : 'woods-path';
     const base = 'art/scenes/' + sc + '/full';
-    if (typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(base)) return `<img class="bd" src="${base}.png" alt="">`;
+    if (artFile(base)) return `<img class="bd" src="${artFile(base)}" alt="">`;   // the room's painting (png or jpg)
     return ['sky', 'far', 'mid'].map(l => `<img class="bd" src="art/scenes/${sc}/${l}.svg" alt="" onerror="this.remove()">`).join('');
   },
   render() {
@@ -406,7 +454,7 @@ const Battle = {
     let srcs = doll && doll.kind === kind && doll.layers ? DOLL_LAYERS.map(l => doll.layers[l] && doll.layers[l].src).filter(Boolean) : [];
     if (!srcs.length) {
       const full = 'art/heroes/' + kind + '/full';
-      srcs = typeof ART_OVERRIDES !== 'undefined' && ART_OVERRIDES.includes(full) ? [full + '.png'] : DOLL_LAYERS.map(l => 'art/heroes/' + kind + '/' + l + '.svg');
+      srcs = artFile(full) ? [artFile(full)] : DOLL_LAYERS.map(l => 'art/heroes/' + kind + '/' + l + '.svg');
     }
     return `<div class="cutout seat-${seat} k-${kind}" data-seat="${seat}" style="--i:${i}"><div class="doll">${srcs.map(src => `<img src="${esc(src)}" alt="" onerror="this.remove()">`).join('')}</div><div class="ground"></div></div>`;
   },

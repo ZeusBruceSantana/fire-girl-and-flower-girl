@@ -140,10 +140,11 @@ test('Day: everything a child can tap on day one does something real', async () 
 
 test('Day: after a battle the troubles back off, and a trouble never starts a battle with a party standing still', async () => {
   await openOnMap();
-  G('MapStage.troubles[0].def.roam = [2000, 1300, 500, 400]; MapStage.troubles[0].x = 2060; MapStage.troubles[0].y = 1160');   // right next to the party, which stands still
+  const [sx, sy] = G("MAPS['school-grounds'].spawn.default");   // the party arrives here and stands still
+  G(`MapStage.troubles[0].def.roam = [${sx - 60}, ${sy + 160}, 120, 200]; MapStage.troubles[0].x = ${sx}; MapStage.troubles[0].y = ${sy + 260}`);   // right next to the party, on the path
   await sleep(600);
   expect(!G('Battle.active') && G('sceneLayer') === null, 'no battle starts on its own');
-  G('MapStage.tap("left", 2060, 1160)');                       // walking into it does
+  G(`MapStage.tap("left", ${sx}, ${sy + 260})`);                // walking into it does
   await until(() => G('Battle.active'), 8000, 'a battle');
   G('Battle.cancel()');
   await until(() => !G('Battle.active'), 4000, 'the battle to end');

@@ -132,10 +132,22 @@ const Bag = {
           <div class="info"><div class="word">${esc(r.word)}</div><div class="about">${esc(r.about)}</div>
             <div class="needs">${esc(BAG_UI.needs)}: ${r.needs.map(m => { const it = ITEMS.find(i => i.id === m); return `<span class="need ${counts[m] ? 'have' : 'miss'}">${esc(it.word)} (${counts[m] || 0})</span>`; }).join(' ')}</div></div>
           <div class="btn primary ${ok ? '' : 'disabled'}" data-craft="${r.id}"><span class="icon">${ART.ember}</span><span class="word">${esc(BAG_UI.craft)}</span></div></div>`; }).join('')}</div>` : `<div class="empty">${esc(BAG_UI.noRecipes)}</div>`}
+      ${typeof POTIONS !== 'undefined' && typeof Verbs !== 'undefined' ? `<div class="potions"><div class="page-title">${esc(VERBS_UI.brewTitle)}</div><div class="about">${esc(VERBS_UI.brewAbout)}</div>
+        <div class="recipes">${POTIONS.map(p => { const makes = ITEMS.find(i => i.id === p.makes), done = Verbs.brewedToday(seat);
+          return `<div class="recipe potion" data-potion="${p.id}"><div class="art">${itemIconHtml(makes)}</div>
+            <div class="info"><div class="word">${esc(p.word)}</div><div class="about">${esc(p.about)}</div></div>
+            <div class="btn primary ${done ? 'disabled' : ''}" data-brew="${p.id}"><span class="word">${esc(done ? VERBS_UI.brewedToday : VERBS_UI.brew)}</span></div></div>`; }).join('')}</div></div>` : ''}
       </div></div>`;
     pushLayer('crafting');
     Speech.say(BAG_UI.crafting);
     el.querySelector('[data-close]').addEventListener('pointerdown', e => { e.stopPropagation(); this.closeCrafting(); });
+    el.querySelectorAll('[data-brew]').forEach(b => b.addEventListener('pointerdown', async e => {
+      e.stopPropagation();
+      const p = POTIONS.find(x => x.id === b.dataset.brew);
+      if (!p || Verbs.brewedToday(seat)) { Speech.say(VERBS_UI.brewedToday); return; }
+      await Verbs.brew(seat, p);
+      if ($('#crafting.show')) this.openCrafting(seat);
+    }));
     el.querySelectorAll('[data-craft]').forEach(b => b.addEventListener('pointerdown', e => {
       e.stopPropagation();
       const r = RECIPES.find(x => x.id === b.dataset.craft);
