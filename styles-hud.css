@@ -1,0 +1,57 @@
+/* =====================================================================
+   EMBER BLOOM: the HUD, the place banner, the little cloud and the class target range (js/hud.js, js/ui.js)
+   Tokens, the type scale and the button family live in styles.css.
+   ===================================================================== */
+#place {
+  position: absolute; left: 50%; top: 4vmin; transform: translate(-50%, -2vmin); pointer-events: none;
+  font-size: 4.6vmin; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.45);
+  background: rgba(40,25,10,.45); padding: 1.2vmin 3.4vmin; border-radius: 4vmin; opacity: 0; transition: opacity .4s, transform .4s;
+}
+#place.show { opacity: 1; transform: translate(-50%, 0); }
+body[data-scene="title"] #place { opacity: 0; }
+
+/* the little cloud: offline / connecting / live. Never an error. */
+#cloud { position: absolute; right: 2vmin; top: 2vmin; width: 6vmin; height: 4.2vmin; border-radius: 3vmin; background: rgba(255,255,255,.35); opacity: .6; }
+#cloud::after { content: ''; position: absolute; left: 1.2vmin; top: -1.6vmin; width: 3vmin; height: 3vmin; border-radius: 50%; background: inherit; }
+#cloud[data-status="live"] { background: #9ad0ff; opacity: 1; }
+#cloud[data-status="connecting"] { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+
+/* ---------- HUD ---------- */
+#hud { position: absolute; inset: 0; pointer-events: none; }
+.hudcard { position: absolute; top: 2vmin; display: flex; gap: 1.4vmin; align-items: center; pointer-events: auto; padding: 1vmin 1.6vmin 1vmin 1vmin; }
+.hudcard.seat-left  { left: 2vmin; }
+.hudcard.seat-right { right: 2vmin; flex-direction: row-reverse; text-align: right; }
+.hudcard.seat-away  { left: 2vmin; }   /* the cousin's device shows one seat; her card sits left, clear of the grown-up corner */
+.hudcard { background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .4vmin solid var(--gold-dark); border-radius: 6vmin; box-shadow: var(--frame-shadow); color: var(--ink2); }
+.hudcard.away { opacity: .55; }
+.hudcard .portrait { position: relative; width: max(12vmin, 48px); height: max(12vmin, 48px); flex: none; }
+.hudcard .ring { position: absolute; inset: 0; transform: rotate(-90deg); }
+.hudcard .ring .track { fill: none; stroke: rgba(0,0,0,.12); stroke-width: 8; }
+.hudcard .ring .fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray .6s; }
+.hudcard .face { position: absolute; inset: 1.4vmin; border-radius: 50%; overflow: hidden; background: #fff; border: .4vmin solid #fff; }
+.hudcard .face svg, .hudcard .face img { width: 100%; height: 100%; object-fit: cover; }
+.hudcard .level { position: absolute; right: -.6vmin; bottom: -.6vmin; width: 4.6vmin; height: 4.6vmin; border-radius: 50%; background: var(--gold); border: .4vmin solid #fff; color: #fff; font-weight: 900; font-size: 2.6vmin; display: flex; align-items: center; justify-content: center; box-shadow: 0 .3vmin 1vmin rgba(0,0,0,.3); }
+.hudcard.seat-left .level { right: auto; left: -.6vmin; }
+.hudcard .name { font-weight: 900; font-size: 3vmin; line-height: 1.1; max-width: 34vmin; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hudcard.seat-left .name { color: var(--L-dark); } .hudcard.seat-right .name { color: var(--R-dark); } .hudcard.seat-away .name { color: var(--A-dark); }
+.hudcard .counters { display: flex; gap: 1.4vmin; margin: .4vmin 0; font-weight: 900; font-size: 2.4vmin; }
+.hudcard.seat-right .counters { justify-content: flex-end; }
+.hudcard .c { display: inline-flex; align-items: center; gap: .4vmin; } .hudcard .c svg { width: 3vmin; height: 3vmin; }
+.hudcard .ember { display: flex; align-items: center; gap: .6vmin; font-weight: 900; font-size: 2.2vmin; }
+.hudcard.seat-right .ember { flex-direction: row-reverse; }
+.hudcard .ember svg { width: 3vmin; height: 3vmin; }
+.hudcard .ember .bar, .ember-row .bar { width: 14vmin; height: 1.6vmin; border-radius: 1vmin; background: rgba(0,0,0,.15); overflow: hidden; }
+.hudcard .ember .in, .ember-row .in { height: 100%; background: linear-gradient(90deg, #ff7a3d, #ffd23f); border-radius: 1vmin; transition: width .5s; }
+.hudcard .objective { font-size: max(2vmin, 12px); opacity: .75; max-width: 34vmin; }
+body[data-scene="title"] #hud, body[data-scene="pick"] #hud, body[data-scene="intro"] #hud, body[data-scene="parent"] #hud { display: none; }
+
+#range { position: fixed; left: 0; right: 0; top: 2vmin; display: none; justify-content: space-between; padding: 0 3vmin; pointer-events: none; z-index: 5; }
+#range.show { display: flex; }
+.range-row { display: flex; gap: 1vmin; }
+.range-row.seat-right { margin-left: auto; }
+.target { width: 8vmin; height: 8vmin; opacity: .45; filter: grayscale(.8); transition: all .4s; }
+.target svg { width: 100%; height: 100%; }
+.target.lit { opacity: 1; filter: none; transform: scale(1.15); }
+.target.lit.bright { filter: drop-shadow(0 0 1.6vmin #ffd23f); }
+body[data-layer="challenge"] #hud { opacity: .35; }

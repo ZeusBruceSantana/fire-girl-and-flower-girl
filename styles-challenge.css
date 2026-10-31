@@ -1,0 +1,40 @@
+/* =====================================================================
+   EMBER BLOOM: challenge cards (js/challenge.js)
+   Tokens, the type scale and the button family live in styles.css.
+   ===================================================================== */
+/* ---------- challenges ---------- */
+#challenge { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: rgba(30,18,6,.45); }
+#challenge.show { display: flex; }
+.ch-card { width: min(90vw, 1200px); padding: 3vmin 4vmin 4vmin; background: radial-gradient(ellipse at 30% 20%, #fff6e3, var(--parch) 60%, var(--parch-dark)); border: .5vmin solid var(--gold-dark); border-radius: 3vmin; box-shadow: var(--frame-shadow); color: var(--ink2); text-align: center; animation: pop .25s ease-out; }
+#challenge.seat-left .ch-card { border-color: var(--L-dark); } #challenge.seat-right .ch-card { border-color: var(--R-dark); }
+.ch-top { display: flex; align-items: center; gap: 2vmin; margin-bottom: 2.5vmin; }
+.ch-helper { width: 12vmin; height: 12vmin; flex: none; } .ch-helper svg { width: 100%; height: 100%; }
+.ch-say { flex: 1; font-size: 3.6vmin; font-weight: 900; text-align: left; }
+.ch-hear { width: var(--btn); height: var(--btn); min-width: var(--tap); min-height: var(--tap); flex: none; border-radius: 50%; background: #fff; border: .5vmin solid var(--gold); box-shadow: 0 .6vmin 0 var(--gold-dark); padding: 2.4vmin; }
+.ch-hear:active { transform: translateY(.4vmin); box-shadow: 0 .2vmin 0 var(--gold-dark); }
+.ch-options { display: flex; gap: 2.4vmin; justify-content: center; flex-wrap: wrap; }
+.ch-opt { min-width: 24vmin; height: var(--btn); min-height: var(--tap); padding: 0 3vmin; display: flex; align-items: center; justify-content: center; background: #fff; border: .6vmin solid var(--gold); border-radius: 3vmin; font-size: 6vmin; font-weight: 900; letter-spacing: .04em; box-shadow: 0 .8vmin 0 var(--gold-dark); }
+.ch-opt:active { transform: translateY(.5vmin); box-shadow: 0 .3vmin 0 var(--gold-dark); }
+.ch-opt.out { opacity: .3; transform: scale(.92); } .ch-opt.fade { opacity: .45; }
+.ch-opt.first-letter span::first-letter { color: #ff7a3d; text-decoration: underline; }
+.ch-opt.glow, .ch-tile.glow { box-shadow: 0 0 0 .8vmin rgba(255,210,63,.6), 0 0 4vmin #ffd23f; animation: breathe 1s infinite; }
+.ch-opt.right, .ch-slot.right { background: #eafbe9; border-color: #5cc77a; }
+.ch-slots { display: flex; gap: 1.4vmin; justify-content: center; margin-bottom: 3vmin; }
+.ch-slot { width: max(11vmin, 52px); height: max(12vmin, 52px); border-radius: 2vmin; background: rgba(255,255,255,.6); border: .5vmin dashed var(--gold); font-size: 6vmin; font-weight: 900; display: flex; align-items: center; justify-content: center; position: relative; }
+.ch-slot .ghost { position: absolute; opacity: 0; color: #c9b58a; } .ch-slot.peek .ghost { opacity: .5; }
+.ch-slot.filled { border-style: solid; background: #fff; }
+.ch-tiles { display: flex; gap: 1.6vmin; justify-content: center; flex-wrap: wrap; }
+.ch-tile { width: max(12vmin, 52px); height: max(12vmin, 52px); border-radius: 2.4vmin; background: #fff; border: .6vmin solid var(--gold); box-shadow: 0 .8vmin 0 var(--gold-dark); font-size: 6.4vmin; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.ch-tile.used { opacity: .2; pointer-events: none; } .ch-tile.hop { animation: hop .5s; }
+@keyframes hop { 30% { transform: translateY(-3vmin) rotate(-8deg); } 60% { transform: translateY(0) rotate(6deg); } }
+.ch-hint { margin-top: 2vmin; min-height: 4vmin; font-size: 3vmin; font-weight: 900; color: #b05a10; }
+
+/* ---------- class: challenges side by side, and the target range ---------- */
+#challenge.split { align-items: flex-start; padding-top: 16vmin; gap: 2vmin; }
+#challenge.split .ch-card { width: 47vw; padding: 2vmin 2.4vmin 3vmin; }
+#challenge.split .ch-opt { min-width: 16vmin; font-size: 4.6vmin; }
+#challenge.split .ch-tile, #challenge.split .ch-slot { width: max(9vmin, 52px); height: max(10vmin, 52px); font-size: 5vmin; }
+#challenge.split .ch-hear { width: max(11vmin, 48px); height: max(11vmin, 48px); padding: 1.6vmin; }
+#challenge.split .ch-say { font-size: 2.8vmin; }
+.ch-big { font-size: 9vmin; font-weight: 900; letter-spacing: .06em; margin: 1vmin 0 2vmin; }
+.ch-opt.grown { font-size: 3vmin; background: #eafbe9; border-color: #5cc77a; }
