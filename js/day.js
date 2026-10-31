@@ -91,7 +91,8 @@ const Day = {
     try {
       const def = SCHOOL.subjects[subject], teacher = WORLD.teachers[def.teacher];
       const players = this.players();
-      const n = def.perClass[S.settings.classLength] || def.perClass.normal;
+      const listed = def.perClass[S.settings.classLength] || def.perClass.normal;
+      const n = classWords(subject, listed);              // Phase D: a reading class introduces, the world reviews
       const key = 'day-' + this.day + '-' + this.part + '-' + subject;   // each period earns its own stars
       if (players.every(s => S.heroes[s].stars[key])) { await Dialogue.say({ who: teacher.name, art: teacher.art, text: WORLD.ui.classDone }); this.advance(); return; }
       await Dialogue.say({ who: teacher.name, art: teacher.art, text: def.about + ' ' + WORLD.ui.classStart.replace('{n}', n) });
@@ -104,7 +105,7 @@ const Day = {
         const seat = players[i], r = results[i], levelFrom = S.heroes[seat].level;
         const ratio = r.length ? r.filter(x => x.firstTry).length / r.length : 1;
         const stars = ratio >= SCHOOL.stars.three ? 3 : ratio >= SCHOOL.stars.two ? 2 : 1;
-        const xp = 5 * r.length + 5 * stars, coins = stars * 2;      // 2 / 4 / 6 coins by stars: school alone can afford a rare wand in a week
+        const xp = Math.round(5 * r.length * listed / n) + 5 * stars, coins = stars * 2;   // xp as for the full class: the words moved out into the day, not away; 2 / 4 / 6 coins by stars
         dispatch('hero.stars', seat, { key, stars });
         dispatch('hero.xp', seat, { amount: xp });
         dispatch('hero.coins', seat, { amount: coins });
@@ -227,6 +228,14 @@ const Day = {
 /* The numbers behind lunch and badges (docs/review/03-systems-and-balance.md, section 10 item 7). */
 const LUNCH_HEARTS = { kind: 3, ok: 2 };        // the thoughtful reply first try; any accepted reply otherwise
 const THREE_STARS_FOR_BADGE = 10;               // three-star classes before the Three Stars badge
+
+/* Phase D, "many short moments": a Spells (reading) class asks fewer words, because signs, locks, potions and every
+   battle turn now ask words across the day. Stars still come from the share of first tries, so they scale. */
+const READING_CLASS_WORDS = { short: 2, normal: 3, long: 4 };
+function classWords(subject, listed) {
+  if (subject !== 'spells') return listed;
+  return Math.min(listed, READING_CLASS_WORDS[S.settings.classLength] || READING_CLASS_WORDS.normal);
+}
 
 /* What each class actually does with a seat. Returns the list of challenge results. */
 const CLASS_RUNNERS = {
