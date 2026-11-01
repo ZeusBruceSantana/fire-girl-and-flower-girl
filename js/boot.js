@@ -14,6 +14,7 @@ async function boot() {
   NET.onStatus(uiStatus);
   stageInit($('#world'));
   inputInit($('#world'));
+  Living.init();
 
   // A link with ?world=CODE&seat=away sets this device up as that seat (the cousin's link).
   const seatParam = QUERY.get('seat'), worldParam = QUERY.get('world');

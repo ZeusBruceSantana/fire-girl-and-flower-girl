@@ -82,6 +82,7 @@ async function stageGo(sceneId, { positions = {}, from = null, at = null } = {})
   if (Stage.map) { MapStage.leave(); if (at != null && typeof at === 'number') for (const s of S.settings.localSeats) positions[s] = at; }
   const def = SCENES[sceneId];
   if (!def) return;
+  Living.beginTurn();                                   // the old place turns away like a page once the new one is ready
   Stage.fadeTarget = 1;
   await Promise.all([loadLayers(sceneId, def), sleepMs(Stage.ready ? 260 : 0)]);
   Stage.scene = Object.assign({ id: sceneId }, def);
@@ -98,6 +99,7 @@ async function stageGo(sceneId, { positions = {}, from = null, at = null } = {})
   }
   Stage.cam.x = cameraTargetX();
   Stage.fadeTarget = 0;
+  Living.ripples = []; Living.petals = []; Living.startTurn();
   Stage.ready = true;
   if (S.settings.localSeats.some(isPlayerHere) && !S.shared.flags['visited-' + sceneId]) dispatch('flag.set', S.settings.localSeats.find(isPlayerHere), { flag: 'visited-' + sceneId });
   setScene('world');
@@ -253,8 +255,8 @@ function stageDraw() {
   const ctx = Stage.ctx, c = Stage.canvas;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#1a1410'; ctx.fillRect(0, 0, c.width, c.height);
-  if (Stage.map) { MapStage.draw(ctx); const tint = TINTS[Stage.clockTint || Stage.map.map.tint]; if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); } drawVignette(ctx, c); drawFade(ctx, c); return; }
-  if (!Stage.scene) { drawFade(ctx, c); return; }
+  if (Stage.map) { MapStage.draw(ctx); const tint = TINTS[Stage.clockTint || Stage.map.map.tint]; if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); } drawVignette(ctx, c); drawFade(ctx, c); Living.drawTurn(ctx, c); return; }
+  if (!Stage.scene) { drawFade(ctx, c); Living.drawTurn(ctx, c); return; }
   const s = Stage.scale, left = Stage.cam.x - Stage.visW / 2, top = Stage.cam.y - Stage.visH / 2;
   const panX = left, panY = top;                       // how far the camera has moved from the scene's left/top
   // layers, back to front, each panning by its own factor
@@ -266,17 +268,21 @@ function stageDraw() {
   drawMarkers(ctx);
   for (const a of actors) a.draw(ctx, Stage.time);
   drawParticles(ctx);
+  Living.drawWorld(ctx);                                // lanterns, little lives, magic light, petals (js/living.js)
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   drawLayer(ctx, 'near', panX, panY, s);
   drawLightShafts(ctx, c, panX, s);
+  Living.drawSun(ctx, c);
   const tint = TINTS[Stage.clockTint && Stage.scene.tint !== 'lantern' ? Stage.clockTint : Stage.scene.tint];
   if (tint) { const g = ctx.createLinearGradient(0, 0, 0, c.height); g.addColorStop(0, tint[0]); g.addColorStop(1, tint[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height); }
   drawVignette(ctx, c);
   if (QUERY.has('debug')) drawDebug(ctx, panX, panY, s);
   drawFade(ctx, c);
+  Living.drawTurn(ctx, c);
 }
-/* One painting: drawn a touch larger than the scene and drifting very slowly, so it still feels alive. */
+/* One painting: a living painting (js/living.js) in depth bands, with ripples and water. */
 function drawFull(ctx, panX, panY, s) {
+  if (typeof Living !== 'undefined') return Living.drawRoom(ctx, Stage.layers.full, panX, panY, s);
   const img = Stage.layers.full, grow = 1.03;
   const w = SCENE_SIZE.w * s * grow, h = SCENE_SIZE.h * s * grow;
   const driftX = Math.sin(Stage.time * 0.15) * 0.5 + 0.5, driftY = Math.cos(Stage.time * 0.11) * 0.5 + 0.5;

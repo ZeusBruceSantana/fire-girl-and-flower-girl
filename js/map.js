@@ -6,7 +6,8 @@
 
 const MAP_CELL = 64;              // pathfinding grid cell, in map pixels
 const MAP_HERO_H = 300;           // heroes are smaller on a map than in a room
-const MAP_VIEW_H = 1400;          // how many map pixels fit top to bottom on screen
+const MAP_VIEW_H = 1400;
+const MAP_TOP_ROOM = 260;          // how far (map pixels) the camera may look above the map's top edge          // how many map pixels fit top to bottom on screen
 const FOLLOW_GAP = 150;           // distance between party members in the line
 const MAP_WALK_SPEED = 520;       // map pixels per second
 const BUMP_DISTANCE = 160;        // how close a trouble has to be to start a battle
@@ -22,11 +23,13 @@ const MapStage = {
   async go(mapId, { from = null } = {}) {
     const def = MAPS[mapId];
     if (!def) return;
+    Living.beginTurn();
     Stage.fadeTarget = 1;
     const base = 'art/maps/' + mapId + '/full';
     const [img] = await Promise.all([loadImage(base), sleepMs(Stage.ready ? 260 : 0)]);
     this.map = Object.assign({ id: mapId }, def);
     this.img = img;
+    this.painted = !!artFile(base);            // a painting: its own chests and signposts are painted, the game only marks them
     this.grid = buildGrid(def);
     Stage.map = this; Stage.scene = null; Stage.npcs = []; Stage.particles = [];
     Stage.mapParticles = def.particles;
@@ -63,6 +66,7 @@ const MapStage = {
     this.cam.x = at[0]; this.cam.y = at[1]; this.clampCam();
     if (S.settings.localSeats.some(isPlayerHere) && !S.shared.flags['visited-map-' + mapId]) dispatch('flag.set', S.settings.localSeats.find(isPlayerHere), { flag: 'visited-map-' + mapId });
     Stage.fadeTarget = 0; Stage.ready = true;
+    Living.petals = []; Living.startTurn();
     setScene('world');
     document.body.dataset.place = 'map:' + mapId;
     rememberPlace('map:' + mapId);
@@ -91,7 +95,7 @@ const MapStage = {
     return level === 'party+1' ? base + 1 : base;
   },
   onResize() { if (!Stage.canvas) return; this.scale = Stage.canvas.height / MAP_VIEW_H; this.visW = Stage.canvas.width / this.scale; },
-  clampCam() { if (!this.map) return; const [w, h] = this.map.size; this.cam.x = clamp(this.cam.x, this.visW / 2, Math.max(this.visW / 2, w - this.visW / 2)); this.cam.y = clamp(this.cam.y, this.visH / 2, Math.max(this.visH / 2, h - this.visH / 2)); },
+  clampCam() { if (!this.map) return; const [w, h] = this.map.size; this.cam.x = clamp(this.cam.x, this.visW / 2, Math.max(this.visW / 2, w - this.visW / 2)); this.cam.y = clamp(this.cam.y, this.visH / 2 - MAP_TOP_ROOM, Math.max(this.visH / 2, h - this.visH / 2)); },   // a little room above the top edge, so the party never starts under the HUD
   screenToWorld(px, py) { return [this.cam.x - this.visW / 2 + px * Stage.dpr / this.scale, this.cam.y - this.visH / 2 + py * Stage.dpr / this.scale]; },
 
   /* ---------- what is at a point ---------- */
@@ -251,8 +255,20 @@ const MapStage = {
         const sx = clamp(left, 0, mw), sy = clamp(top, 0, mh);
         const sw = Math.min(this.visW - (sx - left), mw - sx), sh = Math.min(this.visH - (sy - top), mh - sy);
         if (sw > 0 && sh > 0) ctx.drawImage(this.img, sx * iw / mw, sy * ih / mh, sw * iw / mw, sh * ih / mh, (sx - left) * s, (sy - top) * s, sw * s, sh * s);
+        if (top < 0 && sw > 0) {               // the camera may look a little above the map (so nobody stands under the HUD): the top edge, stretched and softened
+          const above = -top * s;
+          if (!this.topWash || this.topWash.src !== this.img) {   // the top edge's colours, blurred: a tiny copy stretched smooth
+            const k = document.createElement('canvas'); k.width = 24; k.height = 2; k.getContext('2d').drawImage(this.img, 0, 0, iw, 160 * ih / mh, 0, 0, 24, 2);
+            this.topWash = { canvas: k, src: this.img };
+          }
+          ctx.imageSmoothingEnabled = true;
+          ctx.drawImage(this.topWash.canvas, sx / mw * 24, 0, sw / mw * 24, 2, (sx - left) * s, 0, sw * s, above + 2);
+          const g = ctx.createLinearGradient(0, 0, 0, above); g.addColorStop(0, 'rgba(40,30,18,.6)'); g.addColorStop(1, 'rgba(40,30,18,.05)');
+          ctx.fillStyle = g; ctx.fillRect((sx - left) * s, 0, sw * s, above);
+        }
       } else ctx.drawImage(this.img, -left * s, -top * s, mw * s, mh * s);
     }
+    for (const w of Living.def().water || []) Living.drawWater(ctx, w, false);   // rivers ripple, waterfalls flow (js/living.js)
     ctx.setTransform(s, 0, 0, s, -left * s, -top * s);
     this.drawThings(ctx);
     const actors = [...this.party.map(seat => Stage.heroes[seat]).filter(h => h && h.visible), ...this.npcs, ...this.troubles];
@@ -260,7 +276,9 @@ const MapStage = {
     for (const a of actors) a.draw(ctx, Stage.time);
     this.drawMarkers(ctx);
     drawParticles(ctx);
+    Living.drawWorld(ctx);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    Living.drawSky(ctx, c);
     if (QUERY.has('debug')) { ctx.setTransform(s, 0, 0, s, -left * s, -top * s); ctx.strokeStyle = 'rgba(255,0,0,.6)'; ctx.lineWidth = 6; for (const r of this.map.walk) ctx.strokeRect(...r); ctx.setTransform(1, 0, 0, 1, 0, 0); }
   },
   drawThings(ctx) {
@@ -268,7 +286,12 @@ const MapStage = {
     for (const th of this.things) {
       const [x, y, w, h] = th.rect, cx = x + w / 2, cy = y + h / 2;
       ctx.save();
-      if (th.kind === 'chest') { ctx.fillStyle = '#8a5a2a'; roundRect(ctx, x, y, w, h, 14); ctx.fill(); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + w * 0.42, y + h * 0.3, w * 0.16, h * 0.4); ctx.strokeStyle = '#5a3a1a'; ctx.lineWidth = 6; roundRect(ctx, x, y, w, h, 14); ctx.stroke(); }
+      if (this.painted && (th.kind === 'chest' || th.kind === 'sign')) {   // painted on the map already: a soft golden ring says "tap me"
+        const pulse = 0.5 + 0.5 * Math.sin(t * 3 + x * 0.01);
+        ctx.globalAlpha = 0.35 + pulse * 0.35; drawGlow(ctx, cx, cy, 90, '#ffe08a', 0.8);
+        ctx.globalAlpha = 0.9; ctx.strokeStyle = '#fff3c8'; ctx.lineWidth = 6; ctx.beginPath(); ctx.ellipse(cx, cy + h * 0.25, w * 0.6 + pulse * 10, h * 0.3 + pulse * 5, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+      else if (th.kind === 'chest') { ctx.fillStyle = '#8a5a2a'; roundRect(ctx, x, y, w, h, 14); ctx.fill(); ctx.fillStyle = '#ffd23f'; ctx.fillRect(x + w * 0.42, y + h * 0.3, w * 0.16, h * 0.4); ctx.strokeStyle = '#5a3a1a'; ctx.lineWidth = 6; roundRect(ctx, x, y, w, h, 14); ctx.stroke(); }
       else if (th.kind === 'clue') { ctx.globalAlpha = 0.7 + Math.sin(t * 4 + x) * 0.3; drawGlow(ctx, cx, cy, 70, '#7fc4ff', 0.7); ctx.fillStyle = '#7fc4ff'; ctx.beginPath(); ctx.arc(cx, cy, 34, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '900 48px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('?', cx, cy + 17); }
       else if (th.kind === 'sparkle') { ctx.globalAlpha = 0.6 + Math.sin(t * 5 + x) * 0.4; drawGlow(ctx, cx, cy, 70, '#ffd23f', 0.7); ctx.fillStyle = '#fff6a8'; star(ctx, cx, cy, 5, 38, 16, t); ctx.fill(); }
       else if (th.kind === 'sign') { ctx.fillStyle = '#8a5a2a'; ctx.fillRect(cx - 10, cy, 20, h); ctx.fillStyle = '#e9c58a'; roundRect(ctx, x, y, w, h * 0.6, 10); ctx.fill(); ctx.strokeStyle = '#8a5a2a'; ctx.lineWidth = 5; roundRect(ctx, x, y, w, h * 0.6, 10); ctx.stroke(); }
